@@ -4,9 +4,9 @@ from flask_cors import CORS
 app = Flask(__name__, static_folder='static')
 CORS(app)
 
-@app.route('/api/hello')
+@app.route('/api/')
 def hello():
-    return jsonify({"message": "Hello from Flask!"})
+    return jsonify({"organization": "Student Cyber Games"})
 
 @app.route('/')
 def serve_frontend():
