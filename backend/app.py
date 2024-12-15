@@ -9,8 +9,12 @@ def hello():
     return jsonify({"organization": "Student Cyber Games"})
 
 @app.route('/')
-def serve_frontend():
+def index():
     return send_from_directory(app.static_folder, 'index.html')
+
+@app.route('/<path:path>')
+def serve(path):
+    return send_from_directory(app.static_folder, path)
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5000)
