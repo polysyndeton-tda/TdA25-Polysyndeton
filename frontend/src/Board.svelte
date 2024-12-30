@@ -1,13 +1,50 @@
 <script>
     let {boardApiInfo} = $props();
+
+    function count(array, item){
+        let count = 0;
+        // console.log($state.snapshot(row), item);
+        for(let row of array){
+            for(let elem of row){
+                if(item == elem){
+                    count++
+                }
+            }
+        }
+        return count;
+    }
+
+    let lastMoved = ""; // $state("");
+    let naTahu = $derived.by(() =>{
+        console.log("lastMoved", lastMoved)
+        //when we don't know the last move, scan it in O(N)
+        let numberOfCrosses = count(boardApiInfo.board, "X");
+        let numberOfNoughts = count(boardApiInfo.board, "O"); //nought je anglicky kolecko :D
+        let numberOfMoves = numberOfCrosses + numberOfNoughts;
+        console.log("num moves", numberOfMoves);
+        if(numberOfMoves % 2 == 0){
+            lastMoved = "X";
+            return "X";
+        }else{
+            lastMoved = "O";
+            return "O";
+        }
+    });
+
+    $inspect(naTahu);
+
 </script>
 
+<p>{naTahu} na tahu</p>
 <div class="grid">
-{#each boardApiInfo.board as row}
+{#each boardApiInfo.board as row, rowIndex}
     <div class="row">
-        {#each row as field }
+        {#each row as field, columnIndex }
             {#if field == ""}
-                <div class="field"></div>
+                <div class="field" role="button" onclick={() => {
+                    boardApiInfo.board[rowIndex][columnIndex] = naTahu;
+                    console.log(naTahu);
+                }} ></div>
             {:else if field == "X"}
                 <div class="field X"></div>
             {:else if field == "O"}
