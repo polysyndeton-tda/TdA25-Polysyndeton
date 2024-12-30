@@ -10,18 +10,17 @@
   
 </script>
   
-<p>Epic game picker</p> 
-
-
 {#await fetchAllGames()}
     <p>loading</p>
 {:then items}
     <div class="games-container">
-        {#each items as game}
+        {#each items as game, index}
             <button onclick={
                 () => {
+                    //JS won't let me do a gameInfo = items[index] assignment, as a gameInfo import is const 
+                    gameInfo.apiResponse = items[index];
                     gameInfo.selected = true;
-                    gameInfo.selectedGameId = game.uuid;
+                    // gameInfo.selectedGameId = game.uuid;
                 }
             }
             >
