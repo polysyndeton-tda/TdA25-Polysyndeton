@@ -13,32 +13,10 @@
         return count;
     }
 
-    let lastMoved = ""; //$state(""); 
+    let lastMoved = "";
     let naTahu = $state("X");
 
-    // Computes whose turn is it initially
-    //To make it run after every move, it is needed to update lastMoved or naTahu $state variables elsewhere
-    //$effect works in a way that it runs once on when the component mounts and then when the $state variables which are read from in its function, change elsewhere
-    //If I change lastMoved or naTahu in the $effect function, it will not trigger the effect
-    /*If I change let lastMoved = $state(""); declration to let lastMoved = "";, it will not trigger the effect, 
-      because it is not a $state variable = not a reactive value = so it being read in if (lastMoved === "") does not cause the effect to run*/
-    //The other thing being read inside which changes (on every move) is the boardApiInfo.board $props, but changes to props do not trigger the effect
-    //So that is why the effect runs only in the beginning = because the $effect runs on the component's mount and lastMoved doesn't matter because it is not a reactive variable
-    
-    //In other words:
-    // Why boardApiInfo.board updates don't trigger the effect:
-
-    // boardApiInfo is a prop, not a $state variable
-    // Changes to object properties (like board) aren't tracked by default
-    // Would need $state(boardApiInfo) to track changes to its properties
-
-    /* Why lastMoved would trigger if made reactive:
-        - Direct $state variable
-        - Read directly in the effect (reading is important for reactivity here = if it only wrote to it (without reading it), it wouldn't trigger the effect)
-        - Changes to $state variables are tracked
-    */
-
-    //In other words, there is nothing except the component mount that would trigger the effect to run again
+    //There is nothing except the component mount that would trigger the effect to run again => it runs once
     /*
     $effect(() => {
         console.log("effect runuje");
@@ -59,8 +37,6 @@
 
     $effect(() => {
         console.log("effect runuje");
-        // let currentPlayer = naTahu;
-        // console.log(currentPlayer);
         if (lastMoved === "") {
             let numberOfCrosses = count(boardApiInfo.board, "X");
             let numberOfNoughts = count(boardApiInfo.board, "O");
@@ -72,13 +48,6 @@
                 lastMoved = "X";
                 naTahu = "O";
             }
-        } else {
-            // console.log("else", lastMoved);
-            // if (lastMoved === "X") {
-            //     naTahu = "O";
-            // } else {
-            //     naTahu = "X";
-            // }
         }
     });
 
