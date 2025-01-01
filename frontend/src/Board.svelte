@@ -60,28 +60,23 @@
             //.keys() returns an iterator, which should have worked (and be lazily evaluated?) => for now a destructuring operator works
             let squaresInDirectionsToLookAt = [...directionsToLookAt.keys()].map(e => {
                 let [x,y, direction] = allPossiblePositions[e];
-                console.log(x,y,direction)
                 return [boardApiInfo.board[x][y], direction];
             });
-            console.log("l", directionsToLookAt.size)
-            console.log("squaresInDirectionsToLookAt", squaresInDirectionsToLookAt);
+           
             //squares of the same player who made this move
             let relevantSquares = squaresInDirectionsToLookAt.filter(e => {
                 let [value, direction] = e;
-                console.log(value, direction)
                 if(value == naTahu) return true;
             });
-            console.log("value, direction where correct", Array.from(relevantSquares));
-            let relevantDirections = relevantSquares.map(e=> e[1]);
-            console.log("directions where to search", relevantDirections);
 
+            let relevantDirections = relevantSquares.map(e=> e[1]);
             directionsToLookAt = new Set(relevantDirections);
 
-            Array.from(relevantDirections).forEach((value)=> {
-                matchedInDirection[value]++
+            relevantDirections.forEach((value)=> {
+                matchedInDirection[value]++;
             });
         }
-        console.log("result", Object.entries(matchedInDirection));
+        console.log("result matchedInDirection", Object.entries(matchedInDirection));
         let lengths = [
             matchedInDirection["s"] + matchedInDirection["n"],
             matchedInDirection["ne"] + matchedInDirection["sw"],
