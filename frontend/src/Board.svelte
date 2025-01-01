@@ -16,40 +16,19 @@
     let lastMoved = "";
     let naTahu = $state("X");
 
-    //There is nothing except the component mount that would trigger the effect to run again => it runs once
-    /*
-    $effect(() => {
-        console.log("effect runuje");
-        if (lastMoved === "") {                             // reads non-reactive lastMoved
-            let numberOfCrosses = count(boardApiInfo.board, "X");   // reads prop
-            let numberOfNoughts = count(boardApiInfo.board, "O");   // reads prop
-            let numberOfMoves = numberOfCrosses + numberOfNoughts;
-            if (numberOfMoves % 2 == 0) {
-                lastMoved = "O";    // writes to non-reactive
-                naTahu = "X";       // writes to reactive
-            } else {
-                lastMoved = "X";    // writes to non-reactive
-                naTahu = "O";       // writes to reactive
-            }
+    console.log("co bylo v effectu runuje");
+    if (lastMoved === "") {
+        let numberOfCrosses = count(boardApiInfo.board, "X");
+        let numberOfNoughts = count(boardApiInfo.board, "O");
+        let numberOfMoves = numberOfCrosses + numberOfNoughts;
+        if (numberOfMoves % 2 == 0) {
+            lastMoved = "O";
+            naTahu = "X";
+        } else {
+            lastMoved = "X";
+            naTahu = "O";
         }
-    });
-    */
-
-    $effect(() => {
-        console.log("effect runuje");
-        if (lastMoved === "") {
-            let numberOfCrosses = count(boardApiInfo.board, "X");
-            let numberOfNoughts = count(boardApiInfo.board, "O");
-            let numberOfMoves = numberOfCrosses + numberOfNoughts;
-            if (numberOfMoves % 2 == 0) {
-                lastMoved = "O";
-                naTahu = "X";
-            } else {
-                lastMoved = "X";
-                naTahu = "O";
-            }
-        }
-    });
+    }
 
     function handleMove(rowIndex, columnIndex) {
         boardApiInfo.board[rowIndex][columnIndex] = naTahu;
