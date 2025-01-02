@@ -3,10 +3,9 @@ import sqlalchemy.orm as so
 from src import app, db
 from src.models import Game
 
-if __name__ == '__main__':
-    print("app map")
+if __name__ == "__main__":
     print(app.url_map)
-    app.run(debug=True, host='0.0.0.0', port=5000)
+    app.run(debug=True, host="0.0.0.0", port=5000)
 
 
 @app.shell_context_processor
