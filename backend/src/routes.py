@@ -22,7 +22,7 @@ def serve(path):
     return send_from_directory(app.static_folder, path)
 
 
-@app.route("/games", methods=["GET", "POST"])
+@app.route("/api/v1/games", methods=["GET", "POST"])
 def games():
     if request.method == "POST":
         data = request.get_json()
@@ -65,7 +65,7 @@ def games():
         )
 
 
-@app.route("/games/<uuid:uuid>", methods=["GET", "PUT", "DELETE"])
+@app.route("/api/v1/games/<uuid:uuid>", methods=["GET", "PUT", "DELETE"])
 def single_game(uuid):
     uuid_str = str(uuid)
     if request.method == "GET":

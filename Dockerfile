@@ -16,4 +16,3 @@ COPY backend/ backend/
 
 EXPOSE 5000
 CMD ["python", "backend/main.py"]
-
