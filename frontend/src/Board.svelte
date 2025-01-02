@@ -46,7 +46,6 @@
         //For victory of 5 items in a row, 4 items need to be found around
         let directionsToLookAt = new Set(['n', 'ne', 'e', 'se', 's', 'sw', 'w', 'nw']);
         for(let dist = 1; dist <= 4; dist++){
-            //explicit bounds checking is not necessary in JS (if out of bounds it is undefined)
             let allPossiblePositions = {
                 "n":    [rowIndex - dist, columnIndex, "n"],
                 "ne":   [rowIndex - dist, columnIndex + dist, "ne"],
@@ -57,14 +56,22 @@
                 "w":    [rowIndex, columnIndex - dist, "w"],
                 "nw":   [rowIndex - dist, columnIndex -dist, "nw"]
             };
+
             //.keys() returns an iterator, which should have worked (and be lazily evaluated?) => for now a destructuring operator works
-            let squaresInDirectionsToLookAt = [...directionsToLookAt.keys()].map(e => {
-                let [x,y, direction] = allPossiblePositions[e];
-                return [boardApiInfo.board[x][y], direction];
+            let squaresInDirectionsToLookAt = [...directionsToLookAt.keys()].map((value) => {
+                let [x,y, direction] = allPossiblePositions[value];
+                /*  bounds checking is indeed necessary because if out of bounds the value is undefined 
+                        => that can throw Uncaught TypeError: Cannot read properties of undefined (reading '2') 
+                            when x is out bounds and y is 2 */
+                if(0 <= x && x < 15 && 0 <= y && y < 15){
+                    //when I don't return this, undefined is returned
+                    return [boardApiInfo.board[x][y], direction];
+                }
             });
            
             //squares of the same player who made this move
             let relevantSquares = squaresInDirectionsToLookAt.filter(e => {
+                if(e == undefined) return false;
                 let [value, direction] = e;
                 if(value == naTahu) return true;
             });
