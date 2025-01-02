@@ -80,3 +80,22 @@ def single_game(uuid):
             json.dumps(game_json(game)),
             status=200,
         )
+
+    elif request.method == "DELETE":
+        game = Game.query.filter_by(uuid=uuid_str).first()
+
+        if game is None:
+            not_found = {"code": 404, "message": "Resource not found"}
+            return Response(
+                json.dumps(not_found),
+                status=404,
+            )
+
+        db.session.delete(game)
+        db.session.commit()
+
+        success_message = {"code": 200, "message": "Game deleted successfully"}
+        return Response(
+            json.dumps(success_message),
+            status=200,
+        )
