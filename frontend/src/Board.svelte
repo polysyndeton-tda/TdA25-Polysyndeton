@@ -91,16 +91,22 @@
             matchedInDirection["se"] + matchedInDirection["nw"]
         ];
         console.log("is victory", lengths.some(v => v >= 4)); //vyhra muze byt >= 5 v rade (tedy jsme vedle tohoto tahu nasli alespon 4 pole s nim v lajne)
-        return lengths.some(v => v == 4);
+        return lengths.some(v => v >= 4);
     }
 
-    
+    let isVictory = $state(false);
+
     function handleMove(rowIndex, columnIndex) {
+        if(isVictory){
+            return;
+        }
         boardApiInfo.board[rowIndex][columnIndex] = naTahu;
         lastMoved = naTahu;
 
         if (checkVictory(rowIndex, columnIndex, naTahu)) {
             console.log(`${naTahu} wins!`);
+            isVictory = true;
+            return;
         }
         if (lastMoved === "X") {
             naTahu = "O";
@@ -113,7 +119,7 @@
     $inspect(naTahu);
 </script>
 
-<p>{naTahu} na tahu</p>
+<h2><span class="player {naTahu}">{naTahu}</span> na tahu</h2>
 <div class="grid">
     {#each boardApiInfo.board as row, rowIndex}
         <div class="row">
@@ -130,7 +136,16 @@
     {/each}
 </div>
 
+{#if isVictory}
+    <h2 class="toast">Hráč <span class="player {naTahu}">{naTahu}</span> vyhrál!</h2>
+{/if}
+
 <style>
+    .player{
+        color: transparent;
+        vertical-align: middle;
+        font-size: xx-large;
+    }
     .grid {
         display: flex;
         flex-direction: column;
