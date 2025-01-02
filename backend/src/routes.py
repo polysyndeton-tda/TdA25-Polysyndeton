@@ -3,7 +3,7 @@ from flask import jsonify, send_from_directory, request, Response
 import json
 
 from src.models import Game
-from src.utils import string_from_board, game_json
+from src.utils import string_from_board, game_json, validate_post, validate_fields
 
 
 @app.route("/api")
@@ -25,6 +25,27 @@ def serve(path):
 def games():
     if request.method == "POST":
         data = request.get_json()
+
+        if not validate_fields(data):
+            bad_request = {
+                "code": 400,
+                "message": "Bad request: missing fields"
+            }
+            return Response(
+                json.dumps(bad_request),
+                status=400
+            )
+
+        valid_post, message = validate_post(data)
+        if not valid_post:
+            semantic_error = {
+                "code": 422,
+                "message": f"Semantic error: {message}"
+            }
+            return Response(
+                json.dumps(semantic_error),
+                status=422
+            )
 
         game = Game(
             name=data["name"],
