@@ -163,7 +163,7 @@
     .field {
         aspect-ratio: 1/1;
         width: calc(100% / 15);
-        background: black;
+        background-color: #F6F6F6;
     }
     .O {
         background-image: url(./assets/O_cervene.svg);
@@ -176,5 +176,11 @@
         background-size: 85% 85%;
         background-repeat: no-repeat;
         background-position: center;
+    }
+
+    @media (prefers-color-scheme: dark) {
+       .field{
+            background-color: black;
+       }
     }
 </style>
