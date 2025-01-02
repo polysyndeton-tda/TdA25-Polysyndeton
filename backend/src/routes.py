@@ -1,9 +1,10 @@
 from src import app, db
 from flask import jsonify, send_from_directory, request, Response
 import json
+from datetime import datetime, timezone
 
 from src.models import Game
-from src.utils import string_from_board, game_json, validate_post, validate_fields
+from src.utils import string_from_board, game_json, validate_post, validate_fields, get_gamestate, get_formatted_date
 
 
 @app.route("/api")
@@ -97,5 +98,35 @@ def single_game(uuid):
         success_message = {"code": 200, "message": "Game deleted successfully"}
         return Response(
             json.dumps(success_message),
+            status=200,
+        )
+
+    elif request.method == "PUT":
+        game = Game.query.filter_by(uuid=uuid_str).first()
+        data = request.get_json()
+
+        if not validate_fields(data):
+            bad_request = {"code": 400, "message": "Bad request: missing fields"}
+            return Response(json.dumps(bad_request), status=400)
+
+        valid_post, message = validate_post(data)
+        if not valid_post:
+            semantic_error = {"code": 422, "message": f"Semantic error: {message}"}
+            return Response(json.dumps(semantic_error), status=422)
+
+        game.name = data["name"]
+        game.difficulty = data["difficulty"]
+        game.gamestate = get_gamestate(data["board"])
+        game.board = string_from_board(data["board"])
+        game.updated_at = datetime.now(timezone.utc)
+        game.width = len(data["board"][0])
+        game.heigth = len(data["board"])
+
+        db.session.commit()
+
+        result = game_json(game)
+
+        return Response(
+            json.dumps(result),
             status=200,
         )

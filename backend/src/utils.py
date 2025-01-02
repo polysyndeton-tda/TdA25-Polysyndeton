@@ -54,3 +54,6 @@ def validate_fields(data):
     if set(list(data.keys())) != set(["name", "difficulty", "board"]):
         return False
     return True
+
+def get_gamestate(board):
+    pass
