@@ -3,7 +3,7 @@ from flask import jsonify, send_from_directory, request, Response
 import json
 
 from src.models import Game
-from src.utils import string_from_board, board_from_string, get_formatted_date
+from src.utils import string_from_board, game_json
 
 
 @app.route("/api")
@@ -37,15 +37,7 @@ def games():
         db.session.add(game)
         db.session.commit()
 
-        result = {
-            "uuid": game.uuid,
-            "createdAt": get_formatted_date(game.created_at),
-            "updatedAt": get_formatted_date(game.updated_at),
-            "name": game.name,
-            "difficulty": game.difficulty,
-            "gameState": game.gamestate,
-            "board": board_from_string(game.board, game.heigth, game.width),
-        }
+        result = game_json(game)
 
         return Response(
             json.dumps(result, ensure_ascii=False),
@@ -54,4 +46,10 @@ def games():
         )
 
     elif request.method == "GET":
-        pass
+        games = Game.query.all()
+
+        return Response(
+            json.dumps([game_json(game) for game in games]),
+            status=200,
+            content_type="application/json; charset=utf-8",
+        )
