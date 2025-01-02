@@ -29,6 +29,7 @@ def game_json(game):
 
     return result
 
+
 def validate_post(data):
     diffs = {"beginner", "easy", "medium", "hard", "extreme"}
     if data["difficulty"] not in diffs:
@@ -38,17 +39,18 @@ def validate_post(data):
     for row in data["board"]:
         if len(row) != REQUIRED_LENGTH:
             return False, "Invalid row length"
-        
+
     TOTAL_SIZE = 225
     if len(string_from_board(data["board"])) != TOTAL_SIZE:
         return False, "Invalid board size"
 
-    if set(string_from_board(data["board"])) != set(" ", "X", "O"):
+    if set(string_from_board(data["board"])) != set([" ", "X", "O"]):
         return False, "Unsupported character"
 
     return True, "OK"
 
+
 def validate_fields(data):
-    if set(list(data.keys())) != set("name", "difficulty", "board"):
+    if set(list(data.keys())) != set(["name", "difficulty", "board"]):
         return False
     return True

@@ -27,25 +27,13 @@ def games():
         data = request.get_json()
 
         if not validate_fields(data):
-            bad_request = {
-                "code": 400,
-                "message": "Bad request: missing fields"
-            }
-            return Response(
-                json.dumps(bad_request),
-                status=400
-            )
+            bad_request = {"code": 400, "message": "Bad request: missing fields"}
+            return Response(json.dumps(bad_request), status=400)
 
         valid_post, message = validate_post(data)
         if not valid_post:
-            semantic_error = {
-                "code": 422,
-                "message": f"Semantic error: {message}"
-            }
-            return Response(
-                json.dumps(semantic_error),
-                status=422
-            )
+            semantic_error = {"code": 422, "message": f"Semantic error: {message}"}
+            return Response(json.dumps(semantic_error), status=422)
 
         game = Game(
             name=data["name"],
@@ -73,4 +61,22 @@ def games():
             json.dumps([game_json(game) for game in games]),
             status=200,
             content_type="application/json; charset=utf-8",
+        )
+
+
+@app.route("/games/<uuid:uuid>", methods=["GET", "PUT", "DELETE"])
+def single_game(uuid):
+    uuid_str = str(uuid)
+    if request.method == "GET":
+        game = Game.query.filter_by(uuid=uuid_str).first()
+        if game is None:
+            not_found = {"code": 404, "message": "Resource not found"}
+            return Response(
+                json.dumps(not_found),
+                status=404,
+            )
+
+        return Response(
+            json.dumps(game_json(game)),
+            status=200,
         )
