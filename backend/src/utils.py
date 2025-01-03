@@ -13,6 +13,7 @@ def string_from_board(board):
 
 def board_from_string(string, heigth, width):
     board = [list(string[(i) * width : (i + 1) * width]) for i in range(heigth)]
+    board = [[i if i != " " else "" for i in row] for row in board]
     return board
 
 
