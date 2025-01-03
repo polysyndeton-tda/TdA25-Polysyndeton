@@ -39,7 +39,6 @@ def games():
             return Response(
                 json.dumps(bad_request, ensure_ascii=False),
                 status=400,
-                mimetype="application/json",
             )
 
         valid_post, message = validate_post(data)
@@ -48,7 +47,6 @@ def games():
             return Response(
                 json.dumps(semantic_error, ensure_ascii=False),
                 status=422,
-                mimetype="application/json",
             )
 
         game = Game(
@@ -67,7 +65,6 @@ def games():
         return Response(
             json.dumps(result, ensure_ascii=False),
             status=201,
-            mimetype="application/json",
         )
 
     elif request.method == "GET":
@@ -76,7 +73,6 @@ def games():
         return Response(
             json.dumps([game_json(game) for game in games], ensure_ascii=False),
             status=200,
-            mimetype="application/json",
         )
 
 
@@ -90,13 +86,11 @@ def single_game(uuid):
             return Response(
                 json.dumps(not_found, ensure_ascii=False),
                 status=404,
-                mimetype="application/json",
             )
 
         return Response(
             json.dumps(game_json(game), ensure_ascii=False),
             status=200,
-            mimetype="application/json",
         )
 
     elif request.method == "DELETE":
@@ -107,7 +101,6 @@ def single_game(uuid):
             return Response(
                 json.dumps(not_found, ensure_ascii=False),
                 status=404,
-                mimetype="application/json",
             )
 
         db.session.delete(game)
@@ -117,7 +110,6 @@ def single_game(uuid):
         return Response(
             json.dumps(success_message, ensuree_ascii=False),
             status=200,
-            mimetype="application/json",
         )
 
     elif request.method == "PUT":
@@ -129,7 +121,6 @@ def single_game(uuid):
             return Response(
                 json.dumps(bad_request, ensure_ascii=False),
                 status=400,
-                mimetype="application/json",
             )
 
         valid_post, message = validate_post(data)
@@ -138,7 +129,6 @@ def single_game(uuid):
             return Response(
                 json.dumps(semantic_error, ensure_ascii=False),
                 status=422,
-                mimetype="application/json",
             )
 
         game.name = data["name"]
@@ -156,5 +146,4 @@ def single_game(uuid):
         return Response(
             json.dumps(result, ensure_ascii=False),
             status=200,
-            mimetype="application/json",
         )
