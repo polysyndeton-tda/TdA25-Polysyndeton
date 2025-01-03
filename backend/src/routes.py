@@ -85,8 +85,8 @@ def single_game(uuid):
         db.session.delete(game)
         db.session.commit()
 
-        success_message = {"code": 200, "message": "Game deleted successfully"}
-        return jsonify(success_message), 200
+        success_message = {"code": 204, "message": "Game deleted successfully"}
+        return jsonify(success_message), 204
 
     elif request.method == "PUT":
         game = Game.query.filter_by(uuid=uuid_str).first()
