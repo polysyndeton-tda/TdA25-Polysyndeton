@@ -36,18 +36,12 @@ def games():
 
         if not validate_fields(data):
             bad_request = {"code": 400, "message": "Bad request: missing fields"}
-            return Response(
-                json.dumps(bad_request, ensure_ascii=False),
-                status=400,
-            )
+            return jsonify(bad_request), 400
 
         valid_post, message = validate_post(data)
         if not valid_post:
             semantic_error = {"code": 422, "message": f"Semantic error: {message}"}
-            return Response(
-                json.dumps(semantic_error, ensure_ascii=False),
-                status=422,
-            )
+            return jsonify(semantic_error), 404
 
         game = Game(
             name=data["name"],
@@ -62,18 +56,12 @@ def games():
 
         result = game_json(game)
 
-        return Response(
-            json.dumps(result, ensure_ascii=False),
-            status=201,
-        )
+        return jsonify(result), 201
 
     elif request.method == "GET":
         games = Game.query.all()
 
-        return Response(
-            json.dumps([game_json(game) for game in games], ensure_ascii=False),
-            status=200,
-        )
+        return jsonify([game_json(game) for game in games]), 200
 
 
 @app.route("/api/v1/games/<uuid:uuid>", methods=["GET", "PUT", "DELETE"])
@@ -83,34 +71,22 @@ def single_game(uuid):
         game = Game.query.filter_by(uuid=uuid_str).first()
         if game is None:
             not_found = {"code": 404, "message": "Resource not found"}
-            return Response(
-                json.dumps(not_found, ensure_ascii=False),
-                status=404,
-            )
+            return jsonify(not_found), 404
 
-        return Response(
-            json.dumps(game_json(game), ensure_ascii=False),
-            status=200,
-        )
+        return jsonify(game_json(game)), 200
 
     elif request.method == "DELETE":
         game = Game.query.filter_by(uuid=uuid_str).first()
 
         if game is None:
             not_found = {"code": 404, "message": "Resource not found"}
-            return Response(
-                json.dumps(not_found, ensure_ascii=False),
-                status=404,
-            )
+            return jsonify(not_found), 404
 
         db.session.delete(game)
         db.session.commit()
 
         success_message = {"code": 200, "message": "Game deleted successfully"}
-        return Response(
-            json.dumps(success_message, ensuree_ascii=False),
-            status=200,
-        )
+        return jsonify(success_message), 200
 
     elif request.method == "PUT":
         game = Game.query.filter_by(uuid=uuid_str).first()
@@ -118,18 +94,12 @@ def single_game(uuid):
 
         if not validate_fields(data):
             bad_request = {"code": 400, "message": "Bad request: missing fields"}
-            return Response(
-                json.dumps(bad_request, ensure_ascii=False),
-                status=400,
-            )
+            return jsonify(bad_request), 400
 
         valid_post, message = validate_post(data)
         if not valid_post:
             semantic_error = {"code": 422, "message": f"Semantic error: {message}"}
-            return Response(
-                json.dumps(semantic_error, ensure_ascii=False),
-                status=422,
-            )
+            return jsonify(semantic_error), 422
 
         game.name = data["name"]
         game.difficulty = data["difficulty"]
@@ -143,7 +113,4 @@ def single_game(uuid):
 
         result = game_json(game)
 
-        return Response(
-            json.dumps(result, ensure_ascii=False),
-            status=200,
-        )
+        return jsonify(result), 200
