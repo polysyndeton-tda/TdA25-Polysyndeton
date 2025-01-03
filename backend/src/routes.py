@@ -36,12 +36,20 @@ def games():
 
         if not validate_fields(data):
             bad_request = {"code": 400, "message": "Bad request: missing fields"}
-            return Response(json.dumps(bad_request), status=400)
+            return Response(
+                json.dumps(bad_request, ensure_ascii=False),
+                status=400,
+                mimetype="application/json",
+            )
 
         valid_post, message = validate_post(data)
         if not valid_post:
             semantic_error = {"code": 422, "message": f"Semantic error: {message}"}
-            return Response(json.dumps(semantic_error), status=422)
+            return Response(
+                json.dumps(semantic_error, ensure_ascii=False),
+                status=422,
+                mimetype="application/json",
+            )
 
         game = Game(
             name=data["name"],
@@ -59,14 +67,16 @@ def games():
         return Response(
             json.dumps(result, ensure_ascii=False),
             status=201,
+            mimetype="application/json",
         )
 
     elif request.method == "GET":
         games = Game.query.all()
 
         return Response(
-            json.dumps([game_json(game) for game in games]),
+            json.dumps([game_json(game) for game in games], ensure_ascii=False),
             status=200,
+            mimetype="application/json",
         )
 
 
@@ -78,13 +88,15 @@ def single_game(uuid):
         if game is None:
             not_found = {"code": 404, "message": "Resource not found"}
             return Response(
-                json.dumps(not_found),
+                json.dumps(not_found, ensure_ascii=False),
                 status=404,
+                mimetype="application/json",
             )
 
         return Response(
-            json.dumps(game_json(game)),
+            json.dumps(game_json(game), ensure_ascii=False),
             status=200,
+            mimetype="application/json",
         )
 
     elif request.method == "DELETE":
@@ -93,8 +105,9 @@ def single_game(uuid):
         if game is None:
             not_found = {"code": 404, "message": "Resource not found"}
             return Response(
-                json.dumps(not_found),
+                json.dumps(not_found, ensure_ascii=False),
                 status=404,
+                mimetype="application/json",
             )
 
         db.session.delete(game)
@@ -102,8 +115,9 @@ def single_game(uuid):
 
         success_message = {"code": 200, "message": "Game deleted successfully"}
         return Response(
-            json.dumps(success_message),
+            json.dumps(success_message, ensuree_ascii=False),
             status=200,
+            mimetype="application/json",
         )
 
     elif request.method == "PUT":
@@ -112,12 +126,20 @@ def single_game(uuid):
 
         if not validate_fields(data):
             bad_request = {"code": 400, "message": "Bad request: missing fields"}
-            return Response(json.dumps(bad_request), status=400)
+            return Response(
+                json.dumps(bad_request, ensure_ascii=False),
+                status=400,
+                mimetype="application/json",
+            )
 
         valid_post, message = validate_post(data)
         if not valid_post:
             semantic_error = {"code": 422, "message": f"Semantic error: {message}"}
-            return Response(json.dumps(semantic_error), status=422)
+            return Response(
+                json.dumps(semantic_error, ensure_ascii=False),
+                status=422,
+                mimetype="application/json",
+            )
 
         game.name = data["name"]
         game.difficulty = data["difficulty"]
@@ -132,6 +154,7 @@ def single_game(uuid):
         result = game_json(game)
 
         return Response(
-            json.dumps(result),
+            json.dumps(result, ensure_ascii=False),
             status=200,
+            mimetype="application/json",
         )
