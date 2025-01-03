@@ -4,7 +4,14 @@ import json
 from datetime import datetime, timezone
 
 from src.models import Game
-from src.utils import string_from_board, game_json, validate_post, validate_fields, get_gamestate, get_formatted_date
+from src.utils import (
+    string_from_board,
+    game_json,
+    validate_post,
+    validate_fields,
+    get_gamestate,
+    get_formatted_date,
+)
 
 
 @app.route("/api")
@@ -52,7 +59,6 @@ def games():
         return Response(
             json.dumps(result, ensure_ascii=False),
             status=201,
-            content_type="application/json; charset=utf-8",
         )
 
     elif request.method == "GET":
@@ -61,7 +67,6 @@ def games():
         return Response(
             json.dumps([game_json(game) for game in games]),
             status=200,
-            content_type="application/json; charset=utf-8",
         )
 
 

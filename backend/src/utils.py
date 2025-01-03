@@ -56,5 +56,6 @@ def validate_fields(data):
         return False
     return True
 
+
 def get_gamestate(board):
     pass
