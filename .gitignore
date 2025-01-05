@@ -1,7 +1,15 @@
 backend/static/
 backend/static/index.html
-backend/__pycache__/
-backend/src/__pycache__/
+
+backend/src/static
+backend/static/index.html
+backend/logs/posts.log
+
+
+backend/__pycache__/*
+backend/src/__pycache__/*
+
+
 
 
 # Logs
