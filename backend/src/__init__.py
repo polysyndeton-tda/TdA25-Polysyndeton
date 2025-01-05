@@ -10,7 +10,7 @@ from flask_cors import CORS
 
 from config import Config
 
-app = Flask(__name__, static_folder="../static")
+app = Flask(__name__, static_folder="../../frontend/build")
 app.config.from_object(Config)
 CORS(app)
 db = SQLAlchemy(app)

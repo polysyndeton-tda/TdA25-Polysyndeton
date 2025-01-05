@@ -13,7 +13,7 @@ COPY backend/requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 COPY backend/ backend/
-COPY --from=frontend-build /app/frontend/dist /app/backend/static
+COPY --from=frontend-build /app/frontend/build /app/backend/static
 
 EXPOSE 5000
 CMD ["python", "backend/main.py"]
