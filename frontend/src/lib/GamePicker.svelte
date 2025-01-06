@@ -1,8 +1,10 @@
 <script>
-    import {gameInfo} from "./shared.svelte.js";
+    import { gameInfo } from "./shared.svelte.js";
+    import { PUBLIC_API_BASE_URL } from '$env/static/public';
     async function fetchAllGames(){
         //all games list
-        const request = await fetch('https://odevzdavani.tourdeapp.cz/mockbush/api/v1/games/');
+        const api_url = PUBLIC_API_BASE_URL || 'https://odevzdavani.tourdeapp.cz/mockbush/api/v1/';
+        const request = await fetch(`${api_url}/games`);
         const data = await request.json();
         console.log(data);
         return data;
