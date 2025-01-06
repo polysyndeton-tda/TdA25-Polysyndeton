@@ -16,18 +16,6 @@ from config import Config
 #=> so changing it back to ../static, which is reachable in both cases
 # however for builds outside of docker this means that the build folder has to be copied to the static folder
 # => updated build.sh to copy the build folder to the static folder 
-
-# even tho ../static is now the same as the build folder, it does do a 404 
-    # mozna ne = v tom to mozna bude, ze tady mame src/static a v dockeru je to jenom static (idk ted)
-
-# na tuto myslenku me navadi .gitignore, kde je 
-
-# backend/static/
-# backend/static/index.html
-
-# a nikoli /src/backend
-
-# ../static
 app = Flask(__name__, static_folder="../static") #../../frontend/build
 app.config.from_object(Config)
 CORS(app)
