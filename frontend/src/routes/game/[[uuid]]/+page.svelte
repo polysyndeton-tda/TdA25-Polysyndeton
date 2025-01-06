@@ -11,6 +11,7 @@
     }
 
     let boardKey = 0;
+    let loaded = $state(false);
 
     $effect(() => {
         /*Does not react to further Game button clicks in the nav since $page.params.uuid stays the same
@@ -24,43 +25,30 @@
         if (!uuid) {
             // Reset to empty board when no UUID in URL
             resetGame();
+            loaded = true;
         } else {
             // Fetch game data when UUID present
             fetchGame(uuid).then(data => {
                 gameInfo.apiResponse = data;
                 gameInfo.selected = true;
+                loaded = true;
             });
         }
     });
-
-    //Not using this for now (it could speed up the navigation from the game picker a bit, since stuff from it is loaded already)
-    //But is seems like its fast enough already (plus this does't react to the UUID in the URL changes right (without destroying the component and making a new one))
-    //https://www.okupter.com/blog/sveltekit-window-is-not-defined => using onMount
-    // onMount(async () => {
-    //     let adress = window.location.href;
-    //     if(!adress.endsWith("/game")){
-    //         let uuid = adress.split("/").pop();
-    //         // if(!(uuid in gameInfo.apiResponse)){ //upravit ten filtr
-    //         //     fetchGame(uuid);
-    //         // }
-    //         gameInfo.apiResponse = await fetchGame(uuid);
-    //         console.log($state.snapshot(gameInfo.apiResponse));
-    //     }else{
-    //         gameInfo.apiResponse = {};
-    //         gameInfo.apiResponse.board = Array(15).fill().map(() => Array(15).fill("")); //2D array of "" 15x15
-    //         gameInfo.selected = true;
-    //     }
-    // });
 </script>
+<!-- 
+Drawing conditionallly to avoid "TypeError: Cannot read properties of undefined (reading 'name')"
+when apiResponse is undefined, and I'm reading name propety here -->
+{#if loaded}
+    {#if gameInfo.apiResponse.name}
+        <h1>{gameInfo.apiResponse.name}</h1>
+    {:else}
+        <h1>Piškvorky</h1>
+    {/if}
 
-{#if gameInfo.apiResponse.name}
-    <h1>{gameInfo.apiResponse.name}</h1>
-{:else}
-    <h1>Piškvorky</h1>
-{/if}
+    <!-- TODO: pridat tlacitko ulozit (z prazdnych piskvorek do ulohy (je to v treti fazi)) -->
 
-<!-- TODO: pridat tlacitko ulozit (z prazdnych piskvorek do ulohy (je to v treti fazi)) -->
-
-{#if gameInfo.selected}
-<Board boardApiInfo={gameInfo.apiResponse}></Board>
+    {#if gameInfo.selected}
+    <Board boardApiInfo={gameInfo.apiResponse}></Board>
+    {/if}
 {/if}
