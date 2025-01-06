@@ -1,4 +1,5 @@
 <script>
+    import {untrack} from 'svelte';
     let { boardApiInfo } = $props();
 
     function count(array, item) {
@@ -15,9 +16,29 @@
 
     let lastMoved = "";
     let naTahu = $state("X");
+    let isVictory = $state(false);
+    let whoWon = $state("");
+    let boardWonAlready = $state(false);
 
-    console.log("co bylo v effectu runuje");
-    if (lastMoved === "") {
+    let uuid = $derived(boardApiInfo.uuid); //$page.params.uuid; doesn't work here
+    $effect.pre(() => {
+        console.log("reset", uuid);
+        untrack(() => {
+            lastMoved = "";
+            naTahu = "X";
+            isVictory = false;
+            whoWon = "";
+            boardWonAlready = false;
+            reset();
+            checkIfBoardWonAlready();
+        });
+    });
+        
+    
+    function reset(){
+        console.log("co bylo v effectu runuje");
+        
+        console.log("reset")
         let numberOfCrosses = count(boardApiInfo.board, "X");
         let numberOfNoughts = count(boardApiInfo.board, "O");
         let numberOfMoves = numberOfCrosses + numberOfNoughts;
@@ -28,9 +49,26 @@
             lastMoved = "X";
             naTahu = "O";
         }
+           
     }
 
-    function checkVictory(rowIndex, columnIndex) {
+    //a O(N) function to check if the game is already won (as in boards 86a55480-72b4-4302-a0ad-dba4b8409635 and ace938ba-ee31-485a-b58f-e1b397fa83ee on https://odevzdavani.tourdeapp.cz/mockbush/api/v1/games/)
+    function checkIfBoardWonAlready(){
+        for(let i = 0; i < 15; i++){
+            for(let j = 0; j < 15; j++){
+                if(boardApiInfo.board[i][j] == ""){
+                    if(checkVictory(i,j, "X") || checkVictory(i,j, "O")){
+                        boardWonAlready = true;
+                        isVictory = true;
+                        return;
+                    }
+                }
+            }
+        }
+    }
+
+    // quick O(1) function to check if the latest move is a winning one
+    function checkVictory(rowIndex, columnIndex, player) {
         /*Checks if latest move on rowIndex, columnIndex is a winning one
         (made to be called from handleMove)
         */
@@ -73,7 +111,7 @@
             let relevantSquares = squaresInDirectionsToLookAt.filter(e => {
                 if(e == undefined) return false;
                 let [value, direction] = e;
-                if(value == naTahu) return true;
+                if(value == player) return true;
             });
 
             let relevantDirections = relevantSquares.map(e=> e[1]);
@@ -83,18 +121,19 @@
                 matchedInDirection[value]++;
             });
         }
-        console.log("result matchedInDirection", Object.entries(matchedInDirection));
+        // console.log("result matchedInDirection", Object.entries(matchedInDirection));
         let lengths = [
             matchedInDirection["s"] + matchedInDirection["n"],
             matchedInDirection["ne"] + matchedInDirection["sw"],
             matchedInDirection["e"] + matchedInDirection["w"],
             matchedInDirection["se"] + matchedInDirection["nw"]
         ];
-        console.log("is victory", lengths.some(v => v >= 4)); //vyhra muze byt >= 5 v rade (tedy jsme vedle tohoto tahu nasli alespon 4 pole s nim v lajne)
-        return lengths.some(v => v >= 4);
+        let hasWon = lengths.some(v => v >= 4); //vyhra muze byt >= 5 v rade (tedy jsme vedle tohoto tahu nasli alespon 4 pole s nim v lajne)
+        if(hasWon){
+            whoWon = player; //for checkIfBoardWonAlready
+        }
+        return hasWon;
     }
-
-    let isVictory = $state(false);
 
     function handleMove(rowIndex, columnIndex) {
         if(isVictory){
@@ -136,8 +175,10 @@
     {/each}
 </div>
 
-{#if isVictory}
+{#if isVictory && !boardWonAlready}
     <h2 class="toast">Hráč <span class="player {naTahu}">{naTahu}</span> vyhrál!</h2>
+{:else if isVictory && boardWonAlready}
+    <h2 class="toast">Dorazila vyřešená úloha, hráč <span class="player {whoWon}">{whoWon}</span> vyhrál!</h2>
 {/if}
 
 <style>
@@ -166,13 +207,15 @@
         background-color: #F6F6F6;
     }
     .O {
-        background-image: url(./assets/O_cervene.svg);
+        /*I didn't put the images in the ./static folder because when I did, I got an error: 
+        The request url "/home/petr/Documents/tda/sveltekit experiment/my-app/static/X_modre.svg" is outside of Vite serving allow list.*/
+        background-image: url(/O_cervene.svg);
         background-size: 85% 85%;
         background-repeat: no-repeat;
         background-position: center;
     }
     .X {
-        background-image: url(./assets/X_modre.svg);
+        background-image: url(/X_modre.svg); 
         background-size: 85% 85%;
         background-repeat: no-repeat;
         background-position: center;
@@ -184,3 +227,5 @@
        }
     }
 </style>
+
+<!-- <img alt="n" src="{"./favicon.png"}"> -->

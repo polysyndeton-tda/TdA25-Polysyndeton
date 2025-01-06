@@ -23,6 +23,12 @@ def hello():
 def index():
     return send_from_directory(app.static_folder, "index.html")
 
+@app.route("/game")
+@app.route("/editor")
+@app.route("/editor/<string:game_uuid>")
+@app.route("/game/<string:game_uuid>")
+def serve_game(game_uuid=None):
+    return send_from_directory(app.static_folder, "index.html")
 
 @app.route("/<path:path>")
 def serve(path):
