@@ -9,8 +9,8 @@ backend/logs/posts.log
 backend/__pycache__/*
 backend/src/__pycache__/*
 
-
-
+#ignore all pyc files from any pycache folders
+*.pyc
 
 # Logs
 logs
