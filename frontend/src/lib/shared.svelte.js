@@ -10,8 +10,9 @@ export const resetGame = () => {
     gameInfo.uuid = Date.now() //changing the uuid on empty game to trigger reset in Board.svelte
     gameInfo.apiResponse = {
         board: Array(15).fill().map(() => Array(15).fill("")),
-        uuid: Date.now() //changing the uuid on empty game to trigger reset in Board.svelte
-
+        uuid: Date.now(), //changing the uuid on empty game to trigger reset in Board.svelte
+        name: "nova hra",
+        difficulty: "beginner"
     };
     gameInfo.selected = true;
 }
