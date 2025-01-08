@@ -1,33 +1,10 @@
 <script>
-    import { gameInfo, resetGame, fetchGame } from "$lib/shared.svelte";
+    import { gameInfo, resetGame, fetchGame, editPuzzle } from "$lib/shared.svelte";
     import { onMount } from 'svelte';
     import { page } from '$app/stores';
     import BoardEditor from "$lib/BoardEditor.svelte";
     import { PUBLIC_API_BASE_URL } from '$env/static/public';
     const api_url = PUBLIC_API_BASE_URL || 'https://odevzdavani.tourdeapp.cz/mockbush/api/v1/';
-
-    //TODO: ADD put request to update the game
-    async function editPuzzle(){
-        if($page.params.uuid){ //on /game/:uuid, editing an existing game
-            const request = await fetch(`${api_url}/games/${$page.params.uuid}`, 
-                {
-                    method: "PUT",
-                    body: JSON.stringify({
-                        name: gameInfo.apiResponse.name,
-                        board: gameInfo.apiResponse.board,
-                        difficulty: gameInfo.apiResponse.difficulty,    
-                    }),
-                    headers: {
-                        "Content-Type": "application/json",
-                    }
-                }
-            );
-            const data = await request.json();
-            console.log("data", data)
-        }else{
-            throw new Error("Call createPuzzle first");
-        }
-    }
 
     let boardKey = 0;
 
@@ -50,11 +27,10 @@
     });
 </script>
 
-<!-- <h1>Editor {gameInfo.apiResponse.name}</h1> -->
 
 <div class="toolbar">
     <input type="text" bind:value={gameInfo.apiResponse.name}>
-    <button onclick={editPuzzle}>Uložit</button>
+    <button onclick={() => editPuzzle($page.params.uuid)}>Uložit</button>
 </div>
 
 {#if gameInfo.selected}

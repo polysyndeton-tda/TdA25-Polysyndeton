@@ -1,5 +1,5 @@
 <script>
-    import { gameInfo, resetGame, fetchGame } from "$lib/shared.svelte";
+    import { gameInfo, resetGame, fetchGame, editPuzzle } from "$lib/shared.svelte";
     import Board from "$lib/Board.svelte";
     import { onMount } from 'svelte';
     import { page } from '$app/stores';
@@ -26,29 +26,6 @@
             document.location.pathname = `/game/${data.uuid}`; //zmena url, jak chteli
         }else{
             throw new Error("You're editing an existing game, use editPuzzle instead");
-        }
-    }
-
-    //TODO: ADD put request to update the game
-    async function editPuzzle(){
-        if($page.params.uuid){ //on /game/:uuid, editing an existing game
-            const request = await fetch(`${api_url}/games/${$page.params.uuid}`, 
-                {
-                    method: "PUT",
-                    body: JSON.stringify({
-                        name: gameInfo.apiResponse.name,
-                        board: gameInfo.apiResponse.board,
-                        difficulty: gameInfo.apiResponse.difficulty,    
-                    }),
-                    headers: {
-                        "Content-Type": "application/json",
-                    }
-                }
-            );
-            const data = await request.json();
-            console.log("data", data)
-        }else{
-            throw new Error("Call createPuzzle first");
         }
     }
 
@@ -90,15 +67,13 @@ when apiResponse is undefined, and I'm reading name propety here -->
         {/if}
 
         {#if $page.params.uuid}
-            <button onclick={editPuzzle}>Uložit změny</button>
+            <button onclick={() => editPuzzle($page.params.uuid)}>Uložit změny</button>
         {:else}
             <button onclick={createPuzzle}>Uložit jako úlohu</button>
         {/if}
     </div>
 
-    <!-- TODO: pridat tlacitko ulozit (z prazdnych piskvorek do ulohy (je to v treti fazi)) -->
-
     {#if gameInfo.selected}
-    <Board boardApiInfo={gameInfo.apiResponse}></Board>
+        <Board boardApiInfo={gameInfo.apiResponse}></Board>
     {/if}
 {/if}

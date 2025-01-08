@@ -24,3 +24,29 @@ export async function fetchGame(uuid) {
     const data = await request.json();
     return data;
 }
+
+export async function editPuzzle(uuid){
+    //TODO: implement some other form of error checks when $page.params.uuid is not available here
+    // => perhaps based on HTTP status code
+    //(of course, this is not a .svelte file)
+    //[vite-plugin-svelte-module] [plugin vite-plugin-svelte-module] src/lib/shared.svelte.js (31:26): src/lib/shared.svelte.js:31:26 Cannot reference store value outside a `.svelte` file
+    // if($page.params.uuid){ //on /game/:uuid, editing an existing game
+        const request = await fetch(`${api_url}/games/${uuid}`, 
+            {
+                method: "PUT",
+                body: JSON.stringify({
+                    name: gameInfo.apiResponse.name,
+                    board: gameInfo.apiResponse.board,
+                    difficulty: gameInfo.apiResponse.difficulty,    
+                }),
+                headers: {
+                    "Content-Type": "application/json",
+                }
+            } 
+        );
+        const data = await request.json();
+        console.log("data", data)
+    // }else{
+    //     throw new Error("Call createPuzzle first");
+    // }
+}
