@@ -1,3 +1,5 @@
+import { PUBLIC_API_BASE_URL } from '$env/static/public';
+const api_url = PUBLIC_API_BASE_URL || 'https://odevzdavani.tourdeapp.cz/mockbush/api/v1/';
 //For global state like what game are we playing
 export const gameInfo = $state({
     selected: false
@@ -15,4 +17,10 @@ export const resetGame = () => {
         difficulty: "beginner"
     };
     gameInfo.selected = true;
+}
+
+export async function fetchGame(uuid) {
+    const request = await fetch(`${api_url}/games/${uuid}`);
+    const data = await request.json();
+    return data;
 }
