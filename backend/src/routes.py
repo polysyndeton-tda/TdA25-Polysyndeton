@@ -13,8 +13,6 @@ from src.utils import (
     get_formatted_date,
 )
 
-import sys
-
 @app.route("/api")
 def hello():
     return jsonify({"organization": "Student Cyber Games"})
@@ -67,14 +65,12 @@ def games():
 
     elif request.method == "GET":
         games = Game.query.all()
-        print(games, file=sys.stderr)
         return jsonify([game_json(game) for game in games]), 200
 
 
 @app.route("/api/v1/games/<uuid:uuid>", methods=["GET", "PUT", "DELETE"])
 def single_game(uuid):
     uuid_str = str(uuid)
-    print("JOOOOOOOOOOOOOOOOOOOOOOOOO", uuid_str, file=sys.stderr)
     if request.method == "GET":
         game = Game.query.filter_by(uuid=uuid_str).first()
         if game is None:
