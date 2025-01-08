@@ -17,7 +17,11 @@
             const request = await fetch(`${api_url}/games`, 
                 {
                     method: "POST",
-                    body: JSON.stringify(gameInfo.apiResponse),
+                    body: JSON.stringify({
+                        name: gameInfo.apiResponse.name,
+                        board: gameInfo.apiResponse.board,
+                        difficulty: gameInfo.apiResponse.difficulty,
+                    }),
                     headers: {
                         "Content-Type": "application/json",
                     }
@@ -37,7 +41,11 @@
             const request = await fetch(`${api_url}/games/${$page.params.uuid}`, 
                 {
                     method: "PUT",
-                    body: JSON.stringify(gameInfo.apiResponse),
+                    body: JSON.stringify({
+                        name: gameInfo.apiResponse.name,
+                        board: gameInfo.apiResponse.board,
+                        difficulty: gameInfo.apiResponse.difficulty,    
+                    }),
                     headers: {
                         "Content-Type": "application/json",
                     }

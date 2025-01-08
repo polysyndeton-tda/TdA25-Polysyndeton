@@ -60,7 +60,7 @@ def validate_fields(data):
     #=> STEJNĚ SE VĚCI JAKO UPDATED A UUID DOGENERUJÍ NA SERVERU
     #pro /games POST, kde nutny je jenom name, difficulty, board
     #pro /games/uuid PUT, kde uz to ma z serveru i dalsi veci jako ['board', 'createdAt', 'difficulty', 'gameState', 'name', 'updatedAt', 'uuid']
-    if set(list(data.keys())) != set(["name", "difficulty", "board", "uuid"]): #for the games route, you need to support uuid, see: https://odevzdavani.tourdeapp.cz/mockbush/swagger#tag/default/POST/api/v1/games/
+    if set(list(data.keys())) != set(["name", "difficulty", "board"]): # "uuid" #for the games route, you need to support uuid, see: https://odevzdavani.tourdeapp.cz/mockbush/swagger#tag/default/POST/api/v1/games/
         return False
     return True
 
