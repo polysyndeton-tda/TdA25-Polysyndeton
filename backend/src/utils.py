@@ -1,6 +1,5 @@
 from datetime import datetime, timezone
 
-
 def get_formatted_date(date):
     return date.strftime("%Y-%m-%dT%H:%M:%S.%f")[:-3] + "Z"
 
@@ -44,7 +43,8 @@ def validate_post(data):
     TOTAL_SIZE = 225
     if len(string_from_board(data["board"])) != TOTAL_SIZE:
         return False, "Invalid board size"
-
+    #je formalni chyba ulozit hru s 1 tahem (kde je jenom krizek)?
+    # => mohl by to byt test edge case :D
     if set(string_from_board(data["board"])) != set([" ", "X", "O"]):
         return False, "Unsupported character"
 

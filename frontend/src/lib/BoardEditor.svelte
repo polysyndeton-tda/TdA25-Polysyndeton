@@ -24,11 +24,6 @@
 </script>
 
 <div class="toolbar">
-    <input type="text" bind:value={boardApiInfo.name}>
-    <button>Save</button>
-</div>
-
-<div class="toolbar">
     <button aria-label="X tool" class="player X" class:selected={selectedTool === "X"}  onclick={() => selectTool("X")}>X</button>
     <button aria-label="O tool" class="player O" class:selected={selectedTool === "O"}  onclick={() => selectTool("O")}>O</button>
     <button aria-label="eraser tool" class="player eraser" class:selected={selectedTool === ""} onclick={() => selectTool("eraser")}>E</button> <!-- Eraser icon created by Hexagon075 - Flaticon -->
@@ -64,12 +59,6 @@
         outline: 3px solid #6495ed;
         outline-offset: 2px;
         border-radius: 4px;
-    }
-
-    .toolbar > input{
-        padding: 0.5em;
-        font-size: 2rem;
-        width: 100%;
     }
 
     button{

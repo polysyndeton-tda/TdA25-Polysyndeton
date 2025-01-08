@@ -13,7 +13,6 @@ from src.utils import (
     get_formatted_date,
 )
 
-
 @app.route("/api")
 def hello():
     return jsonify({"organization": "Student Cyber Games"})
@@ -66,7 +65,6 @@ def games():
 
     elif request.method == "GET":
         games = Game.query.all()
-
         return jsonify([game_json(game) for game in games]), 200
 
 
