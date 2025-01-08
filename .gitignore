@@ -12,6 +12,9 @@ backend/src/__pycache__/*
 #ignore all pyc files from any pycache folders
 *.pyc
 
+#ignore sqlite db files
+*.db
+
 # Logs
 logs
 *.log
