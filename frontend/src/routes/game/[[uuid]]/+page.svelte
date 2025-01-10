@@ -23,7 +23,11 @@
             );
             const data = await request.json();
             console.log("data", data)
-            document.location.pathname = `/game/${data.uuid}`; //zmena url, jak chteli
+            if(request.ok){
+                document.location.pathname = `/game/${data.uuid}`; //zmena url, jak chteli
+            }else if(request.status == 422){
+                alert("Stav křižků neodpovídá stavu koleček nebo naopak");
+            }
         }else{
             throw new Error("You're editing an existing game, use editPuzzle instead");
         }
