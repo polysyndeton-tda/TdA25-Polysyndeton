@@ -40,12 +40,12 @@ def games():
         data = request.get_json()
 
         if not validate_fields(data):
-            bad_request = {"code": 400, "message": "Bad request: missing fields"}
+            bad_request = {"message": "Bad request: missing fields"}
             return jsonify(bad_request), 400
 
         valid_post, message = validate_post(data)
         if not valid_post:
-            semantic_error = {"code": 422, "message": f"Semantic error: {message}"}
+            semantic_error = {"message": f"Semantic error: {message}"}
             return jsonify(semantic_error), 422
 
         game = Game(
@@ -74,7 +74,7 @@ def single_game(uuid):
     if request.method == "GET":
         game = Game.query.filter_by(uuid=uuid_str).first()
         if game is None:
-            not_found = {"code": 404, "message": "Resource not found"}
+            not_found = {"message": "Resource not found"}
             return jsonify(not_found), 404
 
         return jsonify(game_json(game)), 200
@@ -83,13 +83,13 @@ def single_game(uuid):
         game = Game.query.filter_by(uuid=uuid_str).first()
 
         if game is None:
-            not_found = {"code": 404, "message": "Resource not found"}
+            not_found = {"message": "Resource not found"}
             return jsonify(not_found), 404
 
         db.session.delete(game)
         db.session.commit()
 
-        success_message = {"code": 204, "message": "Game deleted successfully"}
+        success_message = {"message": "Game deleted successfully"}
         return jsonify(success_message), 204
 
     elif request.method == "PUT":
@@ -97,12 +97,12 @@ def single_game(uuid):
         data = request.get_json()
 
         if not validate_fields(data):
-            bad_request = {"code": 400, "message": "Bad request: missing fields"}
+            bad_request = {"message": "Bad request: missing fields"}
             return jsonify(bad_request), 400
 
         valid_post, message = validate_post(data)
         if not valid_post:
-            semantic_error = {"code": 422, "message": f"Semantic error: {message}"}
+            semantic_error = {"message": f"Semantic error: {message}"}
             return jsonify(semantic_error), 422
 
         game.name = data["name"]
