@@ -46,7 +46,7 @@ def games():
         valid_post, message = validate_post(data)
         if not valid_post:
             semantic_error = {"code": 422, "message": f"Semantic error: {message}"}
-            return jsonify(semantic_error), 404
+            return jsonify(semantic_error), 422
 
         game = Game(
             name=data["name"],
