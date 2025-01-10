@@ -47,6 +47,13 @@ def validate_post(data):
     # => mohl by to byt test edge case :D
     if set(string_from_board(data["board"])) != set([" ", "X", "O"]):
         return False, "Unsupported character"
+    
+    #Check for illegal board situations (X always starts)
+    board_str = string_from_board(data["board"])
+    number_of_crosses = board_str.count("X")
+    number_of_noughts = board_str.count("O")
+    if number_of_crosses != number_of_noughts and number_of_crosses != (number_of_noughts + 1):
+        return False, "Invalid starting player"
 
     return True, "OK"
 
