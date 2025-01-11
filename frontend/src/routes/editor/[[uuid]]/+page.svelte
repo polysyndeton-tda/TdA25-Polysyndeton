@@ -20,6 +20,7 @@
         } else {
             // Fetch game data when UUID present
             fetchGame(uuid).then(data => {
+                console.log("data from editor fetch", data);
                 gameInfo.apiResponse = data;
                 gameInfo.selected = true;
             });
@@ -27,13 +28,11 @@
     });
 </script>
 
-
-<div class="toolbar">
-    <input type="text" bind:value={gameInfo.apiResponse.name}>
-    <button onclick={() => editPuzzle($page.params.uuid)}>Uložit</button>
-</div>
-
 {#if gameInfo.selected}
+    <div class="toolbar">
+        <input type="text" bind:value={gameInfo.apiResponse.name}>
+        <button onclick={() => editPuzzle($page.params.uuid)}>Uložit</button>
+    </div>
     <BoardEditor boardApiInfo={gameInfo.apiResponse}></BoardEditor>
 {/if}
 
