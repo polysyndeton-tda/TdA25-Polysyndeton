@@ -1,0 +1,22 @@
+{
+  "name": "tda25-polysyndeton",
+  "version": "1.0.0",
+  "description": "Tady bude epická aplikace na piškvorky.",
+  "main": "index.js",
+  "devDependencies": {
+    "@playwright/test": "^1.49.1",
+    "@types/node": "^22.10.5"
+  },
+  "scripts": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/polysyndeton-tda/TdA25-Polysyndeton.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/polysyndeton-tda/TdA25-Polysyndeton/issues"
+  },
+  "homepage": "https://github.com/polysyndeton-tda/TdA25-Polysyndeton#readme"
+}
