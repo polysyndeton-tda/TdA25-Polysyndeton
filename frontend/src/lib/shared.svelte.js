@@ -45,7 +45,10 @@ export async function editPuzzle(uuid){
             } 
         );
         const data = await request.json();
-        console.log("editPuzzle response", data)
+        console.log("editPuzzle response", data);
+        if(request.status == 422){
+            alert("Stav křižků neodpovídá stavu koleček nebo naopak.\n V tomto stavu není možné úlohu uložit");
+        }
     // }else{
     //     throw new Error("Call createPuzzle first");
     // }
