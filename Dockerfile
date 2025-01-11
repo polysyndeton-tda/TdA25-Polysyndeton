@@ -17,3 +17,7 @@ COPY --from=frontend-build /app/frontend/build /app/backend/static
 
 EXPOSE 5000
 CMD ["python", "backend/main.py"]
+
+FROM mcr.microsoft.com/playwright:focal
+COPY tests/ tests/
+CMD ["npx", "playwright", "test"]
