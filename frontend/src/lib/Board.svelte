@@ -56,8 +56,9 @@
     function checkIfBoardWonAlready(){
         for(let i = 0; i < 15; i++){
             for(let j = 0; j < 15; j++){
-                if(boardApiInfo.board[i][j] == ""){
-                    if(checkVictory(i,j, "X") || checkVictory(i,j, "O")){
+                let square = boardApiInfo.board[i][j];
+                if(square == "X" || square == "O"){
+                    if(checkVictory(i,j, square)){
                         boardWonAlready = true;
                         isVictory = true;
                         return;
