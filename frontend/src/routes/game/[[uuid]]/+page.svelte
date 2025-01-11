@@ -35,6 +35,7 @@
 
     let boardKey = 0;
     let loaded = $state(false);
+    let errorMessage = $state("");
 
     $effect(() => {
         /*Does not react to further Game button clicks in the nav since $page.params.uuid stays the same
@@ -55,10 +56,14 @@
                 gameInfo.apiResponse = data;
                 gameInfo.selected = true;
                 loaded = true;
-            });
+            })
+            .catch(err =>{
+                errorMessage = err;
+            })
         }
     });
 </script>
+
 <!-- 
 Drawing conditionallly to avoid "TypeError: Cannot read properties of undefined (reading 'name')"
 when apiResponse is undefined, and I'm reading name propety here -->
@@ -80,4 +85,14 @@ when apiResponse is undefined, and I'm reading name propety here -->
     {#if gameInfo.selected}
         <Board boardApiInfo={gameInfo.apiResponse}></Board>
     {/if}
+
+{:else if errorMessage}
+    <h2 class="errorMessage">{errorMessage}</h2>
 {/if}
+
+<style>
+    .errorMessage{
+        /* For \n in the error message to be rendered in HTML*/
+        white-space: pre-wrap;
+    }
+</style>

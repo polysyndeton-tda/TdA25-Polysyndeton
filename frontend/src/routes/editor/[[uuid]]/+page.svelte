@@ -7,7 +7,8 @@
     const api_url = PUBLIC_API_BASE_URL || 'https://odevzdavani.tourdeapp.cz/mockbush/api/v1/';
 
     let boardKey = 0;
-
+    let errorMessage = $state("");
+    
     $effect(() => {
 
         const uuid = $page.params.uuid;
@@ -23,7 +24,10 @@
                 console.log("data from editor fetch", data);
                 gameInfo.apiResponse = data;
                 gameInfo.selected = true;
-            });
+            })
+            .catch(err => {
+                errorMessage = err;
+            })
         }
     });
 </script>
@@ -34,6 +38,10 @@
         <button onclick={() => editPuzzle($page.params.uuid)}>Uložit</button>
     </div>
     <BoardEditor boardApiInfo={gameInfo.apiResponse}></BoardEditor>
+{/if}
+
+{#if errorMessage}
+    <h2 class="errorMessage">{errorMessage}</h2>
 {/if}
 
 
@@ -49,5 +57,9 @@
         padding: 0.5em;
         font-size: 2rem;
         width: 100%;
+    }
+    .errorMessage{
+        /* For \n in the error message to be rendered in HTML*/
+        white-space: pre-wrap;
     }
 </style>

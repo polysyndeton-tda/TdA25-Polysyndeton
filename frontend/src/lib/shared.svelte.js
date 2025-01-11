@@ -21,6 +21,9 @@ export const resetGame = () => {
 
 export async function fetchGame(uuid) {
     const request = await fetch(`${api_url}/games/${uuid}`);
+    if(request.status == 404){
+        throw Error("Úloha nebyla nalezena. \n Pravděpodobně je to proto, že byla smazána.");
+    }
     const data = await request.json();
     return data;
 }
