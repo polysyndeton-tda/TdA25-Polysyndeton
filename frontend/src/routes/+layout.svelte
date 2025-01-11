@@ -21,7 +21,7 @@
       <img alt="Think different academy logo" src="Think-different-Academy_LOGO_oficialni-cerne.svg"/>
     </picture>
   </a>
-	<a class="menuItem" href="/game" onclick={resetGame}>Game</a>
+	<a class="menuItem" href="/game" onclick={resetGame}>Nová hra</a>
 </nav>
 
 <div id="app">
