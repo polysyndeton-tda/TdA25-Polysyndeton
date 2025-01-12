@@ -12,6 +12,8 @@ from src.utils import (
     get_gamestate,
     get_formatted_date,
 )
+from src.gamestate import get_gamestate
+
 
 @app.route("/api")
 def hello():
@@ -22,12 +24,14 @@ def hello():
 def index():
     return send_from_directory(app.static_folder, "index.html")
 
+
 @app.route("/game")
 @app.route("/editor")
 @app.route("/editor/<string:game_uuid>")
 @app.route("/game/<string:game_uuid>")
 def serve_game(game_uuid=None):
     return send_from_directory(app.static_folder, "index.html")
+
 
 @app.route("/<path:path>")
 def serve(path):
@@ -51,7 +55,7 @@ def games():
         game = Game(
             name=data["name"],
             difficulty=data["difficulty"],
-            gamestate="unknown",
+            gamestate= get_gamestate(data["board"]),
             board=string_from_board(data["board"]),
             width=len(data["board"][0]),
             heigth=len(data["board"]),
