@@ -4,13 +4,16 @@
     import { onMount } from 'svelte';
     import { page } from '$app/stores';
     import { PUBLIC_API_BASE_URL } from '$env/static/public';
+    import SaveAsDialog from "$lib/SaveAsDialog.svelte";
     const api_url = PUBLIC_API_BASE_URL || 'https://odevzdavani.tourdeapp.cz/mockbush/api/v1/';
     
-    let showDialog = $state(false);
+    let showDialog = $state([false]);
     let dialogOKCallback = $state();
 
+    // dialogState = $
+
     function openSaveAsDialog(callback){
-        showDialog = true;
+        showDialog[0] = true;
         dialogOKCallback = callback;
     }
 
@@ -98,62 +101,13 @@ when apiResponse is undefined, and I'm reading name propety here -->
     <h2 class="errorMessage">{errorMessage}</h2>
 {/if}
 
-{#if showDialog}
-    <div class="popup-container">
-        <div class="popup">
-            <h2>Save As</h2>
-            <div>
-                <input type="text" bind:value={gameInfo.apiResponse.name}>
-                <select bind:value={gameInfo.apiResponse.difficulty}>
-                    <option>beginner</option>
-                    <option>easy</option>
-                    <option>medium</option>
-                    <option>hard</option>
-                    <option>extreme</option>
-                </select>
-            </div>
-            <div>
-                <button onclick={dialogOKCallback}>OK</button>
-                <button onclick={() => showDialog = false}>Cancel</button>
-            </div>
-        </div>
-    </div>
+{#if showDialog[0]}
+    <SaveAsDialog {showDialog} {dialogOKCallback}></SaveAsDialog>
 {/if}
 
 <style>
     .errorMessage{
         /* For \n in the error message to be rendered in HTML*/
         white-space: pre-wrap;
-    }
-    .popup-container{
-        position: fixed;
-        top: 0;
-        height: 100%;
-        width: 100%;
-        display: flex;
-        inset-inline-start: 0px;
-        align-items: center;
-        justify-content: center;
-    }
-    .popup{
-        /* position: fixed;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%); */
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        background-color: #242424; 
-        background-color: #101010;
-        padding: 10px;
-        display: flex;
-        flex-direction: column;
-        gap: 10px;
-        border-radius: 8px;
-        filter: drop-shadow(0 0 8px var(--menu-item-hover-color));
-
-    }
-    .popup > * > * {
-        font-size: 1.5rem;
     }
 </style>
