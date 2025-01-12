@@ -10,13 +10,13 @@ from flask_cors import CORS
 
 from config import Config
 
-#outside Docker, this folder ../../frontend/build works as static folder
-#however inside Docker, that relative link does not work, the directory layout is different (the build folder is still present in the Docker image though)
-#so it doesn't find the build folder
-#=> so changing it back to ../static, which is reachable in both cases
+# outside Docker, this folder ../../frontend/build works as static folder
+# however inside Docker, that relative link does not work, the directory layout is different (the build folder is still present in the Docker image though)
+# so it doesn't find the build folder
+# => so changing it back to ../static, which is reachable in both cases
 # however for builds outside of docker this means that the build folder has to be copied to the static folder
-# => updated build.sh to copy the build folder to the static folder 
-app = Flask(__name__, static_folder="../static") #../../frontend/build
+# => updated build.sh to copy the build folder to the static folder
+app = Flask(__name__, static_folder="../static")  # ../../frontend/build
 app.config.from_object(Config)
 CORS(app)
 db = SQLAlchemy(app)
