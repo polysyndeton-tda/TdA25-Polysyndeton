@@ -7,7 +7,11 @@ Turns = namedtuple("Turns", ["x", "o"])
 def get_turns(board) -> Turns:
     flattened_board = [point for row in board for point in row]
     counts = dict(Counter(flattened_board))
-    return Turns(counts["x"], counts["o"])
+    if "X" in counts.keys():
+        x_counts = counts["X"]
+    if "O" in counts.keys():
+        o_counts = counts["O"]
+    return Turns(x_counts, o_counts)
 
 
 def get_columns(board) -> List[List[str]]:
@@ -42,14 +46,6 @@ def get_second_diagonals(board) -> List[List[str]]:
 
     return get_first_diagonals(transposed_board)
 
-
-# sliding window
-
-# if only one item in counter
-# and numbeer count > 4
-# endgame
-
-
 def process_single_sequence(sequence: List[str], winning_length):
     """
     Look up endgame patterns with a sliding window
@@ -67,7 +63,7 @@ def process_single_sequence(sequence: List[str], winning_length):
         window_counter = Counter(window)
         del window_counter[""]
 
-        if any(count >= 4 for count in window_counter.values()):
+        if any(count >= 4 for count in window_counter.values()) and len(window_counter.keys()) == 1:
             return True
         start += 1
         end += 1
@@ -109,7 +105,7 @@ def is_endgame(board, winning_length):
 
 
 def get_gamestate(board) -> str:
-    if is_endgame(board):
+    if is_endgame(board, winning_length=5):
         return "endgame"
 
     if max(get_turns(board)) < 6:
