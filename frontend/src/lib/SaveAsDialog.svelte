@@ -1,10 +1,6 @@
   <script>
     import { gameInfo } from "$lib/shared.svelte";
-    let { showDialog, dialogOKCallback } = $props();
-
-    // document.querySelector("input").value = gameInfo.apiResponse.name;
-    // document.querySelector("select").value = gameInfo.apiResponse.difficulty;
-
+    let { dialogState } = $props();
   </script>
   
   <div class="popup-container">
@@ -33,10 +29,13 @@
                         gameInfo.apiResponse.name = document.querySelector("input").value;
                         gameInfo.apiResponse.difficulty = document.querySelector("select").value;
                         //the callback is an async function calling fetch, if await wasn't used we would have got race conditions.
-                        await dialogOKCallback();
+                        await dialogState.OKCallback();
                     }
                 }>OK</button>
-                <button onclick={() => showDialog[0] = false}>Cancel</button>
+                <!-- [svelte] ownership_invalid_mutationsrc/lib/SaveAsDialog.svelte mutated a value owned by src/routes/game/[[uuid]]/+page.svelte.
+                  This is strongly discouraged. Consider passing values to child components with `bind:`, or use a callback instead
+                  https://svelte.dev/e/ownership_invalid_mutation -->
+                <button onclick={() => dialogState.show = false}>Cancel</button>
             </div>
         </div>
 </div>

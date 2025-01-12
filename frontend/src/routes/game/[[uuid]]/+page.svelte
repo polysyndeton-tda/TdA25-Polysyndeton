@@ -7,14 +7,14 @@
     import SaveAsDialog from "$lib/SaveAsDialog.svelte";
     const api_url = PUBLIC_API_BASE_URL || 'https://odevzdavani.tourdeapp.cz/mockbush/api/v1/';
     
-    let showDialog = $state([false]);
-    let dialogOKCallback = $state();
-
-    // dialogState = $
+    let dialogState = $state({
+        show: false,
+        OKCallback: undefined //an async function
+    });
 
     function openSaveAsDialog(callback){
-        showDialog[0] = true;
-        dialogOKCallback = callback;
+        dialogState.show = true;
+        dialogState.OKCallback = callback;
     }
 
     async function createPuzzle() { //createGameRecord
@@ -101,8 +101,8 @@ when apiResponse is undefined, and I'm reading name propety here -->
     <h2 class="errorMessage">{errorMessage}</h2>
 {/if}
 
-{#if showDialog[0]}
-    <SaveAsDialog {showDialog} {dialogOKCallback}></SaveAsDialog>
+{#if dialogState.show}
+    <SaveAsDialog {dialogState}></SaveAsDialog>
 {/if}
 
 <style>
