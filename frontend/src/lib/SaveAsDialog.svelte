@@ -2,7 +2,7 @@
     import { gameInfo } from "$lib/shared.svelte";
     let { dialogState = $bindable() } = $props();
     function addFocus(node){
-        node.focus();
+        node.select();
     }
   </script>
   
