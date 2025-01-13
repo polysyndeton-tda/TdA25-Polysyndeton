@@ -4,7 +4,18 @@
     import { onMount } from 'svelte';
     import { page } from '$app/stores';
     import { PUBLIC_API_BASE_URL } from '$env/static/public';
+    import SaveAsDialog from "$lib/SaveAsDialog.svelte";
     const api_url = PUBLIC_API_BASE_URL || 'https://odevzdavani.tourdeapp.cz/mockbush/api/v1/';
+    
+    let dialogState = $state({
+        show: false,
+        OKCallback: undefined //an async function
+    });
+
+    function openSaveAsDialog(callback){
+        dialogState.show = true;
+        dialogState.OKCallback = callback;
+    }
 
     async function createPuzzle() { //createGameRecord
         if(!$page.params.uuid){ //on /game, creating a new game
@@ -78,7 +89,7 @@ when apiResponse is undefined, and I'm reading name propety here -->
         {#if $page.params.uuid}
             <button onclick={() => editPuzzle($page.params.uuid)}>Uložit změny</button>
         {:else}
-            <button onclick={createPuzzle}>Uložit jako úlohu</button>
+            <button onclick={() => openSaveAsDialog(createPuzzle)}>Uložit jako úlohu</button>
         {/if}
     </div>
 
@@ -88,6 +99,10 @@ when apiResponse is undefined, and I'm reading name propety here -->
 
 {:else if errorMessage}
     <h2 class="errorMessage">{errorMessage}</h2>
+{/if}
+
+{#if dialogState.show}
+    <SaveAsDialog bind:dialogState></SaveAsDialog>
 {/if}
 
 <style>
