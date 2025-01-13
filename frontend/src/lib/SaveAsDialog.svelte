@@ -1,6 +1,6 @@
   <script>
     import { gameInfo } from "$lib/shared.svelte";
-    let { dialogState } = $props();
+    let { dialogState = $bindable() } = $props();
   </script>
   
   <div class="popup-container">

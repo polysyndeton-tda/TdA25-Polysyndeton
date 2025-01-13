@@ -102,7 +102,7 @@ when apiResponse is undefined, and I'm reading name propety here -->
 {/if}
 
 {#if dialogState.show}
-    <SaveAsDialog {dialogState}></SaveAsDialog>
+    <SaveAsDialog bind:dialogState></SaveAsDialog>
 {/if}
 
 <style>
