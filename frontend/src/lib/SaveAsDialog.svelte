@@ -1,6 +1,9 @@
   <script>
     import { gameInfo } from "$lib/shared.svelte";
     let { dialogState = $bindable() } = $props();
+    function addFocus(node){
+        node.focus();
+    }
   </script>
   
   <div class="popup-container">
@@ -8,7 +11,7 @@
             <div class="title">
                 <h2>Save As</h2>
                 <div>
-                    <input type="text" value={gameInfo.apiResponse.name}>
+                    <input type="text" use:addFocus value={gameInfo.apiResponse.name}>
                     <select value={gameInfo.apiResponse.difficulty}>
                         <option>beginner</option>
                         <option>easy</option>
