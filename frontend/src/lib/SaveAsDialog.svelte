@@ -5,19 +5,21 @@
   
   <div class="popup-container">
         <div class="popup">
-            <h2>Save As</h2>
-            <div>
-                <input type="text" value={gameInfo.apiResponse.name}>
-                <select value={gameInfo.apiResponse.difficulty}>
-                    <option>beginner</option>
-                    <option>easy</option>
-                    <option>medium</option>
-                    <option>hard</option>
-                    <option>extreme</option>
-                </select>
+            <div class="title">
+                <h2>Save As</h2>
+                <div>
+                    <input type="text" value={gameInfo.apiResponse.name}>
+                    <select value={gameInfo.apiResponse.difficulty}>
+                        <option>beginner</option>
+                        <option>easy</option>
+                        <option>medium</option>
+                        <option>hard</option>
+                        <option>extreme</option>
+                    </select>
+                </div>
             </div>
             <div>
-                <button onclick={
+                <button class="ok" onclick={
                     async () => {
                         /*
                         The gameInfo gets updated only on Save button, making Cancel easy
@@ -32,9 +34,6 @@
                         await dialogState.OKCallback();
                     }
                 }>OK</button>
-                <!-- [svelte] ownership_invalid_mutationsrc/lib/SaveAsDialog.svelte mutated a value owned by src/routes/game/[[uuid]]/+page.svelte.
-                  This is strongly discouraged. Consider passing values to child components with `bind:`, or use a callback instead
-                  https://svelte.dev/e/ownership_invalid_mutation -->
                 <button onclick={() => dialogState.show = false}>Cancel</button>
             </div>
         </div>
@@ -56,8 +55,6 @@
         display: flex;
         justify-content: center;
         align-items: center;
-        background-color: #242424; 
-        background-color: #101010;
         padding: 10px;
         display: flex;
         flex-direction: column;
@@ -66,7 +63,29 @@
         filter: drop-shadow(0 0 8px var(--menu-item-hover-color));
 
     }
-    .popup > * > * {
+    input, select{
         font-size: 1.5rem;
+    }
+
+    @media (prefers-color-scheme: light){
+        h2{
+            color: white;
+        }
+        .title{
+            background-color: #0257a5;
+            border-radius: 8px;
+            padding: 10px;
+        }
+        .popup{
+            background: #739bc5; /*#76aeea;*/
+            padding: 0 0 10px 0;
+            box-shadow: rgba(100, 100, 111, 1) 0px 7px 29px 0px;
+        }
+    }
+
+    @media (prefers-color-scheme: dark){
+        .popup{
+            background-color: #101010; /*#242424*/
+        }
     }
 </style>
