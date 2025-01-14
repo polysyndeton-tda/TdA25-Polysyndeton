@@ -4,6 +4,23 @@
     function addFocus(node){
         node.select();
     }
+    async function save(){
+    /*
+        The gameInfo gets updated only on Save button, making Cancel easy
+
+        If we used bind:value in <input> and <select>, the values would update automatically 
+        (making undo = cancel here more difficult = previous value would have to be saved in a separate variable), 
+        and the Save button would only send them to the server,
+        */
+        gameInfo.apiResponse.name = document.querySelector("input").value;
+        gameInfo.apiResponse.difficulty = document.querySelector("select").value;
+        //the callback is an async function calling fetch, if await wasn't used we would have got race conditions.
+        await dialogState.OKCallback();
+    }
+
+    function close(){
+        dialogState.show = false;
+    }
   </script>
   
   <div class="popup-container">
@@ -11,7 +28,10 @@
             <div class="title">
                 <h2>Save As</h2>
                 <div>
-                    <input type="text" use:addFocus value={gameInfo.apiResponse.name}>
+                    <input type="text" onkeydown={e=> {
+                        if(e.key == "Enter") save();
+                        else if (e.key == "Escape") close();
+                    }} use:addFocus value={gameInfo.apiResponse.name}>
                     <select value={gameInfo.apiResponse.difficulty}>
                         <option>beginner</option>
                         <option>easy</option>
@@ -22,22 +42,8 @@
                 </div>
             </div>
             <div>
-                <button class="ok" onclick={
-                    async () => {
-                        /*
-                        The gameInfo gets updated only on Save button, making Cancel easy
-
-                        If we used bind:value in <input> and <select>, the values would update automatically 
-                        (making undo = cancel here more difficult = previous value would have to be saved in a separate variable), 
-                        and the Save button would only send them to the server,
-                        */
-                        gameInfo.apiResponse.name = document.querySelector("input").value;
-                        gameInfo.apiResponse.difficulty = document.querySelector("select").value;
-                        //the callback is an async function calling fetch, if await wasn't used we would have got race conditions.
-                        await dialogState.OKCallback();
-                    }
-                }>OK</button>
-                <button onclick={() => dialogState.show = false}>Cancel</button>
+                <button class="ok" onclick={save}>OK</button>
+                <button onclick={close}>Cancel</button>
             </div>
         </div>
 </div>
