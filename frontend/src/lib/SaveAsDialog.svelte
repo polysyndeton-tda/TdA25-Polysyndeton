@@ -27,7 +27,7 @@
   <div in:scale={{ duration: 75}} out:scale={{ duration: 95}} class="popup-container">
         <div class="popup">
             <div class="title">
-                <h2>Save As</h2>
+                <h2>Uložit jako</h2>
                 <div>
                     <input type="text" onkeydown={e=> {
                         if(e.key == "Enter") save();
@@ -44,7 +44,7 @@
             </div>
             <div>
                 <button class="ok" onclick={save}>OK</button>
-                <button onclick={close}>Cancel</button>
+                <button onclick={close}>Zrušit</button>
             </div>
         </div>
 </div>
