@@ -91,4 +91,14 @@
             background-color: #101010; /*#242424*/
         }
     }
+    /* fix from https://stackoverflow.com/questions/30282921/fixed-pop-up-div-gets-overlapped-by-keyboard */
+    @media (max-width: 767px) {
+        .popup-container {
+            width: 100%;
+            top: 10px;
+            bottom: 0px;    
+            overflow-y: auto;
+            max-height: 100%;
+        }
+    }
 </style>
