@@ -83,8 +83,8 @@
     border-radius: 8px;
     border: 1px solid transparent;
     padding: 0.6em 1.2em;
-    font-size: 1em;
-    font-weight: 500;
+    font-size: 1.2rem;
+    font-weight: 535;
     font-family: inherit;
     cursor: pointer;
     transition: border-color 0.25s;
@@ -102,6 +102,8 @@
 .btnlink{
     text-decoration: none;
     color: black;
+    font-size: 1.2rem;
+    letter-spacing: 0.5px;
 }
 
 .button:hover {

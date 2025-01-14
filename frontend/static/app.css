@@ -1,5 +1,5 @@
 :root {
-  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+  font-family: Dosis, Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
   font-weight: 400;
 
@@ -65,8 +65,9 @@ button {
   border-radius: 8px;
   border: 1px solid transparent;
   padding: 0.6em 1.2em;
-  font-size: 1.1rem;
-  font-weight: 500;
+  font-size: 1.2rem;
+  font-weight: 535;
+  letter-spacing: 0.5px;
   font-family: inherit;
   background-color: #1a1a1a;
   cursor: pointer;
@@ -102,10 +103,17 @@ button:focus-visible {
   src: url('Dosis-VariableFont_wght.ttf')  format('truetype'); /* Safari, Android, iOS */
 }
 
-h1, h2 {
+h1, h2, input { /*davat na select nema smysl, option stejne ma system font no matter what*/
   font-family: 'Dosis';
 }
 
+input{
+  font-weight: 500;
+}
+
 p{
-  font-size: 1.2rem;
+  font-size: 1.3rem;
+  /*letter spacing 0.5px makes it look close to the brand manual*/
+  letter-spacing: 0.5px;
+  font-weight: 540;
 }

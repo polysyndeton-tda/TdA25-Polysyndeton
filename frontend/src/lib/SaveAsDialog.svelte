@@ -24,7 +24,7 @@
     }
   </script>
   
-  <div in:scale={{ duration: 75}} out:scale={{ duration: 75}} class="popup-container">
+  <div in:scale={{ duration: 75}} out:scale={{ duration: 95}} class="popup-container">
         <div class="popup">
             <div class="title">
                 <h2>Save As</h2>

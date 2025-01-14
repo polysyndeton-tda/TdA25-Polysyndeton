@@ -58,7 +58,7 @@
 
   /*A cool underline effect when hovering on links*/
   .menuItem {
-    font-weight: 500;
+    font-weight: 700;
     color: white; /*#646cff #535bf2*/
     text-decoration: inherit;
   }
