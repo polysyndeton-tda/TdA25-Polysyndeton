@@ -55,7 +55,7 @@ def games():
         game = Game(
             name=data["name"],
             difficulty=data["difficulty"],
-            gamestate= get_gamestate(data["board"]),
+            gamestate=get_gamestate(data["board"]),
             board=string_from_board(data["board"]),
             width=len(data["board"][0]),
             heigth=len(data["board"]),

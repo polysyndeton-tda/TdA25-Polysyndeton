@@ -46,7 +46,8 @@ def get_second_diagonals(board) -> List[List[str]]:
 
     return get_first_diagonals(transposed_board)
 
-def process_single_sequence(sequence: List[str], winning_length):
+
+def process_single_sequence(sequence: List[str], winning_length, turns: Turns):
     """
     Look up endgame patterns with a sliding window
 
@@ -63,21 +64,30 @@ def process_single_sequence(sequence: List[str], winning_length):
         window_counter = Counter(window)
         del window_counter[""]
 
-        if any(count >= 4 for count in window_counter.values()) and len(window_counter.keys()) == 1:
+        player = "X" if turns[0] == turns[1] else "O"
+
+        if window_counter["X"] > 0 and window_counter["O"] > 0:
+            start += 1
+            end += 1
+            continue
+
+        if window_counter["X"] == 4 and player == "X":
+            return True
+        if window_counter["O"] == 4 and player == "O":
             return True
         start += 1
         end += 1
     return False
 
 
-def process_direction(direction, winning_length):
+def process_direction(direction, winning_length, turns):
     """
     Look up endgame patterns for each sequence in a given direction
 
     Returns True if an endgame pattern was found
     """
     for sequence in direction:
-        if process_single_sequence(sequence, winning_length):
+        if process_single_sequence(sequence, winning_length, turns):
             return True
     return False
 
@@ -98,8 +108,10 @@ def is_endgame(board, winning_length):
         get_second_diagonals(board),
     ]
 
+    turns = get_turns(board)
+
     for d in directions:
-        if process_direction(d, winning_length):
+        if process_direction(d, winning_length, turns):
             return True
     return False
 
