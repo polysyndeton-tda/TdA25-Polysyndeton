@@ -58,14 +58,18 @@
         display: flex;
         justify-content: center;
         align-items: center;
-        padding: 10px;
         display: flex;
         flex-direction: column;
         gap: 10px;
         border-radius: 8px;
         filter: drop-shadow(0 0 8px var(--menu-item-hover-color));
-
+        padding: 0 0 10px 0;
     }
+    .title{
+        border-radius: 8px;
+        padding: 10px;
+    }
+
     input, select{
         font-size: 1.5rem;
     }
@@ -76,19 +80,19 @@
         }
         .title{
             background-color: #0257a5;
-            border-radius: 8px;
-            padding: 10px;
         }
         .popup{
             background: #739bc5; /*#76aeea;*/
-            padding: 0 0 10px 0;
             box-shadow: rgba(100, 100, 111, 1) 0px 7px 29px 0px;
         }
     }
 
     @media (prefers-color-scheme: dark){
-        .popup{
+        .title{
             background-color: #101010; /*#242424*/
+        }
+        .popup{
+            background-color: #434343;
         }
     }
     /* fix from https://stackoverflow.com/questions/30282921/fixed-pop-up-div-gets-overlapped-by-keyboard */
