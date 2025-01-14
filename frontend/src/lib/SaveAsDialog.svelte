@@ -1,5 +1,6 @@
   <script>
     import { gameInfo } from "$lib/shared.svelte";
+    import { scale } from 'svelte/transition'
     let { dialogState = $bindable() } = $props();
     function addFocus(node){
         node.select();
@@ -23,7 +24,7 @@
     }
   </script>
   
-  <div class="popup-container">
+  <div in:scale={{ duration: 75}} out:scale={{ duration: 75}} class="popup-container">
         <div class="popup">
             <div class="title">
                 <h2>Save As</h2>
