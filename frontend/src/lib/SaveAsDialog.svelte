@@ -1,10 +1,12 @@
   <script>
-    import { gameInfo } from "$lib/shared.svelte";
+    import { gameInfo, difficultyMapToEN, difficultyMapToCZ } from "$lib/shared.svelte";
     import { scale } from 'svelte/transition'
     let { dialogState = $bindable() } = $props();
+
     function addFocus(node){
         node.select();
     }
+
     async function save(){
     /*
         The gameInfo gets updated only on Save button, making Cancel easy
@@ -14,7 +16,7 @@
         and the Save button would only send them to the server,
         */
         gameInfo.apiResponse.name = document.querySelector("input").value;
-        gameInfo.apiResponse.difficulty = document.querySelector("select").value;
+        gameInfo.apiResponse.difficulty = difficultyMapToEN[document.querySelector("select").value];
         //the callback is an async function calling fetch, if await wasn't used we would have got race conditions.
         await dialogState.OKCallback();
     }
@@ -33,12 +35,12 @@
                         if(e.key == "Enter") save();
                         else if (e.key == "Escape") close();
                     }} use:addFocus value={gameInfo.apiResponse.name}>
-                    <select value={gameInfo.apiResponse.difficulty}>
-                        <option>beginner</option>
-                        <option>easy</option>
-                        <option>medium</option>
-                        <option>hard</option>
-                        <option>extreme</option>
+                    <select value={difficultyMapToCZ[gameInfo.apiResponse.difficulty]}>
+                        <option>začátečník</option>
+                        <option>jednoduchá</option>
+                        <option>pokročilá</option>
+                        <option>těžká</option>
+                        <option>nejtěžší</option>
                     </select>
                 </div>
             </div>

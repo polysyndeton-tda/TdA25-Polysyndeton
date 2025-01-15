@@ -71,3 +71,22 @@ export async function deletePuzzle(uuid) {
     return false;
     //this path doesn't send any response
 }
+
+/*The levels of difficulty 
+=Obtížnosti in Czech (začátečník, jednoduchá, pokročilá, těžká, nejtěžší)
+In the UI in Czech, in the API in English*/
+export const difficultyMapToEN = {
+    "začátečník": "beginner",
+    "jednoduchá": "easy",
+    "pokročilá": "medium",
+    "těžká": "hard",
+    "nejtěžší": "extreme"
+}
+
+export const difficultyMapToCZ = {
+    "beginner": "začátečník",
+    "easy": "jednoduchá",
+    "medium": "pokročilá",
+    "hard": "těžká",
+    "extreme": "nejtěžší"
+}
