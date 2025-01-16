@@ -1,7 +1,7 @@
 from src import app, db
 from flask import jsonify, send_from_directory, request, Response
 import json
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 
 from src.models import Game
 from src.utils import (
@@ -122,3 +122,56 @@ def single_game(uuid):
         result = game_json(game)
 
         return jsonify(result), 200
+
+@app.route("/api/v1/filter/")
+def filter():
+    difficulty = request.args.get("difficulty")
+    name = request.args.get("name")
+    date_filter = request.args.get("date_filter") 
+
+    available_diffs = {"beginner", "easy", "medium", "hard", "extreme"}
+    if difficulty not in available_diffs:
+        bad_request = {"message": f"Bad request: invalid difficulty, available options are {available_diffs}"}
+        return jsonify(bad_request), 400
+
+    query = Game.query
+
+    if difficulty:
+        query = query.filter(Game.difficulty == difficulty)
+
+    if name:
+        query = query.filter(Game.name.ilike(f"%{name}%")) # case insensitive
+
+    available_dates = {"24h", "7d", "1m", "3m"}
+    if date_filter:
+        now = datetime.now(timezone.utc)
+        if date_filter == "24h":
+            threshold = now - timedelta(hours=24)
+        elif date_filter == "7d":
+            threshold = now - timedelta(days=7)
+        elif date_filter == "1m":
+            threshold = now - timedelta(days=30)
+        elif date_filter == "3m":
+            threshold = now - timedelta(days=90)
+        else:
+            return jsonify({"Bad request": f"invalid date filter value, available options are: {available_dates}"}), 400
+
+        query = query.filter(Game.updated_at >= threshold)
+
+    games = query.all()
+
+    games_data = [
+        {
+            "uuid": game.uuid,
+            "name": game.name,
+            "difficulty": game.difficulty,
+            "updated_at": game.updated_at.isoformat(),
+            "created_at": game.created_at.isoformat(),
+            "board": game.board,
+            "width": game.width,
+            "height": game.heigth,
+        }
+        for game in games
+    ]
+
+    return jsonify(games_data), 200
