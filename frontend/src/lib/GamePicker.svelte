@@ -1,7 +1,19 @@
 <script>
-    import { gameInfo, deletePuzzle } from "./shared.svelte.js";
+    import { gameInfo, deletePuzzle, difficultyMapToCZ, difficultyMapToNumber, gameStateToCZ } from "./shared.svelte.js";
     import { PUBLIC_API_BASE_URL } from '$env/static/public';
     import { onMount } from "svelte";
+    import { goto } from '$app/navigation';
+    import BoardPreview from "./BoardPreview.svelte";
+    import StarRating from 'svelte-star-rating';
+    import { eventNames } from "process";
+
+    const config = {
+        emptyColor: 'hsl(240, 80%, 85%)',
+        fullColor:  '#E31837',
+        showText: false,
+        size: 22,
+    };
+    const style = 'justify-content:center;padding: 10px 0 0 10px;'; //border: 1px solid firebrick;padding: 12px;';
 
     let items = $state([]);
     let loaded = $state(false);
@@ -10,6 +22,7 @@
         const api_url = PUBLIC_API_BASE_URL || 'https://odevzdavani.tourdeapp.cz/mockbush/api/v1/';
         const request = await fetch(`${api_url}/games`);
         const data = await request.json();
+        console.log(data);
         items = data;
         loaded = true;
     }
@@ -43,6 +56,19 @@
         }
     }
 
+    function navigateToGame(event, path, index){
+        event.preventDefault();
+        //needed to filter out events, so that the "Upravit" and "Smazat" buttons work (instead of sending us to /game)
+        // if(event.target.classList.contains("hasOwnClickHandler")){
+        //     event.preventDefault();
+        //     return false;
+        // } 
+    }
+
+    function buttonShield(event){
+        event.preventDefault(); 
+    }
+
 </script>
 
 {#if loaded}
@@ -51,22 +77,61 @@
     {:else}
         <div class="games-container">
             {#each items as game, index (game)}
-                <span class="button holder">
-                    <a class="btnlink" href={"./game/"+ items[index].uuid} onclick={
-                        () => {
-                            //JS won't let me do a gameInfo = items[index] assignment, as a gameInfo import is const 
-                            gameInfo.apiResponse = items[index];
-                            gameInfo.selected = true;
-                        }
-                    }
-                    >
-                    {game.name}
-                    </a>
-                    <a class="button" href={"./editor/" + items[index].uuid}>Edit</a>
-                    <button onclick={() => {
-                        deletePuzzleFromGui(game, game.uuid);
-                    }}>Delete</button>
-                </span>
+                <a id={"i" + index} href={"/game/"+ items[index].uuid} class="button holder" role="button" tabindex="0">
+                    <BoardPreview boardApiInfo={game}></BoardPreview>
+                    <div style="display: flex; justify-content:center;flex-grow: 1;">
+                    <div>
+                        <!-- href={"/game/"+ items[index].uuid} -->
+                        <p class="btnlink title" onclick={ 
+                            () => {
+                                gameInfo.apiResponse = items[index];
+                                gameInfo.selected = true;
+                            }
+                        }>{game.name}
+                        </p>
+                        <!-- instead of this, show a star<p class="btnlink">{difficultyMapToCZ[game.difficulty]}</p> -->
+                        <div title={difficultyMapToCZ[game.difficulty]}><StarRating rating={difficultyMapToNumber[game.difficulty]} {config} {style} /></div>
+                        <p class="btnlink">Stav: {gameStateToCZ[game.gameState]}</p>
+                        <hr>
+                        <button class="button hasOwnClickHandler" 
+
+                            ontouchstart={(e) => {
+                                document.getElementById("i" + index).href = "/editor/" + items[index].uuid;
+                            }
+                            }
+
+                            ontouchend={(e) => {
+                                document.getElementById("i" + index).href = "/game/" + items[index].uuid;
+                            }}
+
+                            onmouseenter={(e)=> {
+                                document.getElementById("i" + index).href = "/editor/" + items[index].uuid;
+                            }
+                            }
+                            onmouseleave={(e) => {
+                                 document.getElementById("i" + index).href = "/game/" + items[index].uuid;
+                            }
+                            }
+                            onmousedowncapture={(e) => {
+                                e.preventDefault();
+                                console.log(event.which);
+                            }}
+
+                            onkeydown={(e) => {
+                                e.preventDefault();
+                                if(e.key == "Enter"){
+                                    document.getElementById("i" + index).href = "/editor/" + items[index].uuid;
+                                    document.getElementById("i" + index).click();
+                                }
+                            
+                        }}>Upravit</button>
+                        <button class="hasOwnClickHandler" onclick={(e) => {
+                            e.preventDefault(); //prevents from sending us to /game
+                            deletePuzzleFromGui(game, game.uuid);
+                        }}>Smazat</button>  
+                    </div>
+                    </div>
+                </a>
             {/each}
         </div>
     {/if}
@@ -97,6 +162,15 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
+    gap: 10px;
+}
+
+.holder p{
+    margin: 0;
+}
+
+.holder button{
+    width: 100%;    
 }
 
 .btnlink{
@@ -104,6 +178,12 @@
     color: black;
     font-size: 1.2rem;
     letter-spacing: 0.5px;
+}
+
+.title{
+    font-weight: bold;
+    font-size: 1.3rem;
+    text-decoration: underline;
 }
 
 .button:hover {
@@ -117,6 +197,7 @@
     display: flex;
     flex-direction: column;
     gap: 5px;
+    max-width: 100vw;
 }
 
 

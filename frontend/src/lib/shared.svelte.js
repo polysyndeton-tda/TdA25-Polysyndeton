@@ -90,3 +90,17 @@ export const difficultyMapToCZ = {
     "hard": "těžká",
     "extreme": "nejtěžší"
 }
+
+export const difficultyMapToNumber = {
+    "beginner": 1,
+    "easy": 2,
+    "medium": 3,
+    "hard": 4,
+    "extreme": 5
+}
+
+export const gameStateToCZ = {
+    "opening": "Zahájení",
+    "midgame": "Middle game", /*This English term was stated in the Commision, a Czech alternative would be Střední hra */
+    "endgame": "Koncovka"
+}
