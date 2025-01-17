@@ -30,7 +30,7 @@
         <div class="popup">
             <div class="title">
                 <h2>Uložit jako</h2>
-                <div>
+                <div class="contentBar">
                     <input type="text" onkeydown={e=> {
                         if(e.key == "Enter") save();
                         else if (e.key == "Escape") close();
@@ -77,6 +77,17 @@
     .title{
         border-radius: 8px;
         padding: 10px;
+    }
+
+    .contentBar{
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+
+    input{
+        flex-grow: 1;
     }
 
     input, select{

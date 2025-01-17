@@ -1,5 +1,5 @@
 <script>
-    import { gameInfo, resetGame, fetchGame, editPuzzle } from "$lib/shared.svelte";
+    import { gameInfo, resetGame, fetchGame, editPuzzle, difficultyMapToEN, difficultyMapToCZ } from "$lib/shared.svelte";
     import { onMount } from 'svelte';
     import { page } from '$app/stores';
     import BoardEditor from "$lib/BoardEditor.svelte";
@@ -35,6 +35,15 @@
 {#if gameInfo.selected}
     <div class="toolbar">
         <input type="text" bind:value={gameInfo.apiResponse.name}>
+        <select bind:value={() => difficultyMapToCZ[gameInfo.apiResponse.difficulty], /*get*/
+                            (v) => gameInfo.apiResponse.difficulty = difficultyMapToEN[v] /*set*/}> 
+            <!-- class="o" is a workaround for: https://stackoverflow.com/questions/4672960/change-css-font-family-for-separate-options-in-select-tag -->
+            <option class="o">začátečník</option>
+            <option class="o">jednoduchá</option>
+            <option class="o">pokročilá</option>
+            <option class="o">těžká</option>
+            <option class="o">nejtěžší</option>
+        </select>
         <button onclick={() => editPuzzle($page.params.uuid)}>Uložit</button>
     </div>
     <BoardEditor boardApiInfo={gameInfo.apiResponse}></BoardEditor>
@@ -57,6 +66,14 @@
         padding: 0.5em;
         font-size: 2rem;
         width: 100%;
+    }
+
+    select{
+        font-size: 2rem;
+        font-family: 'Dosis';
+    }
+    .o{
+        font-family: 'Dosis';
     }
     .errorMessage{
         /* For \n in the error message to be rendered in HTML*/
