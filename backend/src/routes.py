@@ -147,13 +147,18 @@ def filter():
                 "message": f"Bad request: invalid date filter value, available options are {available_dates}"
             }), 400
 
+    names = []
+    if name:
+        names = name.split(",")
+
     query = Game.query
 
     if difficulties:
         query = query.filter(Game.difficulty.in_(difficulties))
 
     if name:
-        query = query.filter(Game.name.ilike(f"%{name}%"))  # Case-insensitive partial match
+        #query = query.filter(Game.name.ilike(f"%{name}%"))  # Case-insensitive partial match
+        query = query.filter(Game.name.in_(names))
 
     if date_filter:
         now = datetime.now(timezone.utc)
