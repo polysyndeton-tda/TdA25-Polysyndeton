@@ -2,6 +2,11 @@
     import {untrack} from 'svelte';
     let { boardApiInfo } = $props();
 
+    let name = $derived(boardApiInfo.name);
+    $effect(() => {
+        document.title = "Hra - " + name;
+    });
+
     function count(array, item) {
         let count = 0;
         for (let row of array) {

@@ -50,7 +50,7 @@
 {/if}
 
 {#if errorMessage}
-    <h2 class="errorMessage">{errorMessage}</h2>
+    <h2 class="errorMessage center">{errorMessage}</h2>
 {/if}
 
 

@@ -78,6 +78,7 @@
 <!-- 
 Drawing conditionallly to avoid "TypeError: Cannot read properties of undefined (reading 'name')"
 when apiResponse is undefined, and I'm reading name propety here -->
+<div class="center">
 {#if loaded}
     <div>
         {#if gameInfo.apiResponse.name}
@@ -104,7 +105,7 @@ when apiResponse is undefined, and I'm reading name propety here -->
 {#if dialogState.show}
     <SaveAsDialog bind:dialogState></SaveAsDialog>
 {/if}
-
+</div>
 <style>
     .errorMessage{
         /* For \n in the error message to be rendered in HTML*/

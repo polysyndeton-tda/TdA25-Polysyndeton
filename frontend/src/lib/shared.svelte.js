@@ -13,7 +13,7 @@ export const resetGame = () => {
     gameInfo.apiResponse = {
         board: Array(15).fill().map(() => Array(15).fill("")),
         uuid: Date.now(), //changing the uuid on empty game to trigger reset in Board.svelte
-        name: "nova hra",
+        name: "Nová hra piškvorek",
         difficulty: "beginner"
     };
     gameInfo.selected = true;
@@ -103,4 +103,20 @@ export const gameStateToCZ = {
     "opening": "Zahájení",
     "midgame": "Middle game", /*This English term was stated in the Commision, a Czech alternative would be Střední hra */
     "endgame": "Koncovka"
+}
+
+export const filterToEN = {
+    "24 hodin": "24h",
+    "7 dní": "7d",
+    "3 měsíců": "3m",
+    "1 měsíce": "1m",
+    "neomezenou": ""
+}
+
+export const filterToCZ = {
+    "24h": "24 hodin",
+    "7d": "7 dní",
+    "3m": "3 měsíců",
+    "1m": "1 měsíce",
+    "": "neomezenou"
 }

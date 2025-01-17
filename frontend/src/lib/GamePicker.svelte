@@ -2,10 +2,10 @@
     import { gameInfo, deletePuzzle, difficultyMapToCZ, difficultyMapToNumber, gameStateToCZ } from "./shared.svelte.js";
     import { PUBLIC_API_BASE_URL } from '$env/static/public';
     import { onMount } from "svelte";
-    import { goto } from '$app/navigation';
     import BoardPreview from "./BoardPreview.svelte";
     import StarRating from 'svelte-star-rating';
-    import { eventNames } from "process";
+    import Filter from "./Filter.svelte";
+    const api_url = PUBLIC_API_BASE_URL || 'https://odevzdavani.tourdeapp.cz/mockbush/api/v1/';
 
     const config = {
         emptyColor: 'hsl(240, 80%, 85%)',
@@ -19,13 +19,32 @@
     let loaded = $state(false);
     async function fetchAllGames(){
         //all games list
-        const api_url = PUBLIC_API_BASE_URL || 'https://odevzdavani.tourdeapp.cz/mockbush/api/v1/';
         const request = await fetch(`${api_url}/games`);
         const data = await request.json();
         console.log(data);
         items = data;
         loaded = true;
     }
+
+    let filterState = $state({
+       used: false,
+       filters: {
+            difficulty: ["beginner", "easy", "medium", "hard", "extreme"], //list of difficulty value
+            name: "",       //a name of one board
+            date_filter: "" //"24h", "7d", "1m", "3m"
+       } 
+    });
+
+    async function fetchAllGamesFiltered(){
+        const params = new URLSearchParams(filterState.filters);
+        const response = await fetch(`${api_url}/filter?${params.toString()}`);
+        const games = await response.json();
+        items = games;
+    }
+
+    $effect(() => {
+        fetchAllGamesFiltered(filterState);
+    });
 
     onMount(fetchAllGames);
 
@@ -56,22 +75,11 @@
         }
     }
 
-    function navigateToGame(event, path, index){
-        event.preventDefault();
-        //needed to filter out events, so that the "Upravit" and "Smazat" buttons work (instead of sending us to /game)
-        // if(event.target.classList.contains("hasOwnClickHandler")){
-        //     event.preventDefault();
-        //     return false;
-        // } 
-    }
-
-    function buttonShield(event){
-        event.preventDefault(); 
-    }
-
 </script>
 
 {#if loaded}
+    <Filter bind:filterState ></Filter>
+    <br>
     {#if items.length == 0}
         <p>Zatím žádné úlohy nebyly vytvořeny</p>
     {:else}
@@ -80,7 +88,7 @@
                 <a id={"i" + index} href={"/game/"+ items[index].uuid} class="button holder" role="button" tabindex="0">
                     <BoardPreview boardApiInfo={game}></BoardPreview>
                     <div style="display: flex; justify-content:center;flex-grow: 1;">
-                    <div>
+                    <div class="center">
                         <!-- href={"/game/"+ items[index].uuid} -->
                         <p class="btnlink title" onclick={ 
                             () => {
@@ -257,4 +265,3 @@
     }
 }
 </style>
-

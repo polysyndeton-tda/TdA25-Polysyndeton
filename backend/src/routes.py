@@ -178,7 +178,7 @@ def filter():
             "difficulty": game.difficulty,
             "updated_at": game.updated_at.isoformat(),
             "created_at": game.created_at.isoformat(),
-            "board": get_board_from_string(game.board),
+            "board": board_from_string(game.board, 15, 15),
             "width": game.width,
             "height": game.heigth,
         }

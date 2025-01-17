@@ -2,6 +2,11 @@
     import {untrack} from 'svelte';
     let { boardApiInfo } = $props();
 
+    let name = $derived(boardApiInfo.name);
+    $effect(() => {
+        document.title = "Editor - " + name;
+    });
+
     function count(array, item) {
         let count = 0;
         for (let row of array) {
@@ -155,11 +160,14 @@
     </div>
 </div>
 
+<div class="center">
 {#if !statusOK.ok}
     <h2 class="status warn">Taková hra nemůže nastat!</h2>
 {:else}
     <h2 class="status"><span class="player {naTahu}">{naTahu}</span> na tahu</h2>
 {/if}
+</div>
+
 <style>
     .status{
         font-size: xx-large;

@@ -35,12 +35,13 @@
                         if(e.key == "Enter") save();
                         else if (e.key == "Escape") close();
                     }} use:addFocus value={gameInfo.apiResponse.name}>
+                    <!-- class="o" is a workaround for: https://stackoverflow.com/questions/4672960/change-css-font-family-for-separate-options-in-select-tag -->
                     <select value={difficultyMapToCZ[gameInfo.apiResponse.difficulty]}>
-                        <option>začátečník</option>
-                        <option>jednoduchá</option>
-                        <option>pokročilá</option>
-                        <option>těžká</option>
-                        <option>nejtěžší</option>
+                        <option class="o">začátečník</option>
+                        <option class="o">jednoduchá</option>
+                        <option class="o">pokročilá</option>
+                        <option class="o">těžká</option>
+                        <option class="o">nejtěžší</option>
                     </select>
                 </div>
             </div>
@@ -92,6 +93,12 @@
 
     input, select{
         font-size: 1.5rem;
+    }
+
+    select, .o{
+        font-family: 'Dosis';
+        font-weight: 535;
+        letter-spacing: 0.5px;
     }
 
     @media (prefers-color-scheme: light){
