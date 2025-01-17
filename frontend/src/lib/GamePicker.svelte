@@ -79,6 +79,12 @@
 
 {#if loaded}
     <Filter bind:filterState ></Filter>
+
+    <p class="infoFilter">
+        Když ve filtru necháte v kategorii výběr prázdný, tak se filtr neaplikuje. 
+        Tedy nechcete-li filtrovat podle obtížnosti, můžete vybrat buď všechny kategorie nebo žádnou.
+        Nechcete-li filtrovat podle názvu, nechte políčko prázdné.
+    </p>
     <br>
     {#if items.length == 0}
         <p>Zatím žádné úlohy nebyly vytvořeny</p>
@@ -151,6 +157,9 @@
 
 
 <style>
+.infoFilter{
+    max-width: 500px;
+}
 .button{
     display: block;
     border-radius: 8px;
