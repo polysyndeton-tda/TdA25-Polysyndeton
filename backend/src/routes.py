@@ -125,11 +125,9 @@ def single_game(uuid):
 
 @app.route("/api/v1/filter/")
 def filter():
-    keys = list(request.args.keys())
-
-    difficulty = request.args.get("difficulty") if "difficulty" in keys else []
-    name = request.args.get("name") if "name" in keys else []
-    date_filter = request.args.get("date_filter") if "date_filter" in keys else []
+    difficulty = request.args.get("difficulty", "")
+    name = request.args.get("name", "")
+    date_filter = request.args.get("date_filter", "")
 
     available_diffs = {"beginner", "easy", "medium", "hard", "extreme"}
     available_dates = {"24h", "7d", "1m", "3m"}
@@ -138,19 +136,16 @@ def filter():
     if difficulty:
         difficulties = difficulty.split(",")
         if not all(diff in available_diffs for diff in difficulties):
-            bad_request = {
+            return jsonify({
                 "message": f"Bad request: invalid difficulty, available options are {available_diffs}"
-            }
-            return jsonify(bad_request), 400
+            }), 400
 
-    date_filters = []
     if date_filter:
         date_filters = date_filter.split(",")
         if not all(df in available_dates for df in date_filters):
-            bad_request = {
+            return jsonify({
                 "message": f"Bad request: invalid date filter value, available options are {available_dates}"
-            }
-            return jsonify(bad_request), 400
+            }), 400
 
     query = Game.query
 
@@ -158,27 +153,18 @@ def filter():
         query = query.filter(Game.difficulty.in_(difficulties))
 
     if name:
-        query = query.filter(Game.name.ilike(f"%{name}%")) # ase insensitive
+        query = query.filter(Game.name.ilike(f"%{name}%"))  # Case-insensitive partial match
 
-    if date_filters:
+    if date_filter:
         now = datetime.now(timezone.utc)
-        thresholds = []
-        for df in date_filters:
-            if df == "24h":
-                thresholds.append(now - timedelta(hours=24))
-            elif df == "7d":
-                thresholds.append(now - timedelta(days=7))
-            elif df == "1m":
-                thresholds.append(now - timedelta(days=30))
-            elif df == "3m":
-                thresholds.append(now - timedelta(days=90))
-
+        thresholds = [now - timedelta(hours=24) if df == "24h" else
+                      now - timedelta(days=7) if df == "7d" else
+                      now - timedelta(days=30) if df == "1m" else
+                      now - timedelta(days=90) for df in date_filter.split(",")]
         if thresholds:
-            min_threshold = min(thresholds)
-            query = query.filter(Game.updated_at >= min_threshold)
+            query = query.filter(Game.updated_at >= min(thresholds))
 
     games = query.all()
-
     games_data = [
         {
             "uuid": game.uuid,
