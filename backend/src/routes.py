@@ -6,6 +6,7 @@ from datetime import datetime, timezone, timedelta
 from src.models import Game
 from src.utils import (
     string_from_board,
+    board_from_string,
     game_json,
     validate_post,
     validate_fields,
