@@ -71,9 +71,9 @@ def process_single_sequence(sequence: List[str], winning_length, turns: Turns):
             end += 1
             continue
 
-        if window_counter["X"] == 4 and player == "X":
+        if window_counter["X"] >= 4 and player == "X":
             return True
-        if window_counter["O"] == 4 and player == "O":
+        if window_counter["O"] >= 4 and player == "O":
             return True
         start += 1
         end += 1
