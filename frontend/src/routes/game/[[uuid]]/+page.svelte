@@ -5,6 +5,7 @@
     import { page } from '$app/stores';
     import { PUBLIC_API_BASE_URL } from '$env/static/public';
     import SaveAsDialog from "$lib/SaveAsDialog.svelte";
+    import { goto } from '$app/navigation';
     const api_url = PUBLIC_API_BASE_URL || 'https://odevzdavani.tourdeapp.cz/mockbush/api/v1/';
     
     let dialogState = $state({
@@ -35,7 +36,7 @@
             const data = await request.json();
             console.log("data", data)
             if(request.ok){
-                document.location.pathname = `/game/${data.uuid}`; //zmena url, jak chteli
+                goto(`/game/${data.uuid}`);
             }else if(request.status == 422){
                 alert("Stav křižků neodpovídá stavu koleček nebo naopak");
             }
