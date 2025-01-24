@@ -124,7 +124,7 @@ def single_game(uuid):
 
         return jsonify(result), 200
 
-@app.route("/api/v1/filter/")
+@app.route("/api/v1/filter", methods=["GET"])
 def filter():
     difficulty = request.args.get("difficulty", "")
     name = request.args.get("name", "")
