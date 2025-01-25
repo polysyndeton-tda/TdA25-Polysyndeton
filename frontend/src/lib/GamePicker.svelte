@@ -1,5 +1,5 @@
 <script>
-    import { gameInfo, deletePuzzle, difficultyMapToCZ, difficultyMapToNumber, gameStateToCZ } from "./shared.svelte.js";
+    import { gameInfo, deletePuzzle, difficultyMapToCZ, difficultyMapToNumber, gameStateToCZ, wait } from "./shared.svelte.js";
     import { PUBLIC_API_BASE_URL } from '$env/static/public';
     import { onMount } from "svelte";
     import BoardPreview from "./BoardPreview.svelte";
@@ -48,18 +48,6 @@
     });
 
     onMount(fetchAllGames);
-
-    function wait(ms) {
-        if(ms > 0){
-            return new Promise((resolve, reject) => {
-                setTimeout(() => {
-                    resolve(ms)
-                }, ms )
-            });
-        }else{
-			return;
-		}
-    }
 
     let confirmPuzzleDeleted = $state(false);
     let puzzleDeletedName = $state("");
