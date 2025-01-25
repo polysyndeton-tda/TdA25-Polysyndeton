@@ -1,5 +1,5 @@
 <script>
-    import { gameInfo, deletePuzzle, difficultyMapToCZ, difficultyMapToNumber, gameStateToCZ, wait } from "./shared.svelte.js";
+    import { gameInfo, deletePuzzle, difficultyMapToCZ, difficultyMapToNumber, gameStateToCZ, wait } from "$lib/shared.svelte.js";
     import { PUBLIC_API_BASE_URL } from '$env/static/public';
     import { onMount } from "svelte";
     import BoardPreview from "./BoardPreview.svelte";
@@ -64,6 +64,12 @@
         }
     }
 
+    function setGameInfoForInstantLoad(index){
+        console.log("entrar")
+        gameInfo.apiResponse = items[index];
+        gameInfo.selected = true;
+    }
+
 </script>
 
 {#if loaded}
@@ -80,18 +86,16 @@
     {:else}
         <div class="games-container">
             {#each items as game, index (game)}
-                <a id={"i" + index} href={"/game/"+ items[index].uuid} class="button holder" role="button" tabindex="0">
+                <a id={"i" + index} href={"/game/"+ items[index].uuid} 
+                 onmouseenter={() => setGameInfoForInstantLoad(index)}
+                 ontouchstart={() => setGameInfoForInstantLoad(index)}
+                 class="button holder" role="button" tabindex="0">
+                 
                     <BoardPreview boardApiInfo={game}></BoardPreview>
                     <div style="display: flex; justify-content:center;flex-grow: 1;">
                     <div class="center">
                         <!-- href={"/game/"+ items[index].uuid} -->
-                        <p class="btnlink title" onclick={ 
-                            () => {
-                                gameInfo.apiResponse = items[index];
-                                gameInfo.selected = true;
-                            }
-                        }>{game.name}
-                        </p>
+                        <p class="btnlink title">{game.name}</p>
                         <!-- instead of this, show a star<p class="btnlink">{difficultyMapToCZ[game.difficulty]}</p> -->
                         <div title={difficultyMapToCZ[game.difficulty]}><StarRating rating={difficultyMapToNumber[game.difficulty]} {config} {style} /></div>
                         <p class="btnlink">Stav: {gameStateToCZ[game.gameState]}</p>

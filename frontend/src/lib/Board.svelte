@@ -27,7 +27,7 @@
 
     let uuid = $derived(boardApiInfo.uuid); //$page.params.uuid; doesn't work here
     $effect.pre(() => {
-        console.log("reset", uuid);
+        console.log("board state reset due uuid changing", uuid);
         untrack(() => {
             lastMoved = "";
             naTahu = "X";
@@ -42,8 +42,6 @@
     
     function reset(){
         console.log("co bylo v effectu runuje");
-        
-        console.log("reset")
         let numberOfCrosses = count(boardApiInfo.board, "X");
         let numberOfNoughts = count(boardApiInfo.board, "O");
         let numberOfMoves = numberOfCrosses + numberOfNoughts;
@@ -54,7 +52,6 @@
             lastMoved = "X";
             naTahu = "O";
         }
-           
     }
 
     //a O(N) function to check if the game is already won (as in boards 86a55480-72b4-4302-a0ad-dba4b8409635 and ace938ba-ee31-485a-b58f-e1b397fa83ee on https://odevzdavani.tourdeapp.cz/mockbush/api/v1/games/)

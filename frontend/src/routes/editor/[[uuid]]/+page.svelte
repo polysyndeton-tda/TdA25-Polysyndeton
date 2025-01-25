@@ -1,6 +1,6 @@
 <script>
     import { gameInfo, resetGame, fetchGame, editPuzzle, difficultyMapToEN, difficultyMapToCZ, wait } from "$lib/shared.svelte";
-    import { onMount } from 'svelte';
+    import { untrack } from 'svelte';
     import { page } from '$app/stores';
     import BoardEditor from "$lib/BoardEditor.svelte";
     import { PUBLIC_API_BASE_URL } from '$env/static/public';
@@ -21,14 +21,23 @@
             resetGame();
         } else {
             // Fetch game data when UUID present
-            fetchGame(uuid).then(data => {
-                console.log("data from editor fetch", data);
-                gameInfo.apiResponse = data;
-                gameInfo.selected = true;
-            })
-            .catch(err => {
-                errorMessage = err;
-            })
+            untrack(() => {
+                console.log("gameInfo is", $state.snapshot(gameInfo));
+                if("apiResponse" in gameInfo){ //to avoid reading property of undefined
+                    if(gameInfo.apiResponse.uuid == uuid){
+                        return;
+                    }
+                }
+
+                fetchGame(uuid).then(data => {
+                    console.log("data from editor fetch", data);
+                    gameInfo.apiResponse = data;
+                    gameInfo.selected = true;
+                })
+                .catch(err => {
+                    errorMessage = err;
+                });
+            });
         }
     });
 

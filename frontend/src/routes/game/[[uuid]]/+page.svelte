@@ -1,7 +1,7 @@
 <script>
-    import { gameInfo, resetGame, fetchGame, editPuzzle, wait } from "$lib/shared.svelte";
+    import { gameInfo, resetGame, fetchGame, editPuzzle, wait } from "$lib/shared.svelte.js";
     import Board from "$lib/Board.svelte";
-    import { onMount } from 'svelte';
+    import { untrack } from 'svelte';
     import { page } from '$app/stores';
     import { PUBLIC_API_BASE_URL } from '$env/static/public';
     import SaveAsDialog from "$lib/SaveAsDialog.svelte";
@@ -75,18 +75,30 @@
         
         if (!uuid) {
             // Reset to empty board when no UUID in URL
+            console.log("reset to empty board when no uuid in url")
             resetGame();
             loaded = true;
         } else {
             // Fetch game data when UUID present
-            fetchGame(uuid).then(data => {
-                gameInfo.apiResponse = data;
-                gameInfo.selected = true;
-                loaded = true;
-            })
-            .catch(err =>{
-                errorMessage = err;
-            })
+            untrack(() => {
+                console.log("gameInfo is", $state.snapshot(gameInfo));
+                if("apiResponse" in gameInfo){ //to avoid reading property of undefined
+                    if(gameInfo.apiResponse.uuid == uuid){
+                        loaded = true;
+                        return;
+                    }
+                }
+                
+                fetchGame(uuid).then(data => {
+                    console.log("game fetched fresh from server")
+                    gameInfo.apiResponse = data;
+                    gameInfo.selected = true;
+                    loaded = true;
+                })
+                .catch(err =>{
+                    errorMessage = err;
+                });
+            });
         }
     });
 </script>
