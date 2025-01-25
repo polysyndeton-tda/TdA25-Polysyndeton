@@ -1,9 +1,10 @@
 <script>
-    import { gameInfo, resetGame, fetchGame, editPuzzle, difficultyMapToEN, difficultyMapToCZ } from "$lib/shared.svelte";
+    import { gameInfo, resetGame, fetchGame, editPuzzle, difficultyMapToEN, difficultyMapToCZ, wait } from "$lib/shared.svelte";
     import { onMount } from 'svelte';
     import { page } from '$app/stores';
     import BoardEditor from "$lib/BoardEditor.svelte";
     import { PUBLIC_API_BASE_URL } from '$env/static/public';
+    import Toast from "$lib/Toast.svelte";
     const api_url = PUBLIC_API_BASE_URL || 'https://odevzdavani.tourdeapp.cz/mockbush/api/v1/';
 
     let boardKey = 0;
@@ -30,6 +31,16 @@
             })
         }
     });
+
+    let saved = $state(false);
+    async function saveChangesGUI(){
+        const requestInfo = await editPuzzle($page.params.uuid);
+        if(requestInfo.ok){
+            saved = true;
+            await wait(2000);
+            saved = false;
+        }
+    }
 </script>
 
 {#if gameInfo.selected}
@@ -44,13 +55,17 @@
             <option class="o">těžká</option>
             <option class="o">nejtěžší</option>
         </select>
-        <button onclick={() => editPuzzle($page.params.uuid)}>Uložit</button>
+        <button onclick={saveChangesGUI}>Uložit</button>
     </div>
     <BoardEditor boardApiInfo={gameInfo.apiResponse}></BoardEditor>
 {/if}
 
 {#if errorMessage}
     <h2 class="errorMessage center">{errorMessage}</h2>
+{/if}
+
+{#if saved}
+    <Toast>Změny uloženy</Toast>
 {/if}
 
 

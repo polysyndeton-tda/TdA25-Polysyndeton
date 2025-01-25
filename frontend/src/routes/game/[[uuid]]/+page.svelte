@@ -1,11 +1,12 @@
 <script>
-    import { gameInfo, resetGame, fetchGame, editPuzzle } from "$lib/shared.svelte";
+    import { gameInfo, resetGame, fetchGame, editPuzzle, wait } from "$lib/shared.svelte";
     import Board from "$lib/Board.svelte";
     import { onMount } from 'svelte';
     import { page } from '$app/stores';
     import { PUBLIC_API_BASE_URL } from '$env/static/public';
     import SaveAsDialog from "$lib/SaveAsDialog.svelte";
     import { goto } from '$app/navigation';
+    import Toast from "$lib/Toast.svelte";
     const api_url = PUBLIC_API_BASE_URL || 'https://odevzdavani.tourdeapp.cz/mockbush/api/v1/';
     
     let dialogState = $state({
@@ -18,6 +19,7 @@
         dialogState.OKCallback = callback;
     }
 
+    let created = $state(false);
     async function createPuzzle() { //createGameRecord
         if(!$page.params.uuid){ //on /game, creating a new game
             const request = await fetch(`${api_url}/games`, 
@@ -37,6 +39,9 @@
             console.log("data", data)
             if(request.ok){
                 goto(`/game/${data.uuid}`);
+                created = true;
+                await wait(2000);
+                created = false;
             }else if(request.status == 422){
                 alert("Stav křižků neodpovídá stavu koleček nebo naopak");
             }
@@ -45,6 +50,16 @@
         }
     }
 
+    let updated = $state(false);
+    async function saveChangesGUI(){
+        const requestInfo = await editPuzzle($page.params.uuid);
+        if(requestInfo.ok){
+            updated = true;
+            await wait(2000);
+            updated = false;
+        }
+    }
+    
     let boardKey = 0;
     let loaded = $state(false);
     let errorMessage = $state("");
@@ -89,7 +104,7 @@ when apiResponse is undefined, and I'm reading name propety here -->
         {/if}
 
         {#if $page.params.uuid}
-            <button onclick={() => editPuzzle($page.params.uuid)}>Uložit změny</button>
+            <button onclick={saveChangesGUI}>Uložit změny</button>
         {:else}
             <button onclick={() => openSaveAsDialog(createPuzzle)}>Uložit jako úlohu</button>
         {/if}
@@ -105,6 +120,13 @@ when apiResponse is undefined, and I'm reading name propety here -->
 
 {#if dialogState.show}
     <SaveAsDialog bind:dialogState></SaveAsDialog>
+{/if}
+
+{#if created}
+    <Toast>Úloha {gameInfo.apiResponse.name} uložena</Toast>
+{/if}
+{#if updated}
+    <Toast>Změny uloženy</Toast>
 {/if}
 </div>
 <style>
