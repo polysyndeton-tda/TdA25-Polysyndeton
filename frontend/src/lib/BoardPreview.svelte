@@ -24,9 +24,8 @@
         display: flex;
         flex-direction: column;
         gap: 1.5px;
-        width: 100%;
-        max-width: 500px;
         width: 225px;
+        min-width: 225px;
         background: #6495ed80;
     }
     .row {
