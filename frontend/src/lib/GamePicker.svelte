@@ -185,6 +185,7 @@
     font-weight: bold;
     font-size: 1.3rem;
     text-decoration: underline;
+    overflow-wrap: anywhere; /*For really long words => to avoid overflow (normally names are broken at spaces)*/
 }
 
 .button:hover {
