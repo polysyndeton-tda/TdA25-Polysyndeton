@@ -175,9 +175,10 @@ def filter():
         {
             "uuid": game.uuid,
             "name": game.name,
+            "gameState": game.gamestate,
             "difficulty": game.difficulty,
-            "updated_at": game.updated_at.isoformat(),
-            "created_at": game.created_at.isoformat(),
+            "updatedAt": game.updated_at.isoformat(),
+            "createdAt": game.created_at.isoformat(),
             "board": board_from_string(game.board, 15, 15),
             "width": game.width,
             "height": game.heigth,

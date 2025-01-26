@@ -1,6 +1,3 @@
-from datetime import datetime, timezone
-
-
 def get_formatted_date(date):
     return date.strftime("%Y-%m-%dT%H:%M:%S.%f")[:-3] + "Z"
 
