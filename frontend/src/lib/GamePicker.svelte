@@ -1,20 +1,12 @@
 <script>
-    import { gameInfo, deletePuzzle, difficultyMapToCZ, difficultyMapToNumber, gameStateToCZ, wait } from "$lib/shared.svelte.js";
+    import { gameInfo, deletePuzzle, gameStateToCZ, wait } from "$lib/shared.svelte.js";
     import { PUBLIC_API_BASE_URL } from '$env/static/public';
     import { onMount } from "svelte";
     import BoardPreview from "./BoardPreview.svelte";
-    import StarRating from 'svelte-star-rating';
     import Filter from "./Filter.svelte";
     import Toast from "./Toast.svelte";
+    import GameStarRating from "./GameStarRating.svelte";
     const api_url = PUBLIC_API_BASE_URL || 'https://odevzdavani.tourdeapp.cz/mockbush/api/v1/';
-
-    const config = {
-        emptyColor: 'hsl(240, 80%, 85%)',
-        fullColor:  '#E31837',
-        showText: false,
-        size: 22,
-    };
-    const style = 'justify-content:center;padding: 10px 0 0 10px;'; //border: 1px solid firebrick;padding: 12px;';
 
     let items = $state([]);
     let loaded = $state(false);
@@ -96,8 +88,7 @@
                     <div class="center">
                         <!-- href={"/game/"+ items[index].uuid} -->
                         <p class="btnlink title">{game.name}</p>
-                        <!-- instead of this, show a star<p class="btnlink">{difficultyMapToCZ[game.difficulty]}</p> -->
-                        <div title={difficultyMapToCZ[game.difficulty]}><StarRating rating={difficultyMapToNumber[game.difficulty]} {config} {style} /></div>
+                        <GameStarRating difficulty={game.difficulty}/>
                         <p class="btnlink">Stav: {gameStateToCZ[game.gameState]}</p>
                         <hr>
                         <button class="button hasOwnClickHandler" 
