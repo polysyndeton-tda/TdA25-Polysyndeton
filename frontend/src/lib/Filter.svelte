@@ -49,19 +49,23 @@
 <div class="filterContainer">
     <div>
         <h3>Obtížnost:</h3>
+        <fieldset> <!-- https://stackoverflow.com/questions/10469256/how-to-force-a-checkbox-and-text-on-the-same-line -->
         {#each allDifficultyLevels as difficultyLevel, index}
-            <label>
-                <input type="checkbox" bind:checked={displayList[index]}>
-                {difficultyMapToCZ[difficultyLevel]}
-            </label>
+            <div style="display: inline;white-space: nowrap;">
+                <label>
+                    <input type="checkbox" bind:checked={displayList[index]}>
+                    {difficultyMapToCZ[difficultyLevel]}
+                </label>
+            </div>
             <br>
         {/each}
+        </fieldset>
     </div>
 
     <div class="secondColumn">
         <label>
             <h3>Název hry: </h3>
-            <input type="text" bind:value={filterState.filters.name}>
+            <input class="textfield" type="text" bind:value={filterState.filters.name}>
         </label>
         
         <label>
@@ -92,15 +96,28 @@
         letter-spacing: 0.5px;
         font-weight: 500;
     }
-    .filterContainer{
-        display: flex;
-        align-items: baseline;
-        gap: 25px;
-        padding-bottom: 20px;
+    .textfield{
+        min-width: 10ch;
+        width: 95%;
+        box-sizing: border-box;
     }
-    .secondColumn{
-        display: flex; 
-        flex-direction: column;
+    .filterContainer{
+        align-items: baseline;
+        gap: 10px;
+        padding-bottom: 20px;
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        /* 100% instead of 100vw because 
+        Currently all browsers but Firefox incorrectly consider 100vw to be the entire page width,
+        including vertical scroll bar, which can cause a horizontal scroll bar when overflow: auto is set
+        https://caniuse.com/viewport-units
+        https://stackoverflow.com/questions/23367345/100vw-causing-horizontal-overflow-but-only-if-more-than-one
+        */
+        width: 100%;
+        margin: 0 auto;
+        max-width: 500px;
+        padding: 10px;
+        box-sizing: border-box;
     }
     h3{
         font-size: 1.2rem;

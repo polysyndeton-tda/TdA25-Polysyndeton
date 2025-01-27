@@ -66,7 +66,7 @@
 
 {#if loaded}
     <Filter bind:filterState ></Filter>
-
+    <div class="container">
     <p class="infoFilter">
         Když ve filtru necháte v kategorii výběr prázdný, tak se filtr neaplikuje. 
         Tedy nechcete-li filtrovat podle obtížnosti, můžete vybrat buď všechny kategorie nebo žádnou.
@@ -108,7 +108,7 @@
                             }
                             }
                             onmouseleave={(e) => {
-                                 document.getElementById("i" + index).href = "/game/" + items[index].uuid;
+                                document.getElementById("i" + index).href = "/game/" + items[index].uuid;
                             }
                             }
                             onmousedowncapture={(e) => {
@@ -134,6 +134,7 @@
             {/each}
         </div>
     {/if}
+    </div>
 {/if}
 
 {#if confirmPuzzleDeleted}
@@ -142,8 +143,14 @@
 
 
 <style>
+.container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
 .infoFilter{
     max-width: 500px;
+    padding: 0 10px;
 }
 .button{
     display: block;

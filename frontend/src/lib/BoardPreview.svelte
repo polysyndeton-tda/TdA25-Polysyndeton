@@ -24,8 +24,10 @@
         display: flex;
         flex-direction: column;
         gap: 1.5px;
-        /* width: 225px;
-        min-width: 225px; */
+        /*changed from
+        width: 225px;
+        min-width: 225px;
+        to this: (see commit 77731e557c317eeb60ba8542c761e099127b0721) */
         background: #6495ed80;
         width: 50vw;
         max-width: 225px;
