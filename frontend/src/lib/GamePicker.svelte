@@ -84,7 +84,8 @@
                  class="button holder" role="button" tabindex="0">
                  
                     <BoardPreview boardApiInfo={game}></BoardPreview>
-                    <div style="display: flex; justify-content:center;flex-grow: 1;">
+                    <!-- right column -->
+                    <div style="display: flex; justify-content:center;flex-grow: 1;width: 30vw;max-width: 225px;">
                     <div class="center">
                         <!-- href={"/game/"+ items[index].uuid} -->
                         <p class="btnlink title">{game.name}</p>
