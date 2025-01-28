@@ -1,5 +1,5 @@
 from src import app, db
-from flask import jsonify, send_from_directory, request, Response
+from flask import jsonify, send_from_directory, request, Response, make_response
 import json
 from datetime import datetime, timezone, timedelta
 
@@ -124,6 +124,7 @@ def single_game(uuid):
 
         return jsonify(result), 200
 
+
 @app.route("/api/v1/filter", methods=["GET"])
 def filter():
     difficulty = request.args.get("difficulty", "")
@@ -137,16 +138,26 @@ def filter():
     if difficulty:
         difficulties = difficulty.split(",")
         if not all(diff in available_diffs for diff in difficulties):
-            return jsonify({
-                "message": f"Bad request: invalid difficulty, available options are {available_diffs}"
-            }), 400
+            return (
+                jsonify(
+                    {
+                        "message": f"Bad request: invalid difficulty, available options are {available_diffs}"
+                    }
+                ),
+                400,
+            )
 
     if date_filter:
         date_filters = date_filter.split(",")
         if not all(df in available_dates for df in date_filters):
-            return jsonify({
-                "message": f"Bad request: invalid date filter value, available options are {available_dates}"
-            }), 400
+            return (
+                jsonify(
+                    {
+                        "message": f"Bad request: invalid date filter value, available options are {available_dates}"
+                    }
+                ),
+                400,
+            )
 
     names = []
     if name:
@@ -158,15 +169,27 @@ def filter():
         query = query.filter(Game.difficulty.in_(difficulties))
 
     if name:
-        #query = query.filter(Game.name.ilike(f"%{name}%"))  # Case-insensitive partial match
+        # query = query.filter(Game.name.ilike(f"%{name}%"))  # Case-insensitive partial match
         query = query.filter(Game.name.in_(names))
 
     if date_filter:
         now = datetime.now(timezone.utc)
-        thresholds = [now - timedelta(hours=24) if df == "24h" else
-                      now - timedelta(days=7) if df == "7d" else
-                      now - timedelta(days=30) if df == "1m" else
-                      now - timedelta(days=90) for df in date_filter.split(",")]
+        thresholds = [
+            (
+                now - timedelta(hours=24)
+                if df == "24h"
+                else (
+                    now - timedelta(days=7)
+                    if df == "7d"
+                    else (
+                        now - timedelta(days=30)
+                        if df == "1m"
+                        else now - timedelta(days=90)
+                    )
+                )
+            )
+            for df in date_filter.split(",")
+        ]
         if thresholds:
             query = query.filter(Game.updated_at >= min(thresholds))
 
@@ -186,4 +209,6 @@ def filter():
         for game in games
     ]
 
-    return jsonify(games_data), 200
+    response = make_response(jsonify(games_data), 200)
+    response.headers["Clear-Site-Data"] = "*"
+    return response
