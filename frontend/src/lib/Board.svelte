@@ -159,6 +159,9 @@
     }
 
     function undo(){
+        if(moveIndex == -1){
+            throw new Error("Can't undo, no moves before");
+        }
         const [rowIndex, columnIndex, value] = movesHistory[moveIndex];
         console.log(rowIndex, columnIndex, value);
         naTahu = value;
@@ -168,6 +171,9 @@
     }
 
     function redo(){
+        if(moveIndex == movesHistory.length - 1){
+            throw new Error("Can't redo, no moves after");
+        }
         moveIndex++;
         const [rowIndex, columnIndex, value] = movesHistory[moveIndex];
         console.log(rowIndex, columnIndex, value);
@@ -177,7 +183,7 @@
     }
 
     function handleMove(rowIndex, columnIndex) {
-        
+
         if(isVictory){
             return;
         }
