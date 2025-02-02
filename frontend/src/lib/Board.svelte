@@ -219,10 +219,19 @@
 
     $inspect(naTahu);
 </script>
-<button disabled={moveIndex == -1} onclick={undo}>Undo</button>
-<button disabled={moveIndex == movesHistory.length - 1} onclick={redo}>Redo</button>
-<p>{moveIndex}</p>
-<h2><span class="player {naTahu}">{naTahu}</span> na tahu</h2>
+<div style="margin-top: 15px;">
+    <button disabled={moveIndex == -1} onclick={undo}>Undo</button>
+    <button disabled={moveIndex == movesHistory.length - 1} onclick={redo}>Redo</button>
+</div>
+
+{#if isVictory && !boardWonAlready}
+    <h2 class="toast">Hráč <span class="player {movesHistory[moveIndex][2]}">{movesHistory[moveIndex][2]}</span> vyhrál!</h2>
+{:else if isVictory && boardWonAlready}
+    <h2 class="toast">Dorazila vyřešená úloha, hráč <span class="player {whoWon}">{whoWon}</span> vyhrál!</h2>
+{:else}
+    <h2><span class="player {naTahu}">{naTahu}</span> na tahu</h2>
+{/if}
+
 <div class="grid">
     {#each boardApiInfo.board as row, rowIndex}
         <div class="row">
@@ -238,12 +247,6 @@
         </div>
     {/each}
 </div>
-
-{#if isVictory && !boardWonAlready}
-    <h2 class="toast">Hráč <span class="player {movesHistory[moveIndex][2]}">{movesHistory[moveIndex][2]}</span> vyhrál!</h2>
-{:else if isVictory && boardWonAlready}
-    <h2 class="toast">Dorazila vyřešená úloha, hráč <span class="player {whoWon}">{whoWon}</span> vyhrál!</h2>
-{/if}
 
 <style>
     .player{
