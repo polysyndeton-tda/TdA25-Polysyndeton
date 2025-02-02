@@ -157,8 +157,16 @@
     }
 
     function handleMove(rowIndex, columnIndex) {
-
-        movesHistory.push([rowIndex, columnIndex, naTahu]);
+        if(-1 < moveIndex && moveIndex < movesHistory.length - 1){
+            //the user pressed undo a couple of times, now presses redo, overwriting history of previous moves
+            console.log("overwrite")
+            movesHistory[moveIndex] = [rowIndex, columnIndex, naTahu];
+        }else{
+            //no redo possible ==  at the end of the list, new moves are being made
+            console.log("new move")
+            movesHistory.push([rowIndex, columnIndex, naTahu]);
+        }
+        
         console.log(movesHistory);
         moveIndex++;
 
