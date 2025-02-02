@@ -173,7 +173,6 @@
         console.log(rowIndex, columnIndex, value);
         boardApiInfo.board[rowIndex][columnIndex] = value;
         isVictory = checkVictory(rowIndex, columnIndex, value);
-        if(isVictory) return;
         naTahu = otherPlayer(value);
     }
 
@@ -233,7 +232,7 @@
 </div>
 
 {#if isVictory && !boardWonAlready}
-    <h2 class="toast">Hráč <span class="player {naTahu}">{naTahu}</span> vyhrál!</h2>
+    <h2 class="toast">Hráč <span class="player {movesHistory[moveIndex][2]}">{movesHistory[moveIndex][2]}</span> vyhrál!</h2>
 {:else if isVictory && boardWonAlready}
     <h2 class="toast">Dorazila vyřešená úloha, hráč <span class="player {whoWon}">{whoWon}</span> vyhrál!</h2>
 {/if}
