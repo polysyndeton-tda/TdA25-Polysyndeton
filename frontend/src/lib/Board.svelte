@@ -138,7 +138,30 @@
         return hasWon;
     }
 
+    /* since a placed move is not overwritable here (as opposed to the editor),
+    we only have to store a list of moves' coordinates and the value set (not the previous value) */
+    let movesHistory = [];
+    let moveIndex = $state(-1);
+
+    function undo(){
+        const [rowIndex, columnIndex, value] = movesHistory[moveIndex];
+        boardApiInfo.board[rowIndex][columnIndex] = "";
+        moveIndex--;
+    }
+
+    function redo(){
+        moveIndex++;
+        const [rowIndex, columnIndex, value] = movesHistory[moveIndex];
+        console.log(rowIndex, columnIndex, value);
+        boardApiInfo.board[rowIndex][columnIndex] = value;
+    }
+
     function handleMove(rowIndex, columnIndex) {
+
+        movesHistory.push([rowIndex, columnIndex, naTahu]);
+        console.log(movesHistory);
+        moveIndex++;
+
         if(isVictory){
             return;
         }
@@ -160,7 +183,9 @@
 
     $inspect(naTahu);
 </script>
-
+<button disabled={moveIndex == -1} onclick={undo}>Undo</button>
+<button disabled={moveIndex == movesHistory.length - 1} onclick={redo}>Redo</button>
+<p>{moveIndex}</p>
 <h2><span class="player {naTahu}">{naTahu}</span> na tahu</h2>
 <div class="grid">
     {#each boardApiInfo.board as row, rowIndex}
