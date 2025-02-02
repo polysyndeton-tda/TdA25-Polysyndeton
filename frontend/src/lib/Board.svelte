@@ -143,8 +143,22 @@
     let movesHistory = [];
     let moveIndex = $state(-1);
 
+    function otherPlayer(player){
+        if(moveIndex == -1){
+            return "X";
+        }
+        if(player == "X"){
+            return "O";
+        }
+        if(player == "O"){
+            return "X";
+        }
+    }
+
     function undo(){
         const [rowIndex, columnIndex, value] = movesHistory[moveIndex];
+        console.log(rowIndex, columnIndex, value);
+        naTahu = value;
         boardApiInfo.board[rowIndex][columnIndex] = "";
         moveIndex--;
     }
@@ -153,6 +167,7 @@
         moveIndex++;
         const [rowIndex, columnIndex, value] = movesHistory[moveIndex];
         console.log(rowIndex, columnIndex, value);
+        naTahu = otherPlayer(value);
         boardApiInfo.board[rowIndex][columnIndex] = value;
     }
 
