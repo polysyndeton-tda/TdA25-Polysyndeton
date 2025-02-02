@@ -177,6 +177,11 @@
     }
 
     function handleMove(rowIndex, columnIndex) {
+        
+        if(isVictory){
+            return;
+        }
+
         if(-1 < moveIndex && moveIndex < movesHistory.length - 1){
             //the user pressed undo a couple of times, now presses redo, overwriting history of previous moves
             console.log("overwrite")
@@ -190,9 +195,6 @@
         console.log(movesHistory);
         moveIndex++;
 
-        if(isVictory){
-            return;
-        }
         boardApiInfo.board[rowIndex][columnIndex] = naTahu;
         lastMoved = naTahu;
 
