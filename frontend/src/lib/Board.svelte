@@ -181,10 +181,19 @@
         isVictory = checkVictory(rowIndex, columnIndex, value);
         naTahu = otherPlayer(value);
     }
-    let overwrittenIndex = $state(-1);
-    let isOverWriting = $state(false);
     //not complete, there are still pieces of old history left which we do not want to expose with redo
-    let overwriteInProgress = $derived(isOverWriting); //$derived(overwrittenIndex < movesHistory.length - 1);
+    let overwriteInProgress = $state(false);
+    
+    let redoPermited = $derived.by(() => {
+        if(overwriteInProgress){
+            return false;
+        }
+        if(moveIndex == movesHistory.length - 1){
+            return false;
+        }
+        return true;
+    });
+
     function handleMove(rowIndex, columnIndex) {
 
         if(isVictory){
@@ -194,14 +203,12 @@
         if(-1 < moveIndex && moveIndex < movesHistory.length - 1){
             //the user pressed undo a couple of times, now presses redo, overwriting history of previous moves
             console.log("overwrite")
-            overwrittenIndex++;
-            isOverWriting = true;
+            overwriteInProgress = true;
             movesHistory[moveIndex] = [rowIndex, columnIndex, naTahu];
         }else{
             //no redo possible ==  at the end of the list, new moves are being made
             console.log("new move")
-            overwrittenIndex = moveIndex;
-            isOverWriting = false;
+            overwriteInProgress = false;
             movesHistory.push([rowIndex, columnIndex, naTahu]);
         }
         
@@ -228,8 +235,8 @@
 </script>
 <div style="margin-top: 15px;">
     <button disabled={moveIndex == -1} onclick={undo}>Undo</button>
-                      <!-- to prevent moveIndex == -1 and 0 length - 1 == -1 -->
-    <button disabled={(moveIndex == movesHistory.length - 1) || isOverWriting } onclick={redo}>Redo</button>
+                    <!-- (moveIndex == movesHistory.length - 1) || isOverwriteInProgress -->
+    <button disabled={!redoPermited} onclick={redo}>Redo</button>
 </div>
 
 {#if isVictory && !boardWonAlready}
@@ -239,10 +246,8 @@
 {:else}
     <h2><span class="player {naTahu}">{naTahu}</span> na tahu</h2>
 {/if}
-<p>is overwriting {isOverWriting}</p>
-<!-- <p><u>moveIndex:</u> {moveIndex} a <u>movesHistory.length - 1:</u> {movesHistory.length - 1 } a <u>overwrittenIndex:</u> {overwrittenIndex}</p> -->
+<p>is overwriting {overwriteInProgress}</p>
 <p><u>moveIndex == movesHistory.length - 1</u> {moveIndex == movesHistory.length - 1} </p> 
-<!-- a <u>overwrittenIndex &le; movesHistory.length - 1</u> {overwrittenIndex < movesHistory.length - 1}</p></movesHistory.length> -->
 <div class="grid">
     {#each boardApiInfo.board as row, rowIndex}
         <div class="row">
