@@ -75,6 +75,9 @@
         /*Checks if latest move on rowIndex, columnIndex is a winning one
         (made to be called from handleMove)
         */
+        if(boardApiInfo.board[rowIndex][columnIndex] != player){
+            return false;
+        }
 
         // board[0,0] is the north-west corner
         let matchedInDirection = {'n': 0, 'ne': 0, 'e': 0, 'se': 0, 's': 0, 'sw': 0, 'w': 0, 'nw': 0};
@@ -161,14 +164,17 @@
         naTahu = value;
         boardApiInfo.board[rowIndex][columnIndex] = "";
         moveIndex--;
+        isVictory = checkVictory(rowIndex, columnIndex, value);
     }
 
     function redo(){
         moveIndex++;
         const [rowIndex, columnIndex, value] = movesHistory[moveIndex];
         console.log(rowIndex, columnIndex, value);
-        naTahu = otherPlayer(value);
         boardApiInfo.board[rowIndex][columnIndex] = value;
+        isVictory = checkVictory(rowIndex, columnIndex, value);
+        if(isVictory) return;
+        naTahu = otherPlayer(value);
     }
 
     function handleMove(rowIndex, columnIndex) {
