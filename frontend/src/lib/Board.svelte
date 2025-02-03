@@ -183,8 +183,15 @@
     }
     //not complete, there are still pieces of old history left which we do not want to expose with redo
     let overwriteInProgress = $state(false);
-    
+    let overwrittenCount = $state(0);
+    let overWriteStartedIndex = $state(0); //the moveIndex where the first overwritten move in current series was inserted
+                                                            //includes the overWriteStartedIndex, so -1
+    let overWrittenIndex = $derived(overWriteStartedIndex + overwrittenCount - 1);
+
     let redoPermited = $derived.by(() => {
+        if(moveIndex < overWrittenIndex){
+            return true;
+        }
         if(overwriteInProgress){
             return false;
         }
@@ -207,6 +214,10 @@
             //so, we want to put this move at the next index
             moveIndex++;
             overwriteInProgress = true;
+            if(!overwrittenCount){
+                overWriteStartedIndex = moveIndex;
+            }
+            overwrittenCount++;
             movesHistory[moveIndex] = [rowIndex, columnIndex, naTahu];
         }else{
             //no redo possible ==  at the end of the list, new moves are being made
