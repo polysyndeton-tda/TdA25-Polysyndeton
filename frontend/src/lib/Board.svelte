@@ -200,9 +200,12 @@
             return;
         }
 
-        if(-1 < moveIndex && moveIndex < movesHistory.length - 1){
+        if(-1 < moveIndex && moveIndex + 1 <= movesHistory.length - 1){
             //the user pressed undo a couple of times, now presses redo, overwriting history of previous moves
             console.log("overwrite")
+            //moveIndex points at the latest move still being shown, before this new move was being made
+            //so, we want to put this move at the next index
+            moveIndex++;
             overwriteInProgress = true;
             movesHistory[moveIndex] = [rowIndex, columnIndex, naTahu];
         }else{
@@ -210,10 +213,11 @@
             console.log("new move")
             overwriteInProgress = false;
             movesHistory.push([rowIndex, columnIndex, naTahu]);
+            moveIndex++;
         }
         
         console.log(movesHistory);
-        moveIndex++;
+        
 
         boardApiInfo.board[rowIndex][columnIndex] = naTahu;
         lastMoved = naTahu;
@@ -246,14 +250,15 @@
 {:else}
     <h2><span class="player {naTahu}">{naTahu}</span> na tahu</h2>
 {/if}
+<p>{moveIndex}</p>
 <p>is overwriting {overwriteInProgress}</p>
-<p><u>moveIndex == movesHistory.length - 1</u> {moveIndex == movesHistory.length - 1} </p> 
+<p><u>moveIndex + 1  &le; movesHistory.length - 1</u> {moveIndex  + 1 <= movesHistory.length - 1} </p> 
 <div class="grid">
     {#each boardApiInfo.board as row, rowIndex}
         <div class="row">
             {#each row as field, columnIndex}
                 {#if field == ""}
-                    <div class="field" role="button" onclick={() => handleMove(rowIndex, columnIndex)}></div>
+                    <div class="field" role="button" tabindex="0" onclick={() => handleMove(rowIndex, columnIndex)}></div>
                 {:else if field == "X"}
                     <div class="field X"></div>
                 {:else if field == "O"}
