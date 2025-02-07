@@ -1,0 +1,63 @@
+import unittest
+import copy
+from src.gamestate import Turns, get_turns, get_gamestate, get_columns, get_first_diagonals, get_second_diagonals
+
+board = [
+    ["", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ],
+    ["", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ],
+    ["", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ],
+    ["", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ],
+    ["", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ],
+    ["", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ],
+    ["", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ],
+    ["", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ],
+    ["", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ],
+    ["", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ],
+    ["", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ],
+    ["", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ],
+    ["", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ],
+    ["", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ],
+    ["", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ],
+]
+
+class TestTurns(unittest.TestCase):
+    def test_turns_new_game(self):
+        empty_board = copy.deepcopy(board)
+        self.assertEqual(get_turns(empty_board), Turns(0, 0))
+
+    def test_turns_four_four(self):
+        used_board = copy.deepcopy(board)
+        used_board[0][0] = "X"
+        used_board[0][1] = "X"
+        used_board[0][2] = "X"
+        used_board[0][3] = "X"
+
+        used_board[1][0] = "O"
+        used_board[1][1] = "O"
+        used_board[1][2] = "O"
+        used_board[1][3] = "O"
+
+
+        self.assertEqual(get_turns(used_board), Turns(4, 4))
+
+class TestDiagonals(unittest.TestCase):
+    def test_get_first_diagonal(self):
+        board = [
+            [1, 2, 3,],
+            [4, 5, 6],
+            [7, 8, 9],
+        ]
+
+        self.assertEqual(sorted(get_first_diagonals(board)), sorted([[1, 5, 9], [2, 6], [3], [4, 8], [7]]))
+
+    def test_get_second_diagonal(self):
+        board = [
+            [1, 2, 3,],
+            [4, 5, 6],
+            [7, 8, 9],
+        ]
+
+        self.assertEqual(sorted(get_second_diagonals(board)), sorted([[3, 5, 7], [2, 4], [1], [6, 8], [9]]))
+
+if __name__ == "__main__":
+    unittest.main()
