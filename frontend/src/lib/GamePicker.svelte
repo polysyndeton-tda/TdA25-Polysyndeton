@@ -77,7 +77,11 @@
     </p>
     <br>
     {#if items.length == 0}
-        <p>Zatím žádné úlohy nebyly vytvořeny</p>
+        {#if filterState.used}
+            <p>Vaším filtrům neodpovídá žádná úloha</p>
+        {:else}
+            <p>Zatím žádné úlohy nebyly vytvořeny</p>
+        {/if}
     {:else}
         <div class="games-container">
             {#each items as game, index (game)}

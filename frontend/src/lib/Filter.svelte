@@ -2,15 +2,40 @@
     import { difficultyMapToCZ, filterToCZ, filterToEN } from "./shared.svelte.js";
     import { onMount, untrack } from "svelte";
     let { filterState = $bindable() } = $props();
+
     let difficultyLevelsSelected = $derived(filterState.filters.difficulty);
     console.log("init state", $state.snapshot(filterState.filters.difficulty))
+
     const allDifficultyLevels = ["beginner", "easy", "medium", "hard", "extreme"];
     let displayList = $state(Array(5).fill(false));
+
+    // `$derived(...)` can only be used as a variable declaration initializer or a class field
+    // https://svelte.dev/e/state_invalid_placement
+    //so this can't be: filterState.used = $derived(displayList.length)
+    //so, $effect is it again...
+    let used = $derived.by(() => {
+        //all checkboxes checked or none checked
+        let allDifficulitesPermitted = (filterState.filters.difficulty.length == allDifficultyLevels.length) || filterState.filters.difficulty.length == 0;
+        if(  allDifficulitesPermitted
+           && filterState.filters.name == ""
+           && filterState.filters.date_filter == ""
+        ){
+            console.log("filter not active")
+            return false;
+        }
+        console.log("filter active")
+        return true;
+    });
+
+    $effect(() => {
+        filterState.used = used;
+    });
+
     onMount(() => {
-        console.log("run")
+        console.log("initialise displayList for checkboxes to use")
         let a = difficultyLevelsSelected;
         for(const [index, value] of allDifficultyLevels.entries()){
-            console.log(value, a, a.includes(value));
+            // console.log(value, $state.snapshot(a), a.includes(value));
             if(a.includes(value)){
                 displayList[index] = true;
             }else{
@@ -22,10 +47,9 @@
     //  but Svelte complained about invalid placement (yes, I know it is not a class field, come on)
     //So I had to come up with this...
     $effect(() => {
-        console.log("ran")
+        console.log("build allowed difficulty list to send to API")
         filterState.filters.difficulty = [];
         for(const [index, value] of displayList.entries()){
-            console.log("e");
             untrack(() => {
                 if(value == true){
                     filterState.filters.difficulty.push(allDifficultyLevels[index]);
