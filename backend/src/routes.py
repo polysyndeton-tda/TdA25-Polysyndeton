@@ -2,14 +2,17 @@ from src import app, db
 from flask import jsonify, send_from_directory, request
 from datetime import datetime, timezone, timedelta
 
-from src.models import Game
+from src.models import Game, User
 from src.utils import (
     string_from_board,
     board_from_string,
     game_json,
-    validate_post,
-    validate_fields,
-    get_gamestate,
+)
+from src.validators import (
+    validate_game_post,
+    validate_game_fields,
+    validate_user_post,
+    validate_user_fields,
 )
 from src.gamestate import get_gamestate
 
@@ -42,11 +45,11 @@ def games():
     if request.method == "POST":
         data = request.get_json()
 
-        if not validate_fields(data):
+        if not validate_game_fields(data):
             bad_request = {"message": "Bad request: missing fields"}
             return jsonify(bad_request), 400
 
-        valid_post, message = validate_post(data)
+        valid_post, message = validate_game_post(data)
         if not valid_post:
             semantic_error = {"message": f"Semantic error: {message}"}
             return jsonify(semantic_error), 422
@@ -99,11 +102,11 @@ def single_game(uuid):
         game = Game.query.filter_by(uuid=uuid_str).first()
         data = request.get_json()
 
-        if not validate_fields(data):
+        if not validate_game_fields(data):
             bad_request = {"message": "Bad request: missing fields"}
             return jsonify(bad_request), 400
 
-        valid_post, message = validate_post(data)
+        valid_post, message = validate_game_post(data)
         if not valid_post:
             semantic_error = {"message": f"Semantic error: {message}"}
             return jsonify(semantic_error), 422
@@ -207,3 +210,38 @@ def filter():
     ]
 
     return jsonify(games_data), 200
+
+
+@app.route("/api/v1/users", methods=["GET", "POST"])
+def users():
+    if request.method == "POST":
+        data = request.get_json()
+
+        user = User(
+            username=data["username"],
+            email=data["email"],
+            elo=data["elo"],
+            # password?
+        )
+        db.session.add(user)
+        db.session.commit()
+
+        result = game_json(user)
+
+        return jsonify(result), 201
+
+    elif request.method == "GET":
+        users = User.query.all()
+        return jsonify([game_json(user) for user in users]), 200
+
+
+@app.route("/api/v1/user/<uuid:uuid>", methods=["GET", "PUT", "DELETE"])
+def user():
+    if request.method == "GET":
+        pass
+    elif request.method == "PUT":
+        pass
+    elif request.method == "DELETE":
+        pass
+
+    # TODO
