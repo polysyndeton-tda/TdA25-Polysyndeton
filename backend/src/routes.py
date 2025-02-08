@@ -1,6 +1,5 @@
 from src import app, db
-from flask import jsonify, send_from_directory, request, Response
-import json
+from flask import jsonify, send_from_directory, request
 from datetime import datetime, timezone, timedelta
 
 from src.models import Game
@@ -11,7 +10,6 @@ from src.utils import (
     validate_post,
     validate_fields,
     get_gamestate,
-    get_formatted_date,
 )
 from src.gamestate import get_gamestate
 

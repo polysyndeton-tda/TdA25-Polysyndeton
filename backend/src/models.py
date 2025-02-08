@@ -1,6 +1,5 @@
 from src import db
 from datetime import datetime, timezone
-from sqlalchemy.ext.hybrid import hybrid_property
 import uuid
 
 
