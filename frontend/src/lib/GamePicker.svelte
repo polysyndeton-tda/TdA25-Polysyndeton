@@ -6,6 +6,7 @@
     import Filter from "./Filter.svelte";
     import Toast from "./Toast.svelte";
     import GameStarRating from "./GameStarRating.svelte";
+    import Confirm from "./Confirm.svelte";
     const api_url = PUBLIC_API_BASE_URL || 'https://odevzdavani.tourdeapp.cz/mockbush/api/v1/';
 
     let items = $state([]);
@@ -40,19 +41,21 @@
     });
 
     onMount(fetchAllGames);
-
-    let confirmPuzzleDeleted = $state(false);
-    let puzzleDeletedName = $state("");
+    
+    let deletedPuzzle = $state({
+        confirmed: false,
+        showDialog: false,
+        game: {},
+    });
 
     async function deletePuzzleFromGui(game, uuid){
         let deleted = await deletePuzzle(uuid);
         if(deleted){
-            confirmPuzzleDeleted = true;
-            puzzleDeletedName = game.name;
+            deletedPuzzle.confirmed = true;
             console.log($state.snapshot(items));
             items = items.filter(t => t !== game);
             console.log($state.snapshot(items));
-            wait(2600).then(()=> confirmPuzzleDeleted = false);
+            wait(2600).then(()=> deletedPuzzle.confirmed = false);
         }
     }
 
@@ -126,7 +129,8 @@
                         }}>Upravit</button>
                         <button class="hasOwnClickHandler" onclick={(e) => {
                             e.preventDefault(); //prevents from sending us to /game
-                            deletePuzzleFromGui(game, game.uuid);
+                            deletedPuzzle.game = game;
+                            deletedPuzzle.showDialog = true;
                         }}>Smazat</button>  
                     </div>
                     </div>
@@ -137,10 +141,14 @@
     </div>
 {/if}
 
-{#if confirmPuzzleDeleted}
-    <Toast>Úloha {puzzleDeletedName} smazána</Toast>
+{#if deletedPuzzle.confirmed}
+    <Toast>Úloha {deletedPuzzle.game.name} smazána</Toast>
 {/if}
 
+{#if deletedPuzzle.showDialog}
+    <Confirm bind:show={deletedPuzzle.showDialog} 
+    okCallback={() => deletePuzzleFromGui(deletedPuzzle.game, deletedPuzzle.game.uuid)}>Smazat úlohu "{deletedPuzzle.game.name}"?</Confirm>
+{/if}
 
 <style>
 .container {
