@@ -17,7 +17,9 @@
         */
         gameInfo.apiResponse.name = document.querySelector("input").value;
         gameInfo.apiResponse.difficulty = difficultyMapToEN[document.querySelector("select").value];
-        //the callback is an async function calling fetch, if await wasn't used we would have got race conditions.
+        //the callback is an async function calling fetch, if await wasn't used we may? have got race conditions.
+        //it probably is safe because the above are synchronous operations, but putting close before await call shoudn't hurt anything
+        close();
         await dialogState.OKCallback();
     }
 

@@ -1,19 +1,13 @@
 <script>
-    import { gameInfo, deletePuzzle, difficultyMapToCZ, difficultyMapToNumber, gameStateToCZ } from "./shared.svelte.js";
+    import { gameInfo, deletePuzzle, gameStateToCZ, wait } from "$lib/shared.svelte.js";
     import { PUBLIC_API_BASE_URL } from '$env/static/public';
     import { onMount } from "svelte";
     import BoardPreview from "./BoardPreview.svelte";
-    import StarRating from 'svelte-star-rating';
     import Filter from "./Filter.svelte";
+    import Toast from "./Toast.svelte";
+    import GameStarRating from "./GameStarRating.svelte";
+    import Confirm from "./Confirm.svelte";
     const api_url = PUBLIC_API_BASE_URL || 'https://odevzdavani.tourdeapp.cz/mockbush/api/v1/';
-
-    const config = {
-        emptyColor: 'hsl(240, 80%, 85%)',
-        fullColor:  '#E31837',
-        showText: false,
-        size: 22,
-    };
-    const style = 'justify-content:center;padding: 10px 0 0 10px;'; //border: 1px solid firebrick;padding: 12px;';
 
     let items = $state([]);
     let loaded = $state(false);
@@ -47,39 +41,35 @@
     });
 
     onMount(fetchAllGames);
-
-    function wait(ms) {
-        if(ms > 0){
-            return new Promise((resolve, reject) => {
-                setTimeout(() => {
-                    resolve(ms)
-                }, ms )
-            });
-        }else{
-			return;
-		}
-    }
-
-    let confirmPuzzleDeleted = $state(false);
-    let puzzleDeletedName = $state("");
+    
+    let deletedPuzzle = $state({
+        confirmed: false,
+        showDialog: false,
+        game: {},
+    });
 
     async function deletePuzzleFromGui(game, uuid){
         let deleted = await deletePuzzle(uuid);
         if(deleted){
-            confirmPuzzleDeleted = true;
-            puzzleDeletedName = game.name;
+            deletedPuzzle.confirmed = true;
             console.log($state.snapshot(items));
             items = items.filter(t => t !== game);
             console.log($state.snapshot(items));
-            wait(2600).then(()=> confirmPuzzleDeleted = false);
+            wait(2600).then(()=> deletedPuzzle.confirmed = false);
         }
+    }
+
+    function setGameInfoForInstantLoad(index){
+        console.log("entrar")
+        gameInfo.apiResponse = items[index];
+        gameInfo.selected = true;
     }
 
 </script>
 
 {#if loaded}
     <Filter bind:filterState ></Filter>
-
+    <div class="container">
     <p class="infoFilter">
         Když ve filtru necháte v kategorii výběr prázdný, tak se filtr neaplikuje. 
         Tedy nechcete-li filtrovat podle obtížnosti, můžete vybrat buď všechny kategorie nebo žádnou.
@@ -87,24 +77,26 @@
     </p>
     <br>
     {#if items.length == 0}
-        <p>Zatím žádné úlohy nebyly vytvořeny</p>
+        {#if filterState.used}
+            <p>Vaším filtrům neodpovídá žádná úloha</p>
+        {:else}
+            <p>Zatím žádné úlohy nebyly vytvořeny</p>
+        {/if}
     {:else}
         <div class="games-container">
             {#each items as game, index (game)}
-                <a id={"i" + index} href={"/game/"+ items[index].uuid} class="button holder" role="button" tabindex="0">
+                <a id={"i" + index} href={"/game/"+ items[index].uuid} 
+                 onmouseenter={() => setGameInfoForInstantLoad(index)}
+                 ontouchstart={() => setGameInfoForInstantLoad(index)}
+                 class="button holder" role="button" tabindex="0">
+                 
                     <BoardPreview boardApiInfo={game}></BoardPreview>
-                    <div style="display: flex; justify-content:center;flex-grow: 1;">
+                    <!-- right column -->
+                    <div style="display: flex; justify-content:center;flex-grow: 1;width: 30vw;max-width: 225px;">
                     <div class="center">
                         <!-- href={"/game/"+ items[index].uuid} -->
-                        <p class="btnlink title" onclick={ 
-                            () => {
-                                gameInfo.apiResponse = items[index];
-                                gameInfo.selected = true;
-                            }
-                        }>{game.name}
-                        </p>
-                        <!-- instead of this, show a star<p class="btnlink">{difficultyMapToCZ[game.difficulty]}</p> -->
-                        <div title={difficultyMapToCZ[game.difficulty]}><StarRating rating={difficultyMapToNumber[game.difficulty]} {config} {style} /></div>
+                        <p class="btnlink title">{game.name}</p>
+                        <GameStarRating difficulty={game.difficulty}/>
                         <p class="btnlink">Stav: {gameStateToCZ[game.gameState]}</p>
                         <hr>
                         <button class="button hasOwnClickHandler" 
@@ -123,7 +115,7 @@
                             }
                             }
                             onmouseleave={(e) => {
-                                 document.getElementById("i" + index).href = "/game/" + items[index].uuid;
+                                document.getElementById("i" + index).href = "/game/" + items[index].uuid;
                             }
                             }
                             onmousedowncapture={(e) => {
@@ -141,7 +133,8 @@
                         }}>Upravit</button>
                         <button class="hasOwnClickHandler" onclick={(e) => {
                             e.preventDefault(); //prevents from sending us to /game
-                            deletePuzzleFromGui(game, game.uuid);
+                            deletedPuzzle.game = game;
+                            deletedPuzzle.showDialog = true;
                         }}>Smazat</button>  
                     </div>
                     </div>
@@ -149,16 +142,27 @@
             {/each}
         </div>
     {/if}
+    </div>
 {/if}
 
-{#if confirmPuzzleDeleted}
-    <div id="snackbar" class="show">Úloha {puzzleDeletedName} smazána</div>
+{#if deletedPuzzle.confirmed}
+    <Toast>Úloha {deletedPuzzle.game.name} smazána</Toast>
 {/if}
 
+{#if deletedPuzzle.showDialog}
+    <Confirm bind:show={deletedPuzzle.showDialog} 
+    okCallback={() => deletePuzzleFromGui(deletedPuzzle.game, deletedPuzzle.game.uuid)}>Smazat úlohu "{deletedPuzzle.game.name}"?</Confirm>
+{/if}
 
 <style>
+.container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
 .infoFilter{
     max-width: 500px;
+    padding: 0 10px;
 }
 .button{
     display: block;
@@ -201,6 +205,7 @@
     font-weight: bold;
     font-size: 1.3rem;
     text-decoration: underline;
+    overflow-wrap: anywhere; /*For really long words => to avoid overflow (normally names are broken at spaces)*/
 }
 
 .button:hover {
@@ -215,53 +220,6 @@
     flex-direction: column;
     gap: 5px;
     max-width: 100vw;
-}
-
-
-/* The snackbar - position it at the bottom and in the middle of the screen */
-#snackbar {
-  visibility: hidden; /* Hidden by default. Visible on click */
-  min-width: 250px; /* Set a default minimum width */
-  margin-left: -125px; /* Divide value of min-width by 2 */
-  background-color: #333; /* Black background color */
-  color: #fff; /* White text color */
-  text-align: center; /* Centered text */
-  border-radius: 2px; /* Rounded borders */
-  padding: 16px; /* Padding */
-  position: fixed; /* Sit on top of the screen */
-  z-index: 1; /* Add a z-index if needed */
-  left: 50%; /* Center the snackbar */
-  bottom: 30px; /* 30px from the bottom */
-}
-
-/* Show the snackbar when clicking on a button (class added with JavaScript) */
-#snackbar.show {
-  visibility: visible; /* Show the snackbar */
-  /* Add animation: Take 0.5 seconds to fade in and out the snackbar.
-  However, delay the fade out process for 2.5 seconds */
-  /* -webkit-animation: fadein 0.5s, fadeout 0.5s 2.5s; */
-  animation: fadein 0.5s, fadeout 0.5s 2.5s;
-}
-
-/* Animations to fade the snackbar in and out */
-@-webkit-keyframes fadein {
-  from {bottom: 0; opacity: 0;}
-  to {bottom: 30px; opacity: 1;}
-}
-
-@keyframes fadein {
-  from {bottom: 0; opacity: 0;}
-  to {bottom: 30px; opacity: 1;}
-}
-
-@-webkit-keyframes fadeout {
-  from {bottom: 30px; opacity: 1;}
-  to {bottom: 0; opacity: 0;}
-}
-
-@keyframes fadeout {
-  from {bottom: 30px; opacity: 1;}
-  to {bottom: 0; opacity: 0;}
 }
 
 @media (prefers-color-scheme: dark) {

@@ -126,7 +126,8 @@ def single_game(uuid):
         return jsonify(result), 200
 
 
-@app.route("/api/v1/filter/")
+@app.route("/api/v1/filter", methods=["GET"])
+@app.route("/api/v1/filter/", methods=["GET"])
 def filter():
     difficulty = request.args.get("difficulty", "")
     name = request.args.get("name", "")
@@ -175,22 +176,14 @@ def filter():
 
     if date_filter:
         now = datetime.now(timezone.utc)
-        thresholds = [
-            (
-                now - timedelta(hours=24)
-                if df == "24h"
-                else (
-                    now - timedelta(days=7)
-                    if df == "7d"
-                    else (
-                        now - timedelta(days=30)
-                        if df == "1m"
-                        else now - timedelta(days=90)
-                    )
-                )
-            )
-            for df in date_filter.split(",")
-        ]
+        date_deltas = {
+            "24h": timedelta(hours=24),
+            "7d": timedelta(days=7),
+            "1m": timedelta(days=30),
+            "3m": timedelta(days=90)
+        }
+    
+        thresholds = [now - date_deltas.get(df, timedelta()) for df in date_filter.split(",")]
         if thresholds:
             query = query.filter(Game.updated_at >= min(thresholds))
 
@@ -199,16 +192,16 @@ def filter():
         {
             "uuid": game.uuid,
             "name": game.name,
+            "gameState": game.gamestate,
             "difficulty": game.difficulty,
-            "updated_at": game.updated_at.isoformat(),
-            "created_at": game.created_at.isoformat(),
+            "updatedAt": game.updated_at.isoformat(),
+            "createdAt": game.created_at.isoformat(),
             "board": board_from_string(game.board, 15, 15),
             "width": game.width,
             "height": game.heigth,
         }
         for game in games
     ]
-
     return jsonify(games_data), 200
 
 

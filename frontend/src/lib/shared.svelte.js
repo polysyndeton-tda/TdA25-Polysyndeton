@@ -52,6 +52,7 @@ export async function editPuzzle(uuid){
         if(request.status == 422){
             alert("Stav křižků neodpovídá stavu koleček nebo naopak.\n V tomto stavu není možné úlohu uložit");
         }
+        return request; //For GUI info on request (if succeeded)
     // }else{
     //     throw new Error("Call createPuzzle first");
     // }
@@ -119,4 +120,16 @@ export const filterToCZ = {
     "3m": "3 měsíců",
     "1m": "1 měsíce",
     "": "neomezenou"
+}
+
+export function wait(ms) {
+    if(ms > 0){
+        return new Promise((resolve, reject) => {
+            setTimeout(() => {
+                resolve(ms)
+            }, ms )
+        });
+    }else{
+        return;
+    }
 }
