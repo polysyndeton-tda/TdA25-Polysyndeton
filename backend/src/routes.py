@@ -7,6 +7,7 @@ from src.utils import (
     string_from_board,
     board_from_string,
     game_json,
+    user_json,
 )
 from src.validators import (
     validate_game_post,
@@ -236,12 +237,49 @@ def users():
 
 
 @app.route("/api/v1/user/<uuid:uuid>", methods=["GET", "PUT", "DELETE"])
-def user():
-    if request.method == "GET":
-        pass
-    elif request.method == "PUT":
-        pass
-    elif request.method == "DELETE":
-        pass
+def user(uuid):
+    uuid_str = str(uuid)
 
-    # TODO
+    if request.method == "GET":
+        user = User.query.filter_by(uuid=uuid_str).first()
+        if user is None:
+            not_found = {"message": "Resource not found"}
+            return jsonify(not_found), 404
+
+        return jsonify(game_json(user)), 200
+
+    elif request.method == "DELETE":
+        user = User.query.filter_by(uuid=uuid_str).first()
+
+        if user is None:
+            not_found = {"message": "Resource not found"}
+            return jsonify(not_found), 404
+
+        db.session.delete(user)
+        db.session.commit()
+
+        success_message = {"message": "User deleted successfully"}
+        return jsonify(success_message), 204
+
+    elif request.method == "PUT":
+        user = User.query.filter_by(uuid=uuid_str).first()
+        data = request.get_json()
+
+        if not validate_user_fields(data):
+            bad_request = {"message": "Bad request: missing fields"}
+            return jsonify(bad_request), 400
+
+        valid_post, message = validate_user_post(data)
+        if not valid_post:
+            semantic_error = {"message": f"Semantic error: {message}"}
+            return jsonify(semantic_error), 422
+
+        user.username = data["username"]
+        user.email = data["email"]
+        user.password = data["password"]
+        user.elo = data["elo"]
+        db.session.commit()
+
+        result = user_json(user)
+
+        return jsonify(result), 200

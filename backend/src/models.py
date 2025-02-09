@@ -27,6 +27,7 @@ class User(db.Model):
 
     username = db.Column(db.Text, nullable=False)
     email = db.Column(db.Text, nullable=False)
+    password = db.Column(db.Text, nullable=False)
 
     elo = db.Column(db.Integer, nullable=False, default=400)
     wins = db.Column(db.Integer, nullable=False, default=0)

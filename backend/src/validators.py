@@ -38,8 +38,8 @@ def validate_game_fields(data):
 
 
 def validate_user_post(data):
-    pass
+    return True
 
 
 def validate_user_fields(data):
-    pass
+    return True
