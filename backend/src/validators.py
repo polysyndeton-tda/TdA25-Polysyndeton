@@ -37,9 +37,8 @@ def validate_game_fields(data):
     return True
 
 
-def validate_user_post(data):
-    return True
-
-
 def validate_user_fields(data):
+    fields = set(["username", "email", "password", "elo"])
+    if set(data.keys()) != fields:
+        return False
     return True

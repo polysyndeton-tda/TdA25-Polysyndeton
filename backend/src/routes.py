@@ -12,7 +12,6 @@ from src.utils import (
 from src.validators import (
     validate_game_post,
     validate_game_fields,
-    validate_user_post,
     validate_user_fields,
 )
 from src.gamestate import get_gamestate
@@ -218,6 +217,10 @@ def users():
     if request.method == "POST":
         data = request.get_json()
 
+        if not validate_user_fields(data):
+            bad_request = {"message": "Bad request: missing fields"}
+            return jsonify(bad_request), 400
+
         user = User(
             username=data["username"],
             email=data["email"],
@@ -227,13 +230,13 @@ def users():
         db.session.add(user)
         db.session.commit()
 
-        result = game_json(user)
+        result = user_json(user)
 
         return jsonify(result), 201
 
     elif request.method == "GET":
         users = User.query.all()
-        return jsonify([game_json(user) for user in users]), 200
+        return jsonify([user_json(user) for user in users]), 200
 
 
 @app.route("/api/v1/user/<uuid:uuid>", methods=["GET", "PUT", "DELETE"])
@@ -268,11 +271,6 @@ def user(uuid):
         if not validate_user_fields(data):
             bad_request = {"message": "Bad request: missing fields"}
             return jsonify(bad_request), 400
-
-        valid_post, message = validate_user_post(data)
-        if not valid_post:
-            semantic_error = {"message": f"Semantic error: {message}"}
-            return jsonify(semantic_error), 422
 
         user.username = data["username"]
         user.email = data["email"]
