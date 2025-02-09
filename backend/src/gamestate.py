@@ -7,10 +7,9 @@ Turns = namedtuple("Turns", ["x", "o"])
 def get_turns(board) -> Turns:
     flattened_board = [point for row in board for point in row]
     counts = dict(Counter(flattened_board))
-    if "X" in counts.keys():
-        x_counts = counts["X"]
-    if "O" in counts.keys():
-        o_counts = counts["O"]
+
+    x_counts = counts["X"] if "X" in counts.keys() else 0
+    o_counts = counts["O"] if "O" in counts.keys() else 0
     return Turns(x_counts, o_counts)
 
 

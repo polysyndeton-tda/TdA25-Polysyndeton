@@ -1,17 +1,18 @@
 from src import app, db
-from flask import jsonify, send_from_directory, request, Response, make_response
-import json
+from flask import jsonify, send_from_directory, request
 from datetime import datetime, timezone, timedelta
 
-from src.models import Game
+from src.models import Game, User
 from src.utils import (
     string_from_board,
     board_from_string,
     game_json,
-    validate_post,
-    validate_fields,
-    get_gamestate,
-    get_formatted_date,
+    user_json,
+)
+from src.validators import (
+    validate_game_post,
+    validate_game_fields,
+    validate_user_fields,
 )
 from src.gamestate import get_gamestate
 
@@ -44,11 +45,11 @@ def games():
     if request.method == "POST":
         data = request.get_json()
 
-        if not validate_fields(data):
+        if not validate_game_fields(data):
             bad_request = {"message": "Bad request: missing fields"}
             return jsonify(bad_request), 400
 
-        valid_post, message = validate_post(data)
+        valid_post, message = validate_game_post(data)
         if not valid_post:
             semantic_error = {"message": f"Semantic error: {message}"}
             return jsonify(semantic_error), 422
@@ -101,11 +102,11 @@ def single_game(uuid):
         game = Game.query.filter_by(uuid=uuid_str).first()
         data = request.get_json()
 
-        if not validate_fields(data):
+        if not validate_game_fields(data):
             bad_request = {"message": "Bad request: missing fields"}
             return jsonify(bad_request), 400
 
-        valid_post, message = validate_post(data)
+        valid_post, message = validate_game_post(data)
         if not valid_post:
             semantic_error = {"message": f"Semantic error: {message}"}
             return jsonify(semantic_error), 422
@@ -201,7 +202,75 @@ def filter():
         }
         for game in games
     ]
+    return jsonify(games_data), 200
 
-    response = make_response(jsonify(games_data), 200)
-    response.headers["Clear-Site-Data"] = "*"
-    return response
+
+@app.route("/api/v1/users", methods=["GET", "POST"])
+def users():
+    if request.method == "POST":
+        data = request.get_json()
+
+        if not validate_user_fields(data):
+            bad_request = {"message": "Bad request: missing fields"}
+            return jsonify(bad_request), 400
+
+        user = User(
+            username=data["username"],
+            email=data["email"],
+            elo=data["elo"],
+            # password?
+        )
+        db.session.add(user)
+        db.session.commit()
+
+        result = user_json(user)
+
+        return jsonify(result), 201
+
+    elif request.method == "GET":
+        users = User.query.all()
+        return jsonify([user_json(user) for user in users]), 200
+
+
+@app.route("/api/v1/user/<uuid:uuid>", methods=["GET", "PUT", "DELETE"])
+def user(uuid):
+    uuid_str = str(uuid)
+
+    if request.method == "GET":
+        user = User.query.filter_by(uuid=uuid_str).first()
+        if user is None:
+            not_found = {"message": "Resource not found"}
+            return jsonify(not_found), 404
+
+        return jsonify(game_json(user)), 200
+
+    elif request.method == "DELETE":
+        user = User.query.filter_by(uuid=uuid_str).first()
+
+        if user is None:
+            not_found = {"message": "Resource not found"}
+            return jsonify(not_found), 404
+
+        db.session.delete(user)
+        db.session.commit()
+
+        success_message = {"message": "User deleted successfully"}
+        return jsonify(success_message), 204
+
+    elif request.method == "PUT":
+        user = User.query.filter_by(uuid=uuid_str).first()
+        data = request.get_json()
+
+        if not validate_user_fields(data):
+            bad_request = {"message": "Bad request: missing fields"}
+            return jsonify(bad_request), 400
+
+        user.username = data["username"]
+        user.email = data["email"]
+        user.password = data["password"]
+        user.elo = data["elo"]
+        db.session.commit()
+
+        result = user_json(user)
+
+        return jsonify(result), 200
