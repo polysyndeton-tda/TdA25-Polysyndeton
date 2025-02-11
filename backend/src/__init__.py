@@ -6,6 +6,7 @@ from logging.handlers import RotatingFileHandler
 
 from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
+from flask_jwt_extended import JWTManager
 from flask_cors import CORS
 
 from config import Config
@@ -18,6 +19,7 @@ from config import Config
 # => updated build.sh to copy the build folder to the static folder
 app = Flask(__name__, static_folder="../static")  # ../../frontend/build
 app.config.from_object(Config)
+jwt = JWTManager(app)
 CORS(app)
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)

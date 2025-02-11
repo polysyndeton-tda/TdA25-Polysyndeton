@@ -1,7 +1,7 @@
 from src import db
 from datetime import datetime, timezone
 import uuid
-from werkzeug import generate_password_hash, check_password_hash
+from werkzeug.security import generate_password_hash, check_password_hash
 
 
 class Game(db.Model):

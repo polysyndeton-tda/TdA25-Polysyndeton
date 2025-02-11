@@ -31,10 +31,10 @@ def game_json(game):
 def user_json(user):
     result = {
         "uuid": user.uuid,
-        "createdAt": get_formatted_date(user.updated_at),
+        "createdAt": get_formatted_date(user.created_at),
         "username": user.username,
         "email": user.email,
-        "password": user.password,
+        "password": user.password_hash,
         "elo": user.elo,
         "wins": user.wins,
         "losses": user.draws,

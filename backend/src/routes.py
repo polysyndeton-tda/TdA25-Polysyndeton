@@ -17,6 +17,7 @@ from src.validators import (
     email_is_unique,
 )
 from src.gamestate import get_gamestate
+from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
 
 
 @app.route("/api")
@@ -210,7 +211,7 @@ def filter():
 
 @app.route("/api/v1/users", methods=["GET", "POST"])
 def users():
-    if request.method == "POST":
+    if request.method == "POST":  # synonymous with registering
         data = request.get_json()
 
         if not validate_user_fields(data):
@@ -274,6 +275,12 @@ def user(uuid):
             bad_request = {"message": "Bad request: missing fields"}
             return jsonify(bad_request), 400
 
+        if not username_is_unique(data["username"]):
+            return jsonify({"message": "User with this username already exists"}), 409
+
+        if not email_is_unique(data["email"]):
+            return jsonify({"message": "User with this email already exists"}), 409
+
         user.username = data["username"]
         user.email = data["email"]
         user.set_password(data["password"])
@@ -283,3 +290,21 @@ def user(uuid):
         result = user_json(user)
 
         return jsonify(result), 200
+
+
+@app.route("/api/v1/login", methods=["POST"])
+def login():
+    data = request.get_json()
+    username = data["username"]
+    password = data["password"]
+
+    user = User.query.filter((User.username == username)).first()
+
+    if not user:
+        return jsonify({"message": "Resource not found"}), 404
+
+    if not user.check_password(password):
+        return jsonify({"message": "Invalid credentials"}), 401
+    
+    access_token = create_access_token(identity=user.uuid, expires_delta=timedelta(hours=1))
+    return jsonify({"token": access_token})

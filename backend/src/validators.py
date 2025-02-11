@@ -44,19 +44,17 @@ def validate_user_fields(data):
         return False
     return True
 
+
 def username_is_unique(requested_username):
-    existing_username = User.query.filter(
-        (User.username == requested_username)
-    ).first()
+    existing_username = User.query.filter((User.username == requested_username)).first()
 
     if existing_username:
         return False
     return True
 
+
 def email_is_unique(requested_email):
-    existing_email = User.query.filter(
-        (User.email == requested_email)
-    ).first()
+    existing_email = User.query.filter((User.email == requested_email)).first()
 
     if existing_email:
         return False
