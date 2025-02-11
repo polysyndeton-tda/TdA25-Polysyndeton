@@ -27,6 +27,7 @@ def game_json(game):
 
     return result
 
+
 def user_json(user):
     result = {
         "uuid": user.uuid,

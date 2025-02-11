@@ -13,6 +13,8 @@ from src.validators import (
     validate_game_post,
     validate_game_fields,
     validate_user_fields,
+    username_is_unique,
+    email_is_unique,
 )
 from src.gamestate import get_gamestate
 
@@ -171,7 +173,6 @@ def filter():
         query = query.filter(Game.difficulty.in_(difficulties))
 
     if name:
-        # query = query.filter(Game.name.ilike(f"%{name}%"))  # Case-insensitive partial match
         query = query.filter(Game.name.in_(names))
 
     if date_filter:
@@ -180,10 +181,12 @@ def filter():
             "24h": timedelta(hours=24),
             "7d": timedelta(days=7),
             "1m": timedelta(days=30),
-            "3m": timedelta(days=90)
+            "3m": timedelta(days=90),
         }
-    
-        thresholds = [now - date_deltas.get(df, timedelta()) for df in date_filter.split(",")]
+
+        thresholds = [
+            now - date_deltas.get(df, timedelta()) for df in date_filter.split(",")
+        ]
         if thresholds:
             query = query.filter(Game.updated_at >= min(thresholds))
 
@@ -214,12 +217,18 @@ def users():
             bad_request = {"message": "Bad request: missing fields"}
             return jsonify(bad_request), 400
 
+        if not username_is_unique(data["username"]):
+            return jsonify({"message": "User with this username already exists"}), 409
+
+        if not email_is_unique(data["email"]):
+            return jsonify({"message": "User with this email already exists"}), 409
+
         user = User(
             username=data["username"],
             email=data["email"],
             elo=data["elo"],
-            # password?
         )
+        user.set_password(data["password"])
         db.session.add(user)
         db.session.commit()
 
@@ -267,7 +276,7 @@ def user(uuid):
 
         user.username = data["username"]
         user.email = data["email"]
-        user.password = data["password"]
+        user.set_password(data["password"])
         user.elo = data["elo"]
         db.session.commit()
 
