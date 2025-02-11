@@ -1,15 +1,13 @@
 <script>
-    import { gameInfo, resetGame } from '$lib/shared.svelte';
-
+  import Login from '$lib/Login.svelte';
+import { gameInfo, resetGame } from '$lib/shared.svelte';
 	let { children } = $props();
+  let showLoginPopup = $state(false);
 </script>
-
+<link rel="stylesheet"  href="/fontawesome/css/all.css">
 <nav>
-  <!-- smarter linking needed = because ./ goes up a folder both on page/ and on page/uuid   => sometimes it goes up only to page/ -->
-   <!-- snad to je dost chytry, aby to pochopilo, ze / ma byt na nas root pokud bude stranka hostovana na /nejaka-podstranka/ -->
-    <!-- stejne tak s /game kdyz to bude /nejaka-podstranka/game -->
   <!-- TODO: Fix Think different text and Game text to be aligned vertically -->
-	<a aria-label="Think different academy homepage" href="/">
+  <a aria-label="Think different academy homepage" href="/">
     <picture>
       <!-- User prefers light mode: -->
       <source srcset="/Think-different-Academy_LOGO_oficialni-bile.svg" media="(prefers-color-scheme: light)"/>
@@ -21,12 +19,18 @@
       <img alt="Think different academy logo" src="Think-different-Academy_LOGO_oficialni-cerne.svg"/>
     </picture>
   </a>
-	<a class="menuItem" href="/game" onclick={resetGame}>Nová hra</a>
+  <a class="menuItem" href="/game" onclick={resetGame}>Nová hra</a>
+  
+  <button onclick={() => showLoginPopup = true} class="right">Přihlásit se</button>
 </nav>
 
 <div id="app">
 {@render children()}
 </div>
+
+{#if showLoginPopup}
+  <Login bind:show={showLoginPopup}/>
+{/if}
 
 <style>
   :root {
@@ -42,19 +46,42 @@
   }
 
   nav{
+    display: flex;
+    gap: 26px;
+    font-size: 1.3rem;
+    height: 90px;
+    color: white;
+    align-items: center;
     padding-top: 8px;
-    /*padding-bottom: 18px;*/
+    padding-left: 10px;
+    padding-right: 10px;
   }
 
-  /*The light bulb lighting up effect on hover */
   nav img {
-    transition: filter 0.2s ease-in-out;
+      min-width: 200px;
+      width: auto;
+      object-fit: contain;
+      padding: 5px;
+      translate: 0 10px;
+      /*The light bulb lighting up effect on hover */
+      transition: filter 0.2s ease-in-out;
   }
 
   nav img:hover {
     filter: drop-shadow(0 0 8px var(--tda-logo-hover-color)); /*rgba(216, 178, 25, 0.6)*/
   }
 
+  nav .right{
+    margin-left: auto;
+  }
+
+  nav a:first-of-type {
+    padding-left: 16px;
+    /* Add this to ensure proper link sizing */
+    display: flex;  
+    align-items: center;
+    color: white;
+  }
 
   /*A cool underline effect when hovering on links*/
   .menuItem {
