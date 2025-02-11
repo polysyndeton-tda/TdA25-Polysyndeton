@@ -3,4 +3,4 @@ flask-cors==4.0.0
 sqlalchemy
 flask-migrate
 pytest
-Flask-JWT
+flask-jwt-extended
