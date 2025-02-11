@@ -13,8 +13,11 @@ from src.validators import (
     validate_game_post,
     validate_game_fields,
     validate_user_fields,
+    username_is_unique,
+    email_is_unique,
 )
 from src.gamestate import get_gamestate
+from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
 
 
 @app.route("/api")
@@ -171,7 +174,6 @@ def filter():
         query = query.filter(Game.difficulty.in_(difficulties))
 
     if name:
-        # query = query.filter(Game.name.ilike(f"%{name}%"))  # Case-insensitive partial match
         query = query.filter(Game.name.in_(names))
 
     if date_filter:
@@ -180,10 +182,12 @@ def filter():
             "24h": timedelta(hours=24),
             "7d": timedelta(days=7),
             "1m": timedelta(days=30),
-            "3m": timedelta(days=90)
+            "3m": timedelta(days=90),
         }
-    
-        thresholds = [now - date_deltas.get(df, timedelta()) for df in date_filter.split(",")]
+
+        thresholds = [
+            now - date_deltas.get(df, timedelta()) for df in date_filter.split(",")
+        ]
         if thresholds:
             query = query.filter(Game.updated_at >= min(thresholds))
 
@@ -207,19 +211,25 @@ def filter():
 
 @app.route("/api/v1/users", methods=["GET", "POST"])
 def users():
-    if request.method == "POST":
+    if request.method == "POST":  # synonymous with registering
         data = request.get_json()
 
         if not validate_user_fields(data):
             bad_request = {"message": "Bad request: missing fields"}
             return jsonify(bad_request), 400
 
+        if not username_is_unique(data["username"]):
+            return jsonify({"message": "User with this username already exists"}), 409
+
+        if not email_is_unique(data["email"]):
+            return jsonify({"message": "User with this email already exists"}), 409
+
         user = User(
             username=data["username"],
             email=data["email"],
             elo=data["elo"],
-            # password?
         )
+        user.set_password(data["password"])
         db.session.add(user)
         db.session.commit()
 
@@ -265,12 +275,36 @@ def user(uuid):
             bad_request = {"message": "Bad request: missing fields"}
             return jsonify(bad_request), 400
 
+        if not username_is_unique(data["username"]):
+            return jsonify({"message": "User with this username already exists"}), 409
+
+        if not email_is_unique(data["email"]):
+            return jsonify({"message": "User with this email already exists"}), 409
+
         user.username = data["username"]
         user.email = data["email"]
-        user.password = data["password"]
+        user.set_password(data["password"])
         user.elo = data["elo"]
         db.session.commit()
 
         result = user_json(user)
 
         return jsonify(result), 200
+
+
+@app.route("/api/v1/login", methods=["POST"])
+def login():
+    data = request.get_json()
+    username = data["username"]
+    password = data["password"]
+
+    user = User.query.filter((User.username == username)).first()
+
+    if not user:
+        return jsonify({"message": "Resource not found"}), 404
+
+    if not user.check_password(password):
+        return jsonify({"message": "Invalid credentials"}), 401
+    
+    access_token = create_access_token(identity=user.uuid, expires_delta=timedelta(hours=1))
+    return jsonify({"token": access_token})

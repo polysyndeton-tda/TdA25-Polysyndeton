@@ -3,8 +3,6 @@ import copy
 from src.gamestate import (
     Turns,
     get_turns,
-    get_gamestate,
-    get_columns,
     get_first_diagonals,
     get_second_diagonals,
 )

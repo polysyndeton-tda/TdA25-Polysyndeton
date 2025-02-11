@@ -1,4 +1,5 @@
 from src.utils import string_from_board
+from src.models import User
 
 
 def validate_game_post(data):
@@ -40,5 +41,21 @@ def validate_game_fields(data):
 def validate_user_fields(data):
     fields = set(["username", "email", "password", "elo"])
     if set(data.keys()) != fields:
+        return False
+    return True
+
+
+def username_is_unique(requested_username):
+    existing_username = User.query.filter((User.username == requested_username)).first()
+
+    if existing_username:
+        return False
+    return True
+
+
+def email_is_unique(requested_email):
+    existing_email = User.query.filter((User.email == requested_email)).first()
+
+    if existing_email:
         return False
     return True
