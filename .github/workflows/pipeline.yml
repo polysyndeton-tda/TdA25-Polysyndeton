@@ -16,6 +16,12 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
 
+      - name: Set up environment variables
+        run: |
+          echo "SUPERUSER_EMAIL=${{ secrets.SUPERUSER_EMAIL }}" >> $GITHUB_ENV
+          echo "SUPERUSER_USERNAME=${{ secrets.SUPERUSER_USERNAME }}" >> $GITHUB_ENV
+          echo "SUPERUSER_PASSWORD=${{ secrets.SUPERUSER_PASSWORD }}" >> $GITHUB_ENV
+
       - name: Build
         uses: docker/build-push-action@v6.8.0
         with:
