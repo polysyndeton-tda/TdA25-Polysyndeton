@@ -133,3 +133,63 @@ export function wait(ms) {
         return;
     }
 }
+
+export class UserState{
+    // constructor(){
+        token = $derived.by(() => {
+            return localStorage.getItem("token");
+        });
+        loggedIn = $derived(this.token !== null);
+    // }
+}
+
+function saveToken(token){
+    localStorage.setItem("token", token);
+}
+
+function deleteToken(){
+    localStorage.removeItem("token");
+}
+
+//na login jde jenom username a ne email?
+export async function login(username, password){
+    const request = await fetch(`${api_url}/login`, 
+        {
+            method: "POST",
+            body: JSON.stringify({
+                username: username,
+                password: password,
+            }),
+            headers: {
+                "Content-Type": "application/json",
+            }
+        } 
+    );
+    const token = await request.json();
+    console.log("login response = token", token);
+    saveToken(token);
+}
+
+export function logout(){
+    deleteToken();
+}
+
+export async function signUp(username, email, password){
+    const request = await fetch(`${api_url}/users`, 
+        {
+            method: "POST",
+            body: JSON.stringify({
+                username: username,
+                email: email,
+                password: password,
+                elo: 400
+            }),
+            headers: {
+                "Content-Type": "application/json",
+            }
+        } 
+    );
+    const data = await request.json();
+    console.log("signUp response", data);
+    // await login(username, password);
+}

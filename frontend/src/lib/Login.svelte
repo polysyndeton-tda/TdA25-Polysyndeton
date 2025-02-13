@@ -1,10 +1,16 @@
 <script>
-    import { scale } from 'svelte/transition';
-    let { show = $bindable(), okCallback} = $props();
+    import { scale, slide, fade } from 'svelte/transition';
+    import { login, signUp } from '$lib/shared.svelte.js';
+    let { show = $bindable(), okCallback, mode = $bindable("login")} = $props();
 
+    let userNameField;
     function addFocus(node){
         node.select();
     }
+
+    let email = $state();
+    let username = $state();
+    let password = $state();
 
     function confirm(){
         okCallback();
@@ -18,37 +24,66 @@
 
 <div in:scale={{ duration: 75}} out:scale={{ duration: 95}} class="popup-container">
     <div class="popup">
-        <div class="title">
-            <div class="top-bar">
-                <h2>Přihlásit se</h2> <button aria-labelledby="close" onclick={close}><i class="fa-solid fa-xmark"></i></button>
-            </div>
-            <table>
-                <tbody>
-                    <tr>
-                        <td>
-                            <label for="email">E-mail:</label>
-                        </td>
-                        <td>
-                            <input use:addFocus id="email" type="email">
-                        </td>
-                    </tr>
+        <form>
+            <div class="title">
+                <div class="top-bar">
+                    {#if mode == "login"}
+                        <h2 in:fade>Přihlásit se</h2>
+                    {:else}
+                        <h2 in:fade>Registrovat</h2>
+                    {/if} 
+                    <button aria-labelledby="close" onclick={close}><i class="fa-solid fa-xmark"></i></button>
+                </div>
+                <table>
+                    <tbody>
+                        <tr>
+                            <td>
+                                <label for="username">Uživatelské jméno:</label>
+                            </td>
+                            <td>
+                                <input use:addFocus bind:this={userNameField} bind:value={username} id="username" type="username">
+                            </td>
+                        </tr>
+                        {#if mode == "register"}
+                            <tr in:slide out:scale>
+                                <td>
+                                    <label for="email">E-mail:</label>
+                                </td>
+                                <td>
+                                    <input bind:value={email} id="email" type="email">
+                                </td>
+                            </tr>
+                        {/if}
 
-                    <tr>
-                        <td>
-                            <label for="password">Heslo:</label>
-                        </td>
-                        <td>
-                            <input id="password" type="password">
-                        </td>
-                    </tr>
-                    
-                </tbody>
-            </table>
-            <p>Ještě nemáte účet? <a href="javascript:void(0);">Registrovat</a></p>
-        </div>
-        <div class="button-area">
-            <button class="ok" onclick={confirm}>Přihlásit</button>
-        </div>
+                        <tr>
+                            <td>
+                                <label for="password">Heslo:</label>
+                            </td>
+                            <td>
+                                <input bind:value={password} id="password" type="password">
+                            </td>
+                        </tr>
+                        
+                    </tbody>
+                </table>
+                {#if mode == "login"}
+                    <p transition:slide>Ještě nemáte účet? <a href="#" onclick={() => {
+                        addFocus(userNameField);
+                        mode = "register"}}> Registrovat</a></p>
+                {:else}
+                    <p transition:slide>Již máte účet? <a href="#" onclick={() => {
+                        addFocus(userNameField);
+                        mode = "login"}}>Přihlásit</a></p>
+                {/if}
+            </div>
+            <div class="button-area">
+                {#if mode == "login"}
+                    <button class="ok" onclick={() => login(username, password)}>Přihlásit</button>
+                {:else}
+                    <button class="ok" onclick={() => signUp(username, email, password)}>Registrovat</button>
+                {/if}
+            </div>
+        </form>
     </div>
 </div>
 
