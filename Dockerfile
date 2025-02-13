@@ -10,7 +10,7 @@ FROM python:3.10-slim
 WORKDIR /app
 
 COPY backend/requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install -r requirements.txt
 
 COPY backend/ backend/
 COPY --from=frontend-build /app/frontend/build /app/backend/static
