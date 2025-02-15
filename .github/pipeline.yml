@@ -9,19 +9,18 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
+    env:
+      SECRET_KEY: ${{ secrets.SECRET_KEY }}
+      SUPERUSER_EMAIL: ${{ secrets.SUPERUSER_EMAIL }}
+      SUPERUSER_USERNAME: ${{ secrets.SUPERUSER_USERNAME }}
+      SUPERUSER_PASSWORD: ${{ secrets.SUPERUSER_PASSWORD }}
+
     steps:
       - name: Check Out Repo
         uses: actions/checkout@v3
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
-
-      - name: Set up environment variables
-        run: |
-          echo "SUPERUSER_EMAIL=${{ secrets.SUPERUSER_EMAIL }}" >> .env
-          echo "SUPERUSER_USERNAME=${{ secrets.SUPERUSER_USERNAME }}" >> .env
-          echo "SUPERUSER_PASSWORD=${{ secrets.SUPERUSER_PASSWORD }}" >> .env
-
 
       - name: Build
         uses: docker/build-push-action@v6.8.0
