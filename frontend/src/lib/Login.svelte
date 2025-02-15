@@ -1,7 +1,8 @@
 <script>
     import { scale, slide, fade } from 'svelte/transition';
-    import { login, signUp } from '$lib/shared.svelte.js';
-    let { show = $bindable(), okCallback, mode = $bindable("login")} = $props();
+    import { User } from '$lib/shared.svelte.js';
+    import Alert from './Alert.svelte';
+    let { show = $bindable(), mode = $bindable("login")} = $props();
 
     let userNameField;
     function addFocus(node){
@@ -11,18 +12,15 @@
     let email = $state();
     let username = $state();
     let password = $state();
-
-    function confirm(){
-        okCallback();
-        close();
-    }
+    let errorHappened = $state(false);
+    let registerOrLoginError = $state("");
 
     function close(){
         show = false;
     }
 </script>
 
-<div in:scale={{ duration: 75}} out:scale={{ duration: 95}} class="popup-container">
+<div transition:scale|global={{ duration: 300}} class="popup-container">
     <div class="popup">
         <form>
             <div class="title">
@@ -32,7 +30,7 @@
                     {:else}
                         <h2 in:fade>Registrovat</h2>
                     {/if} 
-                    <button aria-labelledby="close" onclick={close}><i class="fa-solid fa-xmark"></i></button>
+                    <button aria-labelledby="Zavřít" onclick={close}><i class="fa-solid fa-xmark"></i></button>
                 </div>
                 <table>
                     <tbody>
@@ -54,7 +52,6 @@
                                 </td>
                             </tr>
                         {/if}
-
                         <tr>
                             <td>
                                 <label for="password">Heslo:</label>
@@ -62,8 +59,7 @@
                             <td>
                                 <input bind:value={password} id="password" type="password">
                             </td>
-                        </tr>
-                        
+                        </tr> 
                     </tbody>
                 </table>
                 {#if mode == "login"}
@@ -78,15 +74,29 @@
             </div>
             <div class="button-area">
                 {#if mode == "login"}
-                    <button class="ok" onclick={() => login(username, password)}>Přihlásit</button>
+                    <button class="ok" onclick={() => {
+                        User.login(username, password).catch(err => {
+                            registerOrLoginError = err;
+                            errorHappened = true;
+                        })
+                        .then(() => {if(!errorHappened) close()});
+                        }}>Přihlásit</button>
                 {:else}
-                    <button class="ok" onclick={() => signUp(username, email, password)}>Registrovat</button>
+                    <button class="ok" onclick={() => {
+                        User.signUp(username, email, password).catch(err => {
+                            errorHappened = true;
+                            registerOrLoginError = err;
+                        }).then(() => {if(!errorHappened) close()});
+                        }}>Registrovat</button>
                 {/if}
             </div>
         </form>
     </div>
 </div>
 
+{#if errorHappened}
+    <Alert bind:show={errorHappened} okCallback={() => errorHappened = false}>{registerOrLoginError}</Alert>
+{/if}
 
 <style>
 .popup-container{
@@ -146,8 +156,11 @@ label, input{
 }
 
 @media (prefers-color-scheme: light){
-    h2{
+    h2, label, input, p{
         color: white;
+    }
+    p a{
+        color: darkturquoise;
     }
     .title{
         background-color: #0257a5;

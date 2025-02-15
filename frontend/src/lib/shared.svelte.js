@@ -133,63 +133,86 @@ export function wait(ms) {
         return;
     }
 }
+//this solution from https://www.reddit.com/r/sveltejs/comments/1d313ln/cannot_export_state_from_a_module_if_it_is/
+class UserState{
+    //localStorage is not reactive
+    // => so I made user methods a part of this class so values can be kept up to date manually (in login, logout)
+    token = localStorage.getItem("token");
+    //wrapping this in $state() does not make it change when storage changes, 
+    //but it is needed because name is displayed in UI
+    //(else the UI (in +layout.svelte shows nothing):
+    name = $state(localStorage.getItem("username"));
+    //derived didnt work here, because token is not a $state() vriable (thats ok)
+    loggedIn = $state(this.token !== null);
 
-export class UserState{
-    // constructor(){
-        token = $derived.by(() => {
-            return localStorage.getItem("token");
-        });
-        loggedIn = $derived(this.token !== null);
-    // }
-}
-
-function saveToken(token){
-    localStorage.setItem("token", token);
-}
-
-function deleteToken(){
-    localStorage.removeItem("token");
-}
-
-//na login jde jenom username a ne email?
-export async function login(username, password){
-    const request = await fetch(`${api_url}/login`, 
-        {
-            method: "POST",
-            body: JSON.stringify({
-                username: username,
-                password: password,
-            }),
-            headers: {
-                "Content-Type": "application/json",
+    
+    async login(username, password){
+        const request = await fetch(`${api_url}/login`, 
+            {
+                method: "POST",
+                body: JSON.stringify({
+                    username: username,
+                    password: password,
+                }),
+                headers: {
+                    "Content-Type": "application/json",
+                }
+            } 
+        );
+        if(request.ok){
+            this.loggedIn = true;
+        }else{
+            if(request.status == 404){
+                throw Error("Takového uživatele neznáme. \n Zkontrolujte, zda jste v přihlašovacím jméně nenapsali překlep.");
             }
-        } 
-    );
-    const token = await request.json();
-    console.log("login response = token", token);
-    saveToken(token);
-}
-
-export function logout(){
-    deleteToken();
-}
-
-export async function signUp(username, email, password){
-    const request = await fetch(`${api_url}/users`, 
-        {
-            method: "POST",
-            body: JSON.stringify({
-                username: username,
-                email: email,
-                password: password,
-                elo: 400
-            }),
-            headers: {
-                "Content-Type": "application/json",
+            if(request.status == 401){
+                throw Error("Zkontrolujte, zda jste v hesle nenapsali překlep.");
             }
-        } 
-    );
-    const data = await request.json();
-    console.log("signUp response", data);
-    // await login(username, password);
+        }
+        const tokenResponse = await request.json();
+        localStorage.setItem("token", tokenResponse.token);
+        localStorage.setItem("username", username);
+        this.token = tokenResponse;
+        this.name = username;
+    }
+
+    logout(){
+        this.loggedIn = false;
+        this.token = null;
+        this.name = null;
+        localStorage.removeItem("token");
+    }
+
+    async signUp(username, email, password){
+        const request = await fetch(`${api_url}/users`, 
+            {
+                method: "POST",
+                body: JSON.stringify({
+                    username: username,
+                    email: email,
+                    password: password,
+                    elo: 400
+                }),
+                headers: {
+                    "Content-Type": "application/json",
+                }
+            } 
+        );
+        const data = await request.json();
+        if(request.status == 409){
+            if(data.message == "User with this username already exists"){
+                throw Error("Toto uživatelské jméno již někdo používá. \n Zvolte jiné");
+            }else if(data.message == "User with this email already exists"){
+                throw Error("Tento email již nějaký účet používá. \n Zvolte jiný");
+            }
+        }
+        if(request.status == 400){
+            throw Error("Vyplňte prosím všechna pole formuláře.");
+        }
+        console.log("signUp response", data);
+        await this.login(username, password);
+    }
+
 }
+
+export let User = new UserState();

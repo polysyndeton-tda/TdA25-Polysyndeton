@@ -1,10 +1,24 @@
 <script>
   import Login from '$lib/Login.svelte';
-import { gameInfo, resetGame } from '$lib/shared.svelte';
+  import { gameInfo, resetGame, User } from '$lib/shared.svelte';
 	let { children } = $props();
   let showLoginPopup = $state(false);
+
+  let isDropdownOpen = $state(false);
+
+  function toggleDropdown(){
+    isDropdownOpen = !isDropdownOpen;
+  }
+
+  const handleClickOutside = (e) => {
+    //check to make it so clicks inside the dropdown don't necessarily close it
+    if (!e.target.closest('.dropdown')) {
+      isDropdownOpen = false;
+    }
+  }
 </script>
 <link rel="stylesheet"  href="/fontawesome/css/all.css">
+<svelte:window on:click={handleClickOutside}/>
 <nav>
   <!-- TODO: Fix Think different text and Game text to be aligned vertically -->
   <a aria-label="Think different academy homepage" href="/">
@@ -20,8 +34,23 @@ import { gameInfo, resetGame } from '$lib/shared.svelte';
     </picture>
   </a>
   <a class="menuItem" href="/game" onclick={resetGame}>Nová hra</a>
-  
-  <button onclick={() => showLoginPopup = true} class="right">Přihlásit se</button>
+
+  <!-- The login button and menu -->
+  {#if !User.loggedIn}
+    <button onclick={() => showLoginPopup = true} class="right">Přihlásit se</button>
+  {:else}
+    <div class="dropdown right">
+      <button onclick={toggleDropdown}> <i class="fa-solid fa-user"></i> {User.name}</button>
+      {#if isDropdownOpen}
+        <div class="dropdown-menu">
+          <button onclick={() => {
+            User.logout();
+            isDropdownOpen = false;
+          }}>Odhlásit</button>
+        </div>
+      {/if}
+    </div>
+  {/if}
 </nav>
 
 <div id="app">
@@ -36,13 +65,7 @@ import { gameInfo, resetGame } from '$lib/shared.svelte';
   :root {
       --menu-item-hover-color: white;
       --tda-logo-hover-color: #cbd0d69c; /*#171515c7;*/
-  }
-
-  @media (prefers-color-scheme: dark) {
-    :root {
-      --menu-item-hover-color: #0070bb; 
-      --tda-logo-hover-color: goldenrod;
-    }
+      --dropdown-bgcolor: #0257a5;
   }
 
   nav{
@@ -129,4 +152,26 @@ import { gameInfo, resetGame } from '$lib/shared.svelte';
     transition: transform 0.25s ease-out;
   }
 
+  .dropdown-menu {
+    position: absolute;
+    right: 0;
+    min-width: 160px;
+    text-align: center;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    padding-top: 10px;
+    padding-bottom: 10px;
+    margin-top: 5px;
+    background-color: var(--dropdown-bgcolor);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --menu-item-hover-color: #0070bb; 
+      --tda-logo-hover-color: goldenrod;
+    }
+    .dropdown-menu{
+      --dropdown-bgcolor: #43414196;
+      box-shadow: 0 2px 5px #b1b0b091;
+    }
+  }
 </style>
