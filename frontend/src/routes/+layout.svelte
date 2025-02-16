@@ -33,7 +33,7 @@
       <img alt="Think different academy logo" src="Think-different-Academy_LOGO_oficialni-cerne.svg"/>
     </picture>
   </a>
-  <a class="menuItem" href="/game" onclick={resetGame}>Nová hra</a>
+  <!-- <a class="menuItem" href="/game" onclick={resetGame}>Nová hra</a> -->
 
   <!-- The login button and menu -->
   {#if !User.loggedIn}
