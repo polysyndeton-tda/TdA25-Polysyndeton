@@ -10,9 +10,9 @@
     <h3>Hrajte:</h3>
     <a class="button" href="/multiplayer">Online 🌐</a>
     <a class="button" href="/game">Lokálně s kamarádem 🙋‍♀️</a>
-    <div class="register-wrapper">
+    <!-- <div class="register-wrapper">
         <button class="register" onclick={() => showRegisterPopup = true}>Registrovat již dnes!</button>
-    </div>
+    </div> -->
 </div>
 
 {#if showRegisterPopup}
