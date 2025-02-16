@@ -170,10 +170,15 @@ class UserState{
                 throw Error("Zkontrolujte, zda jste v hesle nenapsali překlep.");
             }
         }
-        const response = await request.json();
-        localStorage.setItem("token", response.token);
-        localStorage.setItem("username", username);
-        this.token = response.token;
+        try{
+            console.log("response from login is", response);
+            const response = await request.json();
+            localStorage.setItem("token", response.token);
+            localStorage.setItem("username", username);
+            this.token = response.token;
+        }catch(e){
+            console.error(e);
+        }
     }
 
     logout(){
