@@ -10,6 +10,7 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
+      JWT_SECRET_KEY: ${{ secrets.JWT_SECRET_KEY }}
       SECRET_KEY: ${{ secrets.SECRET_KEY }}
       SUPERUSER_EMAIL: ${{ secrets.SUPERUSER_EMAIL }}
       SUPERUSER_USERNAME: ${{ secrets.SUPERUSER_USERNAME }}
