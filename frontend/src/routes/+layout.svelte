@@ -43,6 +43,7 @@
       <button onclick={toggleDropdown}> <i class="fa-solid fa-user"></i> {User.name}</button>
       {#if isDropdownOpen}
         <div class="dropdown-menu">
+          <a onclick={() => isDropdownOpen = false} class="button" href="/my-profile"><i class="fa-solid fa-gear"></i> Můj profil</a>
           <button onclick={() => {
             User.logout();
             isDropdownOpen = false;
@@ -164,6 +165,29 @@
     background-color: var(--dropdown-bgcolor);
   }
 
+  .button{
+    display: block;
+    border-radius: 8px;
+    border: 1px solid transparent;
+    padding: 0.6em 1.2em;
+    font-size: 1.2rem;
+    font-weight: 535;
+    font-family: inherit;
+    cursor: pointer;
+    transition: border-color 0.25s;
+    text-decoration: none;
+    background-color: #f6f6f6;
+    color: black;
+    width: fit-content;
+  }
+  button:hover {
+    border-color: #0070BB; /*#646cff;*/ /*#535bf2;*/
+  }
+  .button:focus,
+  .button:focus-visible {
+    outline: 4px auto -webkit-focus-ring-color;
+  }
+
   @media (prefers-color-scheme: dark) {
     :root {
       --menu-item-hover-color: #0070bb; 
@@ -172,6 +196,11 @@
     .dropdown-menu{
       --dropdown-bgcolor: #43414196;
       box-shadow: 0 2px 5px #b1b0b091;
+    }
+
+    .button {
+        background-color: #1a1a1a;
+        color: white;
     }
   }
 </style>
