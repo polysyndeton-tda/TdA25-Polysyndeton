@@ -240,7 +240,7 @@ def users():
         return jsonify([user_json(user) for user in users]), 200
 
 
-@app.route("/api/v1/user/<uuid:uuid>", methods=["GET", "PUT", "DELETE"])
+@app.route("/api/v1/users/<uuid:uuid>", methods=["GET", "PUT", "DELETE"])
 def user(uuid):
     uuid_str = str(uuid)
 
