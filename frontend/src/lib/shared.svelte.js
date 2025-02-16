@@ -145,6 +145,7 @@ class UserState{
     //derived didnt work here, because token is not a $state() vriable (thats ok)
     loggedIn = $state(this.token !== null);
 
+    uuid = localStorage.getItem("uuid");
     
     async login(username, password){
         const request = await fetch(`${api_url}/login`, 
@@ -169,11 +170,10 @@ class UserState{
                 throw Error("Zkontrolujte, zda jste v hesle nenapsali překlep.");
             }
         }
-        const tokenResponse = await request.json();
-        localStorage.setItem("token", tokenResponse.token);
+        const response = await request.json();
+        localStorage.setItem("token", response.token);
         localStorage.setItem("username", username);
-        this.token = tokenResponse;
-        this.name = username;
+        this.token = response.token;
     }
 
     logout(){
@@ -181,6 +181,8 @@ class UserState{
         this.token = null;
         this.name = null;
         localStorage.removeItem("token");
+        localStorage.removeItem("username");
+        localStorage.removeItem("uuid");
     }
 
     async signUp(username, email, password){
@@ -210,9 +212,28 @@ class UserState{
             throw Error("Vyplňte prosím všechna pole formuláře.");
         }
         console.log("signUp response", data);
+        this.name = username;
+        this.elo = data.elo;
+        this.wins = data.wins;
+        this.draws = data.draws;
+        this.losses = data.losses;
+        this.uuid = data.uuid;
+        localStorage.setItem("uuid", data.uuid);
+        console.log("uuid", data.uuid);
         await this.login(username, password);
     }
 
+    async delete(){
+        const request = await fetch(`${api_url}/users/${this.uuid}`, {method: "DELETE"});
+        if(request.status == 404){
+            throw Error("Uživatel nenalezen \n Pravděpodobně už jste účet smazali. \n Obnovte stránku.");
+        }
+        if(request.ok){
+            this.logout();
+            return true;
+        }
+        return false;
+    }
 }
 
 export let User = new UserState();
