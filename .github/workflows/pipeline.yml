@@ -31,6 +31,12 @@ jobs:
           cache-to: type=gha,mode=max
           tags: tda:latest
           outputs: type=docker,dest=/tmp/tda.tar
+          build-args: |
+            JWT_SECRET_KEY=${{ secrets.JWT_SECRET_KEY }}
+      	    SECRET_KEY=${{ secrets.SECRET_KEY }}
+            SUPERUSER_EMAIL=${{ secrets.SUPERUSER_EMAIL }}
+            SUPERUSER_USERNAME=${{ secrets.SUPERUSER_USERNAME }}
+      	    SUPERUSER_PASSWORD=${{ secrets.SUPERUSER_PASSWORD }}
 
       - name: Upload to TdA
         uses: Tour-de-App/upload-app@tda-25
