@@ -26,8 +26,9 @@ logger.setLevel(logging.INFO)
 app = Flask(__name__, static_folder="../static")  # ../../frontend/build
 app.config.from_object(Config)
 
-logger.info(f"JWT_SECRET_KEY: {app.config['JWT_SECRET_KEY']}")
-logger.info(f"SECRET_KEY: {app.config['SECRET_KEY']}")
+for k in os.environ.keys():
+    logger.info(f"Available environment variable: {k}")
+
 jwt = JWTManager(app)
 CORS(app)
 db = SQLAlchemy(app)
