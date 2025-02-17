@@ -239,6 +239,7 @@ def users():
         users = User.query.all()
         return jsonify([user_json(user) for user in users]), 200
 
+import sys
 
 @app.route("/api/v1/users/<uuid:uuid>", methods=["GET", "PUT", "DELETE"])
 def user(uuid):
@@ -273,16 +274,24 @@ def user(uuid):
             bad_request = {"message": "Bad request: missing fields"}
             return jsonify(bad_request), 400
 
-        if not username_is_unique(data["username"]):
-            return jsonify({"message": "User with this username already exists"}), 409
+        try:
+            if not username_is_unique(data["username"]):
+                return jsonify({"message": "User with this username already exists"}), 409
 
-        if not email_is_unique(data["email"]):
-            return jsonify({"message": "User with this email already exists"}), 409
-
-        user.username = data["username"]
-        user.email = data["email"]
-        user.set_password(data["password"])
-        user.elo = data["elo"]
+            if not email_is_unique(data["email"]):
+                return jsonify({"message": "User with this email already exists"}), 409
+        except KeyError:
+            #If the user hasn't supplied email or username to change (if changing only password for example)
+            #then these username and email checks don't matter
+            pass
+        
+        print("keys",data.keys(), file=sys.stderr)
+        for property in data.keys():
+            if property == "password":
+                user.set_password(data["password"])
+            else:
+                user.property = data[property]
+        
         db.session.commit()
 
         result = user_json(user)
