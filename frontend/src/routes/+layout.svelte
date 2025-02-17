@@ -163,6 +163,11 @@
     padding-bottom: 10px;
     margin-top: 5px;
     background-color: var(--dropdown-bgcolor);
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
   }
 
   .button{
@@ -179,6 +184,8 @@
     background-color: #f6f6f6;
     color: black;
     width: fit-content;
+    /* for font awesome which makes it a flex container but doesn't add gap */
+    gap: 5px;
   }
   button:hover {
     border-color: #0070BB; /*#646cff;*/ /*#535bf2;*/
