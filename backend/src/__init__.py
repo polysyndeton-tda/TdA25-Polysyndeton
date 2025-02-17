@@ -10,6 +10,13 @@ from flask_cors import CORS
 
 from config import Config
 
+logger = logging.getLogger(__name__)
+console_handler = logging.StreamHandler()
+console_handler.setLevel(logging.INFO)
+console_handler.setFormatter(logging.Formatter("%(asctime)s - %(levelname)s - %(message)s"))
+logger.addHandler(console_handler)
+logger.setLevel(logging.INFO)
+
 # outside Docker, this folder ../../frontend/build works as static folder
 # however inside Docker, that relative link does not work, the directory layout is different (the build folder is still present in the Docker image though)
 # so it doesn't find the build folder
@@ -18,6 +25,9 @@ from config import Config
 # => updated build.sh to copy the build folder to the static folder
 app = Flask(__name__, static_folder="../static")  # ../../frontend/build
 app.config.from_object(Config)
+
+logger.info(f"JWT_SECRET_KEY: {app.config['JWT_SECRET_KEY']}")
+logger.info(f"SECRET_KEY: {app.config['SECRET_KEY']}")
 jwt = JWTManager(app)
 CORS(app)
 db = SQLAlchemy(app)
