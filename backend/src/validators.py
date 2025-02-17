@@ -40,9 +40,9 @@ def validate_game_fields(data):
 
 def validate_user_fields(data):
     fields = set(["username", "email", "password", "elo"])
-    if set(data.keys()) != fields:
-        return False
-    return True
+    if set(data.keys()) <= fields:
+        return True
+    return False
 
 
 def username_is_unique(requested_username):
