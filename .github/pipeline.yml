@@ -31,6 +31,10 @@ jobs:
           cache-to: type=gha,mode=max
           tags: tda:latest
           outputs: type=docker,dest=/tmp/tda.tar
+      - name: Set up Flask App environment variables
+        run: |
+          echo "SECRET_KEY=${{ secrets.SECRET_KEY }}" >> $GITHUB_ENV
+          echo "JWT_SECRET_KEY=${{ secrets.JWT_SECRET_KEY }}" >> $GITHUB_ENV
 
       - name: Upload to TdA
         uses: Tour-de-App/upload-app@tda-25
