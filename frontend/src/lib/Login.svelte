@@ -78,8 +78,9 @@
                         User.login(username, password).catch(err => {
                             registerOrLoginError = err;
                             errorHappened = true;
-                        })
+                        })  
                         .then(() => {if(!errorHappened) close()});
+                        User.name = username;
                         }}>Přihlásit</button>
                 {:else}
                     <button class="ok" onclick={() => {

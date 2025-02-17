@@ -239,6 +239,33 @@ class UserState{
         }
         return false;
     }
+
+    async editUser(toChange){
+        console.log("Sending", JSON.stringify(toChange));
+        const request = await fetch(`${api_url}/users/${this.uuid}`, {
+            method: "PUT",
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(toChange),
+        });
+        const response = await request.json();
+    }
+
+    async changePassword(password){
+        if(password == undefined){
+            throw Error("Supply password string");
+        }
+        let changes = {"password": password}
+        await this.editUser(changes);
+    }
+    async changeName(name){
+        if(name == undefined){
+            throw Error("Supply name string");
+        }
+        let changes = {"username": name}
+        await this.editUser(changes);
+    }
 }
 
 export let User = new UserState();
