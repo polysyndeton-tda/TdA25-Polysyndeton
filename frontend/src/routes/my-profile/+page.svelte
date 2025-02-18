@@ -2,6 +2,7 @@
     import { User, wait } from "$lib/shared.svelte";
     import Confirm from "$lib/Confirm.svelte";
     import Toast from "$lib/Toast.svelte";
+    import Alert from "$lib/Alert.svelte";
     let showDeleteAccountPrompt = $state(false);
     let showDeleteConfirmation = $state(false);
     async function deleteUserGui(){
@@ -22,6 +23,8 @@
 
     let showToast = $state(false);
     let toastMessage = $state("");
+    let showError = $state(false);
+    let errorMessage = $state("");
 
 </script>
 {#if User.loggedIn}
@@ -33,15 +36,27 @@
             <label for="username">Zadejte svoje nové uživatelské jméno</label> <br>
             <input bind:value={username} id="username" type="text">
             <button onclick={async () => {
-                let ok = await User.changeName(username);
-                if(ok){
-                    toastMessage = "Uživatelské jméno bylo změněno";
-                }else{
-                    toastMessage = "Nastala chyba. Zkuste to později.";
+                try{
+                    let ok = await User.changeName(username);
+                    if(ok){
+                        toastMessage = "Uživatelské jméno bylo změněno";
+                    }else{
+                        toastMessage = "Nastala chyba. Zkuste to později.";
+                    }
+                    showToast = true;
+                    await wait(2600);
+                    showToast = false;
+                }catch(err){
+                    errorMessage = err;
+                    console.error(err);
+                    if((err.name == "TypeError" && err.message == "Failed to fetch") ||
+                        (err.name == "TypeError" && err.message == "NetworkError when attempting to fetch resource.")
+                    ){
+                        errorMessage = "Nejste připojeni k internetu.";
+                    }
+                    showError = true;
                 }
-                showToast = true;
-                await wait(2600);
-                showToast = false;
+               
                 }}>Potvrdit</button>
         </details>
         <details>
@@ -57,15 +72,27 @@
                 <p>Hesla se neshodují!</p>
             {/if}
             <button onclick={async () => {
-                let ok = await User.changePassword(password1);
-                if(ok){
-                    toastMessage = "Heslo bylo změneno";
-                }else{
-                    toastMessage = "Nastala chyba. Zkuste to později.";
+                try{
+                    let ok = await User.changePassword(password1);
+                    if(ok){
+                        toastMessage = "Heslo bylo změneno";
+                    }else{
+                        toastMessage = "Nastala chyba. Zkuste to později.";
+                    }
+                    showToast = true;
+                    await wait(2600);
+                    showToast = false;
+                }catch(err){
+                    errorMessage = err;
+                    console.error(err);
+                    if((err.name == "TypeError" && err.message == "Failed to fetch") ||
+                        (err.name == "TypeError" && err.message == "NetworkError when attempting to fetch resource.")
+                    ){
+                        errorMessage = "Nejste připojeni k internetu.";
+                    }
+                    showError = true;
                 }
-                showToast = true;
-                await wait(2600);
-                showToast = false;
+
                 }} disabled={!(passwordsMatch && startedTyping)}>Potvrdit</button>
         </details>
         <button onclick={() => showDeleteAccountPrompt = true}>Smazat účet</button>
@@ -85,6 +112,10 @@
 
 {#if showToast}
     <Toast>{toastMessage}</Toast>
+{/if}
+
+{#if showError}
+    <Alert bind:show={showError}>{errorMessage}</Alert>
 {/if}
 
 <style>
