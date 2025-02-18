@@ -7,7 +7,11 @@
     }
 
     function confirm(){
-        okCallback();
+        try{
+            okCallback();
+        }catch(err){
+            console.log("okCallback not supplied to Alert, simply closing it instead");
+        }
         close();
     }
 
