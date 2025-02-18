@@ -32,6 +32,7 @@ def hello():
 @app.route("/game/<string:game_uuid>")
 @app.route("/my-profile")
 @app.route("/puzzles")
+@app.route("/admin")
 def serveSPA(): #game_uuid=None parameter possible if we wanted to get the uuid url slug here
     return send_from_directory(app.static_folder, "index.html")
 
