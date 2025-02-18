@@ -2,6 +2,7 @@ from src import db
 from datetime import datetime, timezone
 import uuid
 from werkzeug.security import generate_password_hash, check_password_hash
+from sqlalchemy import Boolean
 
 
 class Game(db.Model):
@@ -34,6 +35,7 @@ class User(db.Model):
     wins = db.Column(db.Integer, nullable=False, default=0)
     draws = db.Column(db.Integer, nullable=False, default=0)
     losses = db.Column(db.Integer, nullable=False, default=0)
+    is_admin = db.Column(Boolean, default=False)
 
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)
