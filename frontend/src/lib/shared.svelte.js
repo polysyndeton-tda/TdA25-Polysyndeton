@@ -250,6 +250,10 @@ class UserState{
             body: JSON.stringify(toChange),
         });
         const response = await request.json();
+        if(request.ok){
+            return true;
+        }
+        return false;
     }
 
     async changePassword(password){
@@ -257,14 +261,22 @@ class UserState{
             throw Error("Supply password string");
         }
         let changes = {"password": password}
-        await this.editUser(changes);
+        let ok = await this.editUser(changes);
+        if(ok){
+            return true;
+        }
+        return false;
     }
     async changeName(name){
         if(name == undefined){
             throw Error("Supply name string");
         }
         let changes = {"username": name}
-        await this.editUser(changes);
+        let ok = await this.editUser(changes);
+        if(ok){
+            return true;
+        }
+        return false;
     }
 }
 

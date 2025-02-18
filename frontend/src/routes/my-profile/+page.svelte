@@ -20,6 +20,9 @@
     let passwordsMatch = $derived(password1 == password2);
     let startedTyping = $derived(password1.length > 0 && password2.length > 0);
 
+    let showToast = $state(false);
+    let toastMessage = $state("");
+
 </script>
 {#if User.loggedIn}
     <div class="centerBox">
@@ -29,7 +32,17 @@
             <summary>Změnit Uživatelské jméno</summary>
             <label for="username">Zadejte svoje nové uživatelské jméno</label> <br>
             <input bind:value={username} id="username" type="text">
-            <button onclick={() => User.changeName(username)}>Potvrdit</button>
+            <button onclick={async () => {
+                let ok = await User.changeName(username);
+                if(ok){
+                    toastMessage = "Uživatelské jméno bylo změněno";
+                }else{
+                    toastMessage = "Nastala chyba. Zkuste to později.";
+                }
+                showToast = true;
+                await wait(2600);
+                showToast = false;
+                }}>Potvrdit</button>
         </details>
         <details>
             <summary>Změnit heslo</summary>
@@ -43,7 +56,17 @@
             {:else if startedTyping}
                 <p>Hesla se neshodují!</p>
             {/if}
-            <button onclick={() => User.changePassword(password1)} disabled={!(passwordsMatch && startedTyping)}>Potvrdit</button>
+            <button onclick={async () => {
+                let ok = await User.changePassword(password1);
+                if(ok){
+                    toastMessage = "Heslo bylo změneno";
+                }else{
+                    toastMessage = "Nastala chyba. Zkuste to později.";
+                }
+                showToast = true;
+                await wait(2600);
+                showToast = false;
+                }} disabled={!(passwordsMatch && startedTyping)}>Potvrdit</button>
         </details>
         <button onclick={() => showDeleteAccountPrompt = true}>Smazat účet</button>
     </div>
@@ -60,6 +83,9 @@
     <Toast>Účet smazán</Toast>
 {/if}
 
+{#if showToast}
+    <Toast>{toastMessage}</Toast>
+{/if}
 
 <style>
 .ok{
