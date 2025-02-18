@@ -2,7 +2,7 @@
     import { scale, slide, fade } from 'svelte/transition';
     import { User } from '$lib/shared.svelte.js';
     import Alert from './Alert.svelte';
-    let { show = $bindable(), mode = $bindable("login")} = $props();
+    let { show = $bindable(), mode = $bindable("login"), floating = true, showRegisterLink = true} = $props();
 
     let userNameField;
     function addFocus(node){
@@ -20,7 +20,7 @@
     }
 </script>
 
-<div transition:scale|global={{ duration: 300}} class="popup-container">
+{#snippet login(showCloseButton, showRegisterLink)}
     <div class="popup">
         <form>
             <div class="title">
@@ -30,7 +30,9 @@
                     {:else}
                         <h2 in:fade>Registrovat</h2>
                     {/if} 
-                    <button aria-labelledby="Zavřít" onclick={close}><i class="fa-solid fa-xmark"></i></button>
+                    {#if showCloseButton}
+                        <button aria-labelledby="Zavřít" onclick={close}><i class="fa-solid fa-xmark"></i></button>
+                    {/if}
                 </div>
                 <table>
                     <tbody>
@@ -62,14 +64,16 @@
                         </tr> 
                     </tbody>
                 </table>
-                {#if mode == "login"}
-                    <p transition:slide>Ještě nemáte účet? <a href="#" onclick={() => {
-                        addFocus(userNameField);
-                        mode = "register"}}> Registrovat</a></p>
-                {:else}
-                    <p transition:slide>Již máte účet? <a href="#" onclick={() => {
-                        addFocus(userNameField);
-                        mode = "login"}}>Přihlásit</a></p>
+                {#if showRegisterLink}
+                    {#if mode == "login"}
+                        <p transition:slide>Ještě nemáte účet? <a href="#" onclick={() => {
+                            addFocus(userNameField);
+                            mode = "register"}}> Registrovat</a></p>
+                    {:else}
+                        <p transition:slide>Již máte účet? <a href="#" onclick={() => {
+                            addFocus(userNameField);
+                            mode = "login"}}>Přihlásit</a></p>
+                    {/if}
                 {/if}
             </div>
             <div class="button-area">
@@ -93,7 +97,15 @@
             </div>
         </form>
     </div>
-</div>
+{/snippet}
+
+{#if floating}
+    <div transition:scale|global={{ duration: 300}} class="popup-container">
+        {@render login(true, true)}
+    </div>
+{:else}
+    {@render login(false, false)}
+{/if}
 
 {#if errorHappened}
     <Alert bind:show={errorHappened} okCallback={() => errorHappened = false}>{registerOrLoginError}</Alert>
