@@ -171,7 +171,6 @@ class UserState{
             }
         }
         try{
-            console.log("response from login is", response);
             const response = await request.json();
             localStorage.setItem("token", response.token);
             localStorage.setItem("username", username);
