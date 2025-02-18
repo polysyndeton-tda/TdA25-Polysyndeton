@@ -38,6 +38,7 @@
             <button onclick={async () => {
                 try{
                     let ok = await User.changeName(username);
+                    User.name = username; //for reactivity
                     if(ok){
                         toastMessage = "Uživatelské jméno bylo změněno";
                     }else{
