@@ -238,66 +238,62 @@ def users():
 
     elif request.method == "GET":
         users = User.query.all()
+        for u in users:
+            delattr(user, "password_hash")
         return jsonify([user_json(user) for user in users]), 200
 
 @app.route("/api/v1/users/<uuid:uuid>", methods=["GET", "PUT", "DELETE"])
-def user(uuid):
+@jwt_required()
+def single_user(uuid):
     uuid_str = str(uuid)
+    current_user_uuid = get_jwt_identity()
+    current_user = User.query.filter_by(uuid = current_user_uuid).first()
+
+    if not current_user:
+        return jsonify({"message: Unauthorized"}), 401
+
+    queried_user = User.query.filter_by(uuid=uuid_str).first()
+    if not queried_user:
+        return jsonify({"message": "User not found"}), 404
 
     if request.method == "GET":
-        user = User.query.filter_by(uuid=uuid_str).first()
-        if user is None:
-            not_found = {"message": "Resource not found"}
-            return jsonify(not_found), 404
+        return jsonify(user_json(queried_user)), 200
 
-        return jsonify(game_json(user)), 200
+    if not current_user.is_admin and current_user_uuid != queried_user.uuid:
+        return jsonify({"message: Forbidden"}), 403
 
     elif request.method == "DELETE":
-        user = User.query.filter_by(uuid=uuid_str).first()
-
-        if user is None:
-            not_found = {"message": "Resource not found"}
-            return jsonify(not_found), 404
-
-        db.session.delete(user)
+        db.session.delete(queried_user)
         db.session.commit()
-
-        success_message = {"message": "User deleted successfully"}
-        return jsonify(success_message), 204
+        return jsonify({"message: User deleted succesfully"}), 204
 
     elif request.method == "PUT":
-        user = User.query.filter_by(uuid=uuid_str).first()
         data = request.get_json()
         username = data.get("username")
         email = data.get("email")
 
-        if not user:
-            return jsonify({"message": "user not found"}), 404
-
         if not validate_user_fields(data):
-            bad_request = {"message": "Bad request: missing fields"}
-            return jsonify(bad_request), 400
+            return jsonify({"message": "Bad request: missing fields"}), 400
 
-        if username and not username_is_unique(data["username"]):
+        if username and not username_is_unique(username):
             return jsonify({"message": "User with this username already exists"}), 409
 
-        if email and not email_is_unique(data["email"]):
+        if email and not email_is_unique(email):
             return jsonify({"message": "User with this email already exists"}), 409
         
         for property in data.keys():
             if property == "password":
-                user.set_password(data["password"])
+                queried_user.set_password(data["password"])
             else:
-                setattr(user, property, data[property])
+                setattr(queried_user, property, data[property])
         
         db.session.commit()
 
-        result = user_json(user)
-
-        return jsonify(result), 200
+        return jsonify(user_json(queried_user)), 200
 
 
 @app.route("/api/v1/login", methods=["POST"])
+@jwt_required
 def login():
     data = request.get_json()
     username = data["username"]
@@ -311,5 +307,5 @@ def login():
     if not user.check_password(password):
         return jsonify({"message": "Invalid credentials"}), 401
     
-    access_token = create_access_token(identity=user.uuid, expires_delta=timedelta(hours=1))
-    return jsonify({"token": access_token})
+    access_token = create_access_token(identity=user.uuid, expires_delta=timedelta(hours=1), additional_claims={"is_admin": user.is_admin})
+    return jsonify({"token": access_token, "is_admin": user.is_admin})
