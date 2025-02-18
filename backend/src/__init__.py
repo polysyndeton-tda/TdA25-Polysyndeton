@@ -10,6 +10,7 @@ from flask_cors import CORS
 
 from config import Config
 
+from src.admin import init_admin
 logger = logging.getLogger(__name__)
 console_handler = logging.StreamHandler()
 console_handler.setLevel(logging.INFO)
@@ -26,12 +27,13 @@ logger.setLevel(logging.INFO)
 app = Flask(__name__, static_folder="../static")  # ../../frontend/build
 app.config.from_object(Config)
 
-for k in os.environ.keys():
-    logger.info(f"Available environment variable: {k}")
-
 jwt = JWTManager(app)
 CORS(app)
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
+
+with app.app_context():
+    db.create_all()
+    init_admin()
 
 from src import routes
