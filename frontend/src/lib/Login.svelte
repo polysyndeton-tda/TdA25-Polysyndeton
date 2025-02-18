@@ -160,10 +160,6 @@ table{
     margin: auto;
 }
 
-label, input{
-    font-size: 1.2rem;
-}
-
 .button-area{
     text-align: center;
 }
