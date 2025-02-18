@@ -269,28 +269,24 @@ def user(uuid):
     elif request.method == "PUT":
         user = User.query.filter_by(uuid=uuid_str).first()
         data = request.get_json()
+        username = data.get("username")
+        email = data.get("email")
 
         if not validate_user_fields(data):
             bad_request = {"message": "Bad request: missing fields"}
             return jsonify(bad_request), 400
 
-        try:
-            if not username_is_unique(data["username"]):
-                return jsonify({"message": "User with this username already exists"}), 409
+        if username and not username_is_unique(data["username"]):
+            return jsonify({"message": "User with this username already exists"}), 409
 
-            if not email_is_unique(data["email"]):
-                return jsonify({"message": "User with this email already exists"}), 409
-        except KeyError:
-            #If the user hasn't supplied email or username to change (if changing only password for example)
-            #then these username and email checks don't matter
-            pass
+        if email and not email_is_unique(data["email"]):
+            return jsonify({"message": "User with this email already exists"}), 409
         
-        print("keys",data.keys(), file=sys.stderr)
         for property in data.keys():
             if property == "password":
                 user.set_password(data["password"])
             else:
-                user.property = data[property]
+                setattr(user, property, data[property])
         
         db.session.commit()
 
