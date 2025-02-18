@@ -280,3 +280,10 @@ class UserState{
 }
 
 export let User = new UserState();
+
+//public endpoint, so not putting it into UserState
+export async function getUsers(){
+    const request = await fetch(`${api_url}/users`); //GET
+    const response = await request.json(); //the only possible code in openapi is 200
+    return response;
+}
