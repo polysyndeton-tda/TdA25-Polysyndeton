@@ -240,8 +240,6 @@ def users():
         users = User.query.all()
         return jsonify([user_json(user) for user in users]), 200
 
-import sys
-
 @app.route("/api/v1/users/<uuid:uuid>", methods=["GET", "PUT", "DELETE"])
 def user(uuid):
     uuid_str = str(uuid)
@@ -272,6 +270,9 @@ def user(uuid):
         data = request.get_json()
         username = data.get("username")
         email = data.get("email")
+
+        if not user:
+            return jsonify({"message": "user not found"}), 404
 
         if not validate_user_fields(data):
             bad_request = {"message": "Bad request: missing fields"}
