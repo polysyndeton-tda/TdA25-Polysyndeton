@@ -10,7 +10,6 @@ from flask_cors import CORS
 
 from config import Config
 
-from src.admin import init_admin
 logger = logging.getLogger(__name__)
 console_handler = logging.StreamHandler()
 console_handler.setLevel(logging.INFO)
@@ -32,8 +31,10 @@ CORS(app)
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 
+from src import routes, models
+
 with app.app_context():
     db.create_all()
-    init_admin()
+    models.create_superuser()
 
 from src import routes

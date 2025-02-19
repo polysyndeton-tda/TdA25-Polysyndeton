@@ -239,7 +239,7 @@ def users():
     elif request.method == "GET":
         users = User.query.all()
         for u in users:
-            delattr(user, "password_hash")
+            delattr(u, "password_hash")
         return jsonify([user_json(user) for user in users]), 200
 
 @app.route("/api/v1/users/<uuid:uuid>", methods=["GET", "PUT", "DELETE"])
