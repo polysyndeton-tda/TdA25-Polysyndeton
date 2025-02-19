@@ -293,7 +293,6 @@ def single_user(uuid):
 
 
 @app.route("/api/v1/login", methods=["POST"])
-@jwt_required
 def login():
     data = request.get_json()
     username = data["username"]

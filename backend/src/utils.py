@@ -34,7 +34,6 @@ def user_json(user):
         "createdAt": get_formatted_date(user.created_at),
         "username": user.username,
         "email": user.email,
-        "password": user.password_hash,
         "elo": user.elo,
         "wins": user.wins,
         "losses": user.draws,
