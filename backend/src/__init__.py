@@ -26,12 +26,15 @@ logger.setLevel(logging.INFO)
 app = Flask(__name__, static_folder="../static")  # ../../frontend/build
 app.config.from_object(Config)
 
-for k in os.environ.keys():
-    logger.info(f"Available environment variable: {k}")
-
 jwt = JWTManager(app)
 CORS(app)
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
+
+from src import routes, models
+
+with app.app_context():
+    db.create_all()
+    models.create_superuser()
 
 from src import routes

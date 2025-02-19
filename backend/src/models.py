@@ -2,6 +2,7 @@ from src import db
 from datetime import datetime, timezone
 import uuid
 from werkzeug.security import generate_password_hash, check_password_hash
+from sqlalchemy import Boolean
 
 
 class Game(db.Model):
@@ -34,9 +35,23 @@ class User(db.Model):
     wins = db.Column(db.Integer, nullable=False, default=0)
     draws = db.Column(db.Integer, nullable=False, default=0)
     losses = db.Column(db.Integer, nullable=False, default=0)
+    is_admin = db.Column(Boolean, default=False)
 
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)
 
     def check_password(self, password):
         return check_password_hash(self.password_hash, password)
+
+def create_superuser():
+    from config import Config
+    superuser = User.query.filter_by(username=Config.SUPERUSER_USERNAME).first()
+    if not superuser:
+        superuser = User(
+            username=Config.SUPERUSER_USERNAME,
+            email=Config.SUPERUSER_EMAIL,
+            is_admin=True
+        )
+        superuser.set_password(Config.SUPERUSER_PASSWORD)
+        db.session.add(superuser)
+        db.session.commit()
