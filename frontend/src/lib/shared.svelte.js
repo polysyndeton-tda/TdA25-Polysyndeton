@@ -228,7 +228,13 @@ class UserState{
     }
 
     async delete(){
-        const request = await fetch(`${api_url}/users/${this.uuid}`, {method: "DELETE"});
+        const request = await fetch(`${api_url}/users/${this.uuid}`, {
+            method: "DELETE",
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${this.token}`
+            }
+        });
         if(request.status == 404){
             throw Error("Uživatel nenalezen \n Pravděpodobně už jste účet smazali. \n Obnovte stránku.");
         }
@@ -244,7 +250,8 @@ class UserState{
         const request = await fetch(`${api_url}/users/${this.uuid}`, {
             method: "PUT",
             headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${this.token}`
             },
             body: JSON.stringify(toChange),
         });
@@ -277,13 +284,17 @@ class UserState{
         }
         return false;
     }
+
+    async getUsers(){
+        const request = await fetch(`${api_url}/users`, {
+            headers: {
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${this.token}`
+            }
+        }); //GET
+        const response = await request.json(); //the only possible code in openapi is 200
+        return response;
+    }
 }
 
 export let User = new UserState();
-
-//public endpoint, so not putting it into UserState
-export async function getUsers(){
-    const request = await fetch(`${api_url}/users`); //GET
-    const response = await request.json(); //the only possible code in openapi is 200
-    return response;
-}

@@ -1,13 +1,13 @@
 <script>
     import Login from "$lib/Login.svelte";
-    import { User, getUsers } from "$lib/shared.svelte.js";
+    import { User } from "$lib/shared.svelte.js";
     import { onMount } from "svelte";
 
     let users = $state();
     let loaded = $state(false);
 
     async function load(){
-        users = await getUsers();
+        users = await User.getUsers();
         console.log("users", users);
         loaded = true;
     }
