@@ -58,7 +58,7 @@ button:focus-visible {
     color: #747bff;
   }
   button {
-    background-color: #f6f6f6;
+    background-color: #eaebec; /*#e3e4e8;*/ /*lavender*/
   }
   nav{
     background: #0257a5;

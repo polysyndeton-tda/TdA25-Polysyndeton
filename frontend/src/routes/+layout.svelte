@@ -99,7 +99,7 @@
 
   nav a:first-of-type {
     padding-left: 16px;
-    color: white;
+    color: black;
   }
 
   /*A cool underline effect when hovering on links*/
@@ -190,6 +190,14 @@
     outline: 4px auto -webkit-focus-ring-color;
   }
 
+  @media (prefers-color-scheme: light) {
+    /*In light theme in blue header nav => lighter than other light theme buttons
+    In dark theme the header nav is transparent => inherit from global button styles*/
+    .dropdown button{
+      background-color: #f6f6f6;
+    }
+  }
+
   @media (prefers-color-scheme: dark) {
     :root {
       --menu-item-hover-color: #0070bb; 
@@ -203,6 +211,9 @@
     .button {
         background-color: #1a1a1a;
         color: white;
+    }
+    nav a:first-of-type {
+      color: white;
     }
   }
 </style>
