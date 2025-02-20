@@ -41,6 +41,7 @@
     let username = $state("");
     let password1 = $state("");
     let password2 = $state("");
+    let email = $state("");
     let passwordsMatch = $derived(password1 == password2);
     let startedTyping = $derived(password1.length > 0 && password2.length > 0);
 
@@ -76,6 +77,12 @@
             <button 
             onclick={() => confirmUserDataChange(() => User.changePassword(password1), "Heslo bylo změneno", "Nastala chyba. Zkuste to později.")}
             disabled={!(passwordsMatch && startedTyping)}>Potvrdit</button>
+        </details>
+        <details>
+            <summary>Změnit email</summary>
+            <label for="email">Zadejte svoji novou emailovou adresu</label> <br>
+            <input bind:value={email} id="email" type="email">
+            <button onclick={() => confirmUserDataChange(() => User.changeEmail(email), "Emailová adresa byla změněna", "Nastala chyba. Zkuste to později.")}>Potvrdit</button>
         </details>
         <button onclick={() => showDeleteAccountPrompt = true}>Smazat účet</button>
     </div>

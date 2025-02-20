@@ -273,10 +273,7 @@ class UserState{
         }
         let changes = {"password": password}
         let ok = await this.editUser(changes);
-        if(ok){
-            return true;
-        }
-        return false;
+        return ok;
     }
     async changeName(name){
         if(name == undefined || name == null){
@@ -290,6 +287,15 @@ class UserState{
             return true;
         }
         return false;
+    }
+
+    async changeEmail(email){
+        if(name == undefined || name == null){
+            throw Error("Supply name string");
+        }
+        let changes = {"email": email}
+        let ok = await this.editUser(changes);
+        return ok;
     }
 
     async getUsers(){
