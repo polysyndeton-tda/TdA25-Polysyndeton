@@ -285,6 +285,8 @@ class UserState{
         let changes = {"username": name}
         let ok = await this.editUser(changes);
         if(ok){
+            this.name = name;
+            localStorage.setItem("username", name);
             return true;
         }
         return false;
