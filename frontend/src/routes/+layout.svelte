@@ -22,7 +22,7 @@
 <nav>
   <!-- TODO: Fix Think different text and Game text to be aligned vertically -->
   <a aria-label="Think different academy homepage" href="/">
-    <picture>
+    <picture style="display: flex;">
       <!-- User prefers light mode: -->
       <source srcset="/Think-different-Academy_LOGO_oficialni-bile.svg" media="(prefers-color-scheme: light)"/>
     
@@ -85,8 +85,6 @@
       min-width: 200px;
       width: auto;
       object-fit: contain;
-      padding: 5px;
-      translate: 0 10px;
       /*The light bulb lighting up effect on hover */
       transition: filter 0.2s ease-in-out;
   }
@@ -101,9 +99,6 @@
 
   nav a:first-of-type {
     padding-left: 16px;
-    /* Add this to ensure proper link sizing */
-    display: flex;  
-    align-items: center;
     color: white;
   }
 
