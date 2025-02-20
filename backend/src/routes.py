@@ -31,6 +31,7 @@ def hello():
 @app.route("/editor/<string:game_uuid>")
 @app.route("/game/<string:game_uuid>")
 @app.route("/my-profile")
+@app.route("/multiplayer")
 @app.route("/puzzles")
 @app.route("/admin")
 @app.route("/gdpr")
