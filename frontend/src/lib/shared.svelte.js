@@ -146,6 +146,8 @@ class UserState{
     loggedIn = $state(this.token !== null);
 
     uuid = localStorage.getItem("uuid");
+
+    isAdmin = localStorage.getItem("isAdmin");
     
     async login(username, password){
         const request = await fetch(`${api_url}/login`, 
@@ -172,8 +174,11 @@ class UserState{
         }
         try{
             const response = await request.json();
+            // console.log("response from login", response);
             localStorage.setItem("token", response.token);
             localStorage.setItem("username", username);
+            localStorage.setItem("uuid", response.uuid);
+            localStorage.setItem("isAdmin", response.is_admin);
             this.token = response.token;
         }catch(e){
             console.error(e);
@@ -274,7 +279,7 @@ class UserState{
         return false;
     }
     async changeName(name){
-        if(name == undefined){
+        if(name == undefined || name == null){
             throw Error("Supply name string");
         }
         let changes = {"username": name}
