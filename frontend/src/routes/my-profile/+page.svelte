@@ -14,6 +14,29 @@
             showDeleteConfirmation = false;
         }
     }
+    
+    async function confirmUserDataChange(apiCall, okMessage, failMessage){
+        try{
+            let ok = await apiCall();
+            if(ok){
+                toastMessage = okMessage;
+            }else{
+                toastMessage = failMessage;
+            }
+            showToast = true;
+            await wait(2600);
+            showToast = false;
+        }catch(err){
+            errorMessage = err;
+            console.error(err);
+            if((err.name == "TypeError" && err.message == "Failed to fetch") ||
+                (err.name == "TypeError" && err.message == "NetworkError when attempting to fetch resource.")
+            ){
+                errorMessage = "Nejste připojeni k internetu.";
+            }
+            showError = true;
+        }
+    }
 
     let username = $state("");
     let password1 = $state("");
@@ -35,30 +58,7 @@
             <summary>Změnit Uživatelské jméno</summary>
             <label for="username">Zadejte svoje nové uživatelské jméno</label> <br>
             <input bind:value={username} id="username" type="text">
-            <button onclick={async () => {
-                try{
-                    let ok = await User.changeName(username);
-                    User.name = username; //for reactivity
-                    if(ok){
-                        toastMessage = "Uživatelské jméno bylo změněno";
-                    }else{
-                        toastMessage = "Nastala chyba. Zkuste to později.";
-                    }
-                    showToast = true;
-                    await wait(2600);
-                    showToast = false;
-                }catch(err){
-                    errorMessage = err;
-                    console.error(err);
-                    if((err.name == "TypeError" && err.message == "Failed to fetch") ||
-                        (err.name == "TypeError" && err.message == "NetworkError when attempting to fetch resource.")
-                    ){
-                        errorMessage = "Nejste připojeni k internetu.";
-                    }
-                    showError = true;
-                }
-               
-                }}>Potvrdit</button>
+            <button onclick={() => confirmUserDataChange(() => User.changeName(username), "Uživatelské jméno bylo změněno", "Nastala chyba. Zkuste to později.")}>Potvrdit</button>
         </details>
         <details>
             <summary>Změnit heslo</summary>
@@ -72,29 +72,10 @@
             {:else if startedTyping}
                 <p>Hesla se neshodují!</p>
             {/if}
-            <button onclick={async () => {
-                try{
-                    let ok = await User.changePassword(password1);
-                    if(ok){
-                        toastMessage = "Heslo bylo změneno";
-                    }else{
-                        toastMessage = "Nastala chyba. Zkuste to později.";
-                    }
-                    showToast = true;
-                    await wait(2600);
-                    showToast = false;
-                }catch(err){
-                    errorMessage = err;
-                    console.error(err);
-                    if((err.name == "TypeError" && err.message == "Failed to fetch") ||
-                        (err.name == "TypeError" && err.message == "NetworkError when attempting to fetch resource.")
-                    ){
-                        errorMessage = "Nejste připojeni k internetu.";
-                    }
-                    showError = true;
-                }
-
-                }} disabled={!(passwordsMatch && startedTyping)}>Potvrdit</button>
+           
+            <button 
+            onclick={() => confirmUserDataChange(() => User.changePassword(password1), "Heslo bylo změneno", "Nastala chyba. Zkuste to později.")}
+            disabled={!(passwordsMatch && startedTyping)}>Potvrdit</button>
         </details>
         <button onclick={() => showDeleteAccountPrompt = true}>Smazat účet</button>
     </div>
