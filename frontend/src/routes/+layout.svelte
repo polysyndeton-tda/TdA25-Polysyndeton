@@ -58,11 +58,16 @@
 {@render children()}
 </div>
 
+<footer class="center">© Think Different Academy 2025 | <a href="/gdpr">Prohlášení o ochraně osobních údajů (GDPR)</a> |  <a href="/contacts">Kontakty</a> </footer>
+
 {#if showLoginPopup}
   <Login bind:show={showLoginPopup}/>
 {/if}
 
 <style>
+  footer a{
+    color: unset;
+  }
   :root {
       --menu-item-hover-color: white;
       --tda-logo-hover-color: #cbd0d69c; /*#171515c7;*/

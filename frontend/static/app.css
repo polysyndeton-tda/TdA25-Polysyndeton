@@ -15,7 +15,13 @@
 
 body{ /*for header nav to not have margins*/
   margin: 0;
+  height: 100vh;
 }
+/*For footer to be on the bottom
+https://www.reddit.com/r/sveltejs/comments/16904vm/place_footer_at_end_of_page/
+*/
+html, body { min-height: 100vh; }
+body footer { position: sticky; top: 100vh; }
 
 h1 {
   line-height: 1.1;
