@@ -1,1 +1,0 @@
-<h1 class="center">Zde budou kontakty</h1>

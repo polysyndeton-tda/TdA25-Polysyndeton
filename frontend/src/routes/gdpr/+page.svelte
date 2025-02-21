@@ -1,1 +1,0 @@
-<h1 class="center">Zde bude GDPR</h1>
