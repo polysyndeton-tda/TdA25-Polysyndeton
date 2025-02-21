@@ -246,24 +246,13 @@ def users():
         return jsonify([user_json(user) for user in users]), 200
 
 @app.route("/api/v1/users/<uuid:uuid>", methods=["GET", "PUT", "DELETE"])
-@jwt_required()
 def single_user(uuid):
-    uuid_str = str(uuid)
-    current_user_uuid = get_jwt_identity()
-    current_user = User.query.filter_by(uuid = current_user_uuid).first()
-
-    if not current_user:
-        return jsonify({"message: Unauthorized"}), 401
-
     queried_user = User.query.filter_by(uuid=uuid_str).first()
     if not queried_user:
         return jsonify({"message": "User not found"}), 404
 
     if request.method == "GET":
         return jsonify(user_json(queried_user)), 200
-
-    if not current_user.is_admin and current_user_uuid != queried_user.uuid:
-        return jsonify({"message: Forbidden"}), 403
 
     elif request.method == "DELETE":
         db.session.delete(queried_user)
