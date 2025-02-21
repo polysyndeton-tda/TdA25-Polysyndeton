@@ -19,11 +19,7 @@
 	}
 </script>
 <link rel="stylesheet" href="/fontawesome/css/all.css">
-<!-- the old non tailwind stylesheet, which is not imported anymore implicitly (it used to in the app.html file) => now putting it here (less risk of being overwritten, same effect)
-(we need to import both the OG app wide stylesheet and the new tailwind one, for that admin page which uses tailwind)
-(that global tailwin stylesheet mainly has tailwind variables - it is not actively overwriting my styles 
-= tailwind preflight styles are not applied outside of elements which have the "twp" class, the scopedPreflightStyles tailwind plugin takes care of that) -->
-<link rel="stylesheet" href="/app.css"> 
+
 <svelte:window on:click={handleClickOutside}/>
 <nav>
 	<!-- TODO: Fix Think different text and Game text to be aligned vertically -->

@@ -3,6 +3,14 @@
 	<head>
 		<meta charset="utf-8" />
 		<link rel="icon" href="%sveltekit.assets%/favicon.png" />
+		<!-- the old non tailwind stylesheet, which is not imported anymore implicitly (it used to in the app.html file)
+		(we need to import both the OG app wide stylesheet and the new tailwind one, for that admin page which uses tailwind)
+		(that global tailwin stylesheet mainly has tailwind variables - it is (mostly) not actively overwriting my styles
+		= tailwind preflight styles are not applied outside of elements which have the "twp" class, the scopedPreflightStyles tailwind plugin takes care of that) 
+		there are some other (small) things which are still set (the * border on everything which I had to unset, but the rest of the app seems unchanged)
+		-->
+
+		<link rel="stylesheet" href="%sveltekit.assets%/app.css"> 
 		<meta name="viewport" content="width=device-width, initial-scale=1" />
 		%sveltekit.head%
 	</head>
