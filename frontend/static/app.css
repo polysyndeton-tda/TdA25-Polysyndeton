@@ -65,9 +65,10 @@ button:not([data-admin] *):focus-visible {
 }
 
 @media (prefers-color-scheme: light) {
+  /* !important to win specificity over body:not(.admin) */
   body {
-    color: #213547;
-    background-color: #ffffff;
+    color: #213547 !important;
+    background-color: #ffffff !important;
   }
   a:hover {
     color: #747bff;
