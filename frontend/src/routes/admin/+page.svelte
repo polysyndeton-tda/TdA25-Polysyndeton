@@ -3,8 +3,8 @@
   import DataTable from "./data-table.svelte";
   import * as ContextMenu from "$lib/components/ui/context-menu/index.js";
   import { columns } from "./columns.js";
-    import { onMount } from "svelte";
- 
+  import { onMount } from "svelte";
+  import { classList } from "$lib/classList";
 //   let { data } = $props();
 
 
@@ -176,6 +176,8 @@
   }
   
 </script>
+<!-- adds the admin class to body on this page => which right now tells to turn off dark theme -->
+<svelte:body use:classList={"admin"} />
  <!-- to enable tailwind for this shadcn component, while keeping tailwind off everywhere else -->
 <div data-admin="true" class="twp">
 <ContextMenu.Root>
@@ -186,4 +188,11 @@
     </ContextMenu.Content>
   </ContextMenu.Root>
 </div>
+
+<style>
+    body {
+        color: #213547;
+        background-color: #ffffff;
+    }
+</style>
 

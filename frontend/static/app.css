@@ -3,14 +3,17 @@ The way it is imported now, it (I assume) refers to the document root
 This means styles like background-color stopped being applied (dark mode broke) => presumably because body didn't inherit what was set on its parent
 => so changing this selector from :root to body now
 */
+
+body:not(.admin){
+  color-scheme: light dark;
+  color: rgba(255, 255, 255, 0.87);
+  background-color: #242424;
+}
+
 body {
   font-family: Dosis, Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
   font-weight: 400;
-
-  color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
@@ -75,6 +78,28 @@ button:not([data-admin] *):focus-visible {
   nav{
     background: #0257a5;
   }
+}
+
+/*Setting nav be dark mode on admin page 
+(while the rest of the admin page *always* follows a light theme)
+Explanation: If I set the nav on the admin page to be always light theme,
+I would have to modify the styles governing the main logo selection.
+I found doing this easier.
+Ideally, I would of course like to resolve theming conflicts 
+(which manifested strongly in dark theme - in light theme, I don't sense any)
+and apply a proper dark theme to the admin table as well
+*/
+body.admin nav{
+  background-color: #242424;
+}
+
+body.admin button:not([data-admin] *)  {
+  background-color: #eaebec; /*#e3e4e8;*/ /*lavender*/
+}
+
+body.admin a.button  {
+  background-color: #eaebec; /*#e3e4e8;*/ /*lavender*/
+  color: black;
 }
 
 
