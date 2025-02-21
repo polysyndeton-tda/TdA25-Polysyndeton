@@ -1,7 +1,7 @@
 <script lang="ts">
 	import '../app.css';
 	import Login from '$lib/Login.svelte';
-	import { gameInfo, resetGame, User } from '$lib/shared.svelte';
+	import { gameInfo, resetGame, User } from '$lib/shared.svelte.ts';
 	let { children } = $props();
 	let showLoginPopup = $state(false);
 
@@ -11,7 +11,7 @@
 		isDropdownOpen = !isDropdownOpen;
 	}
 
-	const handleClickOutside = (e) => {
+	const handleClickOutside = (e: any) => {
 		//check to make it so clicks inside the dropdown don't necessarily close it
 		if (!e.target.closest('.dropdown')) {
 		isDropdownOpen = false;

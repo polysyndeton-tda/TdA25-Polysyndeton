@@ -1,5 +1,5 @@
 <script>
-    import { gameInfo, deletePuzzle, gameStateToCZ, wait } from "$lib/shared.svelte.js";
+    import { gameInfo, deletePuzzle, gameStateToCZ, wait } from "$lib/shared.svelte.ts";
     import { PUBLIC_API_BASE_URL } from '$env/static/public';
     import { onMount } from "svelte";
     import BoardPreview from "./BoardPreview.svelte";

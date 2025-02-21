@@ -1,21 +1,27 @@
-<script>
-    import { User, wait } from "$lib/shared.svelte";
+<script lang="ts">
+    import { User, wait } from "$lib/shared.svelte.ts";
     import Confirm from "$lib/Confirm.svelte";
     import Toast from "$lib/Toast.svelte";
     import Alert from "$lib/Alert.svelte";
     let showDeleteAccountPrompt = $state(false);
     let showDeleteConfirmation = $state(false);
     async function deleteUserGui(){
-        let deleted = await User.delete();
-        if(deleted){
-            showDeleteConfirmation = true;
-            User.logout();
-            await wait(2600);
-            showDeleteConfirmation = false;
+        try{
+            let deleted = await User.delete();
+            if(deleted){
+                showDeleteConfirmation = true;
+                User.logout();
+                await wait(2600);
+                showDeleteConfirmation = false;
+            }
+        }catch(err: any){
+            console.error(err);
+            showError = true;
+            errorMessage = err.message;
         }
     }
     
-    async function confirmUserDataChange(apiCall, okMessage, failMessage){
+    async function confirmUserDataChange(apiCall: Function, okMessage: string, failMessage: string){
         try{
             let ok = await apiCall();
             if(ok){
@@ -26,7 +32,7 @@
             showToast = true;
             await wait(2600);
             showToast = false;
-        }catch(err){
+        }catch(err: any){
             errorMessage = err;
             console.error(err);
             if((err.name == "TypeError" && err.message == "Failed to fetch") ||

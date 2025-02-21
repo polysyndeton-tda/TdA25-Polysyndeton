@@ -1,9 +1,9 @@
-  <script>
-    import { gameInfo, difficultyMapToEN, difficultyMapToCZ } from "$lib/shared.svelte";
+  <script lang="ts">
+    import { gameInfo, difficultyMapToEN, difficultyMapToCZ } from "$lib/shared.svelte.ts";
     import { scale } from 'svelte/transition'
     let { dialogState = $bindable() } = $props();
 
-    function addFocus(node){
+    function addFocus(node: HTMLInputElement){
         node.select();
     }
 
