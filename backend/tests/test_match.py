@@ -51,23 +51,3 @@ class TestMatch(unittest.TestCase):
 
         print(received)
         self.assertTrue(any(event["name"] == "join" for event in received))
-
-#     def test_socket_move(self):
-#         room = "test_room"
-#         move_data = {"room": room, "move": (0, 0), "username": "player1", "symbol": "X"}
-        
-#         self.socket_client.emit("move", move_data)
-#         received = self.socket_client.get_received()
-#         self.assertTrue(any(event["name"] == "move" for event in received))
-
-#     def test_disconnect(self):
-#         room = "test_room"
-#         self.socket_client.emit("join", {"username": "player1", "room": room})
-#         self.socket_client.disconnect()
-
-#         with app.app_context():
-#             self.assertNotIn(self.socket_client.sid, matchmaking.users)
-
-if __name__ == "__main__":
-    unittest.main()
-

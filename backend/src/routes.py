@@ -80,21 +80,50 @@ def handle_move(data):
     if room:
         emit('move', data, room=room, include_self=False)
     
-# @socketio.on('disconnect')
-# def handle_disconnect():
-#     for room, players in active_rooms.items():
-#         if request.sid in players:
-#             username = players[request.sid]
-#             print(f"Player {username} disconnected from {room}")
+@socketio.on('disconnect')
+def handle_disconnect():
+    for room, players in active_rooms.items():
+        if request.sid in players:
+            username = players[request.sid]
+            print(f"Player {username} disconnected from {room}")
 
-#             emit('opponent_disconnected', {'message': f"{username} has disconnected"}, room=room)
+            emit('opponent_disconnected', {'message': f"{username} has disconnected"}, room=room)
 
-#             del players[request.sid]
+            del players[request.sid]
 
-#             if not players:
-#                 del active_rooms[room]
-#             break
+            if not players:
+                del active_rooms[room]
+            break
 
+
+def matchmaking_loop():
+    while True:
+        with matchmaking_lock:
+            if len(q) < 2:
+                gevent.sleep(1)
+                continue
+
+            player1 = q.popleft()
+            player2 = matchmaking.find_closest_user(player1)
+
+            if not player2: # not enough players, wait
+                q.appendleft(player1)
+                gevent.sleep(1)
+                continue
+
+            matchmaking.remove_user(player1)
+            matchmaking.remove_user(player2)
+            q.remove(player2)
+
+            room = f"room_{player1.uuid}_{player2.uuid}"
+            active_rooms[room] = {player1.uuid, player2.uuid}
+
+            socketio.emit("match_found", {"room": room, "opponent": player2.uuid}, room=player1.uuid)
+            socketio.emit("match_found", {"room": room, "opponent": player1.uuid}, room=player2.uuid)
+
+            print(f"Matched {player1.username} vs {player2.username} in {room}")
+
+        gevent.sleep(1)
 
 @app.route("/api")
 def hello():
