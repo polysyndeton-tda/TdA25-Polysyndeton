@@ -1,4 +1,4 @@
-from src import app, db
+from src import app, db, socketio
 from flask import jsonify, send_from_directory, request
 from datetime import datetime, timezone, timedelta
 
@@ -16,8 +16,10 @@ from src.validators import (
     username_is_unique,
     email_is_unique,
 )
+from src.matchmaking import get_game_users, get_room_name
 from src.gamestate import get_gamestate
 from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
+from flask_socketio import emit, join_room
 
 
 @app.route("/api")
@@ -308,3 +310,48 @@ def login():
     
     access_token = create_access_token(identity=user.uuid, expires_delta=timedelta(hours=1), additional_claims={"is_admin": user.is_admin})
     return jsonify({"token": access_token, "is_admin": user.is_admin, "uuid": user.uuid})
+
+@app.route("/api/v1/room", methods=["POST"])
+def room():
+    """
+    data:
+        user1_uuid
+        user2_uuid
+    """
+
+    data = request.json
+    user1_uuid = data.get("user1_uuid")
+    user2_uuid = data.get("user2_uuid")
+
+    if user1_uuid and user2_uuid:
+        room_name = get_room_name(user1_uuid, user2_uuid)
+        return jsonify({"room": room_name}), 200
+    else:
+        return jsonify({"message": "One of the users was not found"}), 404
+
+@socketio.on('join')
+def on_join(data):
+    """
+    data:
+        username (str)
+        room (from get_room_name)
+    """
+    username = data['username']
+    room = data['room']
+    join_room(room)
+    print(f"{username} has joined room {room}")
+
+@socketio.on('move')
+def handle_move(data):
+    """
+    data:
+        room (from get_room_name)
+        move (x, y)
+        username (str)
+        symbol (X/O)
+
+    """
+    print('Received move:', data)
+    room = data.get('room')
+    if room:
+        emit('move', data, room=room, include_self=False)

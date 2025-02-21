@@ -5,3 +5,4 @@ flask-migrate
 pytest
 flask-jwt-extended
 python-dotenv
+Flask-SocketIO
