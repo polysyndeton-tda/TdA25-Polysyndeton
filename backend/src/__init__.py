@@ -10,6 +10,7 @@ from flask_cors import CORS
 from flask_socketio import SocketIO
 
 from config import Config
+import gevent
 
 logger = logging.getLogger(__name__)
 console_handler = logging.StreamHandler()
@@ -31,7 +32,7 @@ jwt = JWTManager(app)
 CORS(app)
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
-socketio = SocketIO(app)
+socketio = SocketIO(app, async_mode="gevent")
 
 from src import routes, models
 

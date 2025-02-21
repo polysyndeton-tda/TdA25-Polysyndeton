@@ -6,3 +6,5 @@ pytest
 flask-jwt-extended
 python-dotenv
 Flask-SocketIO
+sortedcontainers
+gevent
