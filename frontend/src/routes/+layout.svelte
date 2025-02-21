@@ -57,7 +57,7 @@
 <div id="app">
 {@render children()}
 </div>
-
+<br>
 <footer class="center">© Think Different Academy 2025 | <a href="/gdpr">Prohlášení o ochraně osobních údajů (GDPR)</a> |  <a href="/contacts">Kontakty</a> </footer>
 
 {#if showLoginPopup}
