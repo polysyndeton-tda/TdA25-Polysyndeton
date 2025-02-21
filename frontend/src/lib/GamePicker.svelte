@@ -69,7 +69,7 @@
 
 {#if loaded}
     <Filter bind:filterState ></Filter>
-    <div class="container">
+    <div class="all-container">
     <p class="infoFilter">
         Když ve filtru necháte v kategorii výběr prázdný, tak se filtr neaplikuje. 
         Tedy nechcete-li filtrovat podle obtížnosti, můžete vybrat buď všechny kategorie nebo žádnou.
@@ -155,7 +155,7 @@
 {/if}
 
 <style>
-.container {
+.all-container {
     display: flex;
     flex-direction: column;
     align-items: center;
