@@ -124,3 +124,18 @@ p{
   letter-spacing: 0.5px;
   font-weight: 540;
 }
+
+/*Although most of tailwind is disabled globally by that scopedPreflightStyles plugin, 
+there is this one property which is set in the global stylesheet 
+and is annoying: 
+
+* {
+  --tw-border-opacity: 1;
+  border-color:hsl(var(--border) / var(--tw-border-opacity, 1))
+}
+
+So reverting it for these elements: 
+*/
+*:not([data-admin] *) {
+  border-color: revert;
+}
