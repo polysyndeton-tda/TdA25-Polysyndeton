@@ -1,28 +1,34 @@
 from src.models import User
 from src import db
 import uuid
+from sortedcontainers import SortedList
 
-def get_game_users():
-    user1 = User(
-        username="user1",
-        email="1a.com",
-        elo=400,
-    )
-    user1.set_password("blbl")
+class SortedUsers:
+    def __init__(self):
+        self.users = SortedList(key=lambda user: user.elo)
 
-    user2 = User(
-        username="user2",
-        email="2a.com",
-        elo=400,
-    )
-    user2.set_password("blbl")
+    def add_user(self, user: User):
+        self.users.add(user)
 
-    db.session.add(user1)
-    db.session.add(user2)
-    db.session.commit()
+    def remove_user(self, user: User):
+        self.users.remove(user)
 
-    return user1, user2
+    def find_closest_user(self, user: User):
+        if not self.users:
+            return None
+        
+        idx = self.users.bisect_left(user)
+        closest = None
+
+        if idx > 0:
+            closest = self.users[idx - 1]
+        
+        if idx < len(self.users):
+            if closest is None or abs(self.users[idx].elo - user.elo) < abs(closest.elo - user.elo):
+                closest = self.users[idx]
+
+        return closest
 
 def get_room_name(uuid1, uuid2):
-    sorted_ids = sorted([uuid1, uuid2])
-    return f"room_{sorted_ids[0]}_{sorted_ids[1]}"
+    sorted_uuids = sorted([uuid1, uuid2])
+    return f"room_{sorted_uuids[0]}_{sorted_uuids[1]}"
