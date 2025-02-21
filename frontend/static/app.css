@@ -39,8 +39,9 @@ h1 {
 .center{
   text-align: center;
 }
-
-button {
+/* This allows buttons without further attributes, to exist with reasonable default styles
+while also not overwriting buttons used by the admin table (which I want styled with tailwind (shadcn) exclusively */
+button:not([data-admin] *) {
   border-radius: 8px;
   border: 1px solid transparent;
   padding: 0.6em 1.2em;
@@ -52,23 +53,23 @@ button {
   cursor: pointer;
   transition: border-color 0.25s;
 }
-button:hover {
+button:not([data-admin] *):hover {
   border-color: #0070BB;
 }
-button:focus,
-button:focus-visible {
+button:not([data-admin] *):focus,
+button:not([data-admin] *):focus-visible {
   outline: 4px auto -webkit-focus-ring-color;
 }
 
 @media (prefers-color-scheme: light) {
-  :root {
+  body {
     color: #213547;
     background-color: #ffffff;
   }
   a:hover {
     color: #747bff;
   }
-  button {
+  button:not([data-admin] *)  {
     background-color: #eaebec; /*#e3e4e8;*/ /*lavender*/
   }
   nav{

@@ -177,7 +177,7 @@
   
 </script>
  <!-- to enable tailwind for this shadcn component, while keeping tailwind off everywhere else -->
-<div class="twp">
+<div data-admin="true" class="twp">
 <ContextMenu.Root>
     <ContextMenu.Trigger><DataTable bind:tableReference={table} bind:selectedRows={selected} {data} {columns} /></ContextMenu.Trigger>
     <ContextMenu.Content>
