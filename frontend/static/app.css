@@ -1,4 +1,9 @@
-:root {
+/* The way the stylesheet was imported before, the :root was some kind of container SvelteKit renders the app in
+The way it is imported now, it (I assume) refers to the document root
+This means styles like background-color stopped being applied (dark mode broke) => presumably because body didn't inherit what was set on its parent
+=> so changing this selector from :root to body now
+*/
+body {
   font-family: Dosis, Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
   font-weight: 400;
