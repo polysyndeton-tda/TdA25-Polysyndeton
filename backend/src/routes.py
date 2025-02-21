@@ -247,7 +247,7 @@ def users():
 
 @app.route("/api/v1/users/<uuid:uuid>", methods=["GET", "PUT", "DELETE"])
 def single_user(uuid):
-    queried_user = User.query.filter_by(uuid=uuid_str).first()
+    queried_user = User.query.filter_by(uuid=str(uuid)).first()
     if not queried_user:
         return jsonify({"message": "User not found"}), 404
 
@@ -257,7 +257,7 @@ def single_user(uuid):
     elif request.method == "DELETE":
         db.session.delete(queried_user)
         db.session.commit()
-        return jsonify({"message: User deleted succesfully"}), 204
+        return jsonify({"message": "User deleted succesfully"}), 204
 
     elif request.method == "PUT":
         data = request.get_json()
