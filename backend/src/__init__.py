@@ -1,5 +1,4 @@
 import logging
-import os
 
 from flask import Flask
 
@@ -7,13 +6,17 @@ from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
 from flask_jwt_extended import JWTManager
 from flask_cors import CORS
+from flask_socketio import SocketIO
 
 from config import Config
+import gevent
 
 logger = logging.getLogger(__name__)
 console_handler = logging.StreamHandler()
 console_handler.setLevel(logging.INFO)
-console_handler.setFormatter(logging.Formatter("%(asctime)s - %(levelname)s - %(message)s"))
+console_handler.setFormatter(
+    logging.Formatter("%(asctime)s - %(levelname)s - %(message)s")
+)
 logger.addHandler(console_handler)
 logger.setLevel(logging.INFO)
 
@@ -30,11 +33,10 @@ jwt = JWTManager(app)
 CORS(app)
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
+socketio = SocketIO(app, async_mode="gevent")
 
 from src import routes, models
 
 with app.app_context():
     db.create_all()
     models.create_superuser()
-
-from src import routes

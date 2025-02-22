@@ -1,11 +1,15 @@
 import sqlalchemy as sa
 import sqlalchemy.orm as so
-from src import app, db
+from src import app, db, socketio
 from src.models import Game
+import gevent
+from src.routes import matchmaking_loop
 
 if __name__ == "__main__":
     print(app.url_map)
-    app.run(debug=True, host="0.0.0.0", port=5000)
+
+    gevent.spawn(matchmaking_loop)
+    socketio.run(app, debug=True, allow_unsafe_werkzeug=True, host="0.0.0.0", port=5000)
 
 
 @app.shell_context_processor

@@ -38,7 +38,7 @@ def user_json(user):
         "wins": user.wins,
         "losses": user.draws,
         "draws": user.draws,
-        "isAdmin": user.is_admin
+        "isAdmin": user.is_admin,
     }
 
     return result
