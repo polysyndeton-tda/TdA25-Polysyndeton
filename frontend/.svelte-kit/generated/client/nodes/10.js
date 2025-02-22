@@ -1,0 +1,1 @@
+export { default as component } from "../../../../src/routes/puzzles/+page.svelte";
