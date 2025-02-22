@@ -357,8 +357,8 @@ class UserState implements Partial<NullableUserProperties>{
     }
 
     async changeEmail(email: string){
-        if(name == undefined || name == null){
-            throw Error("Supply name string");
+        if(email == undefined || email == null){
+            throw Error("Supply email string");
         }
         let changes = {"email": email}
         let ok = await this.editUser(changes);

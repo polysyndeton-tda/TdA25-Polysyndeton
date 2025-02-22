@@ -65,7 +65,10 @@
             <summary>Změnit Uživatelské jméno</summary>
             <label for="username">Zadejte svoje nové uživatelské jméno</label> <br>
             <input bind:value={username} id="username" type="text">
-            <button onclick={() => confirmUserDataChange(() => User.changeName(username), "Uživatelské jméno bylo změněno", "Nastala chyba. Zkuste to později.")}>Potvrdit</button>
+            {#if username === User.name}
+                <p>Jméno, které jste napsali, se shoduje s vaším stávajícím jménem.</p>
+            {/if}
+            <button disabled={username === User.name} onclick={() => confirmUserDataChange(() => User.changeName(username), "Uživatelské jméno bylo změněno", "Nastala chyba. Zkuste to později.")}>Potvrdit</button>
         </details>
         <details>
             <summary>Změnit heslo</summary>
@@ -147,4 +150,9 @@ details[open] summary {
   margin-bottom: 0.5em;
 }
 
+/* The same vertical margin as button's padding - to minimize layout shift when {#if username === User.name} block comes up
+(If I put this into input padding, it would look weirdly "tall")*/
+input{
+    margin: 0.6rem auto;
+}
 </style>
