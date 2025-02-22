@@ -1,5 +1,5 @@
 <script>
-    import { difficultyMapToCZ, difficultyMapToNumber } from "$lib/shared.svelte.js";
+    import { difficultyMapToCZ, difficultyMapToNumber } from "$lib/shared.svelte.ts";
     import StarRating from 'svelte-star-rating';
     let { difficulty } = $props(); //game.difficulty
     const config = {

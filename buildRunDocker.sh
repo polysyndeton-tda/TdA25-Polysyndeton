@@ -22,5 +22,9 @@ sudo docker rmi tda-app -f
 # Docker will rebuild the layers that have changed, so if only the files in your development folder have been updated,
 # Docker should detect those changes and only rebuild the relevant layers.
 
+
+#update .env to correct value because build.sh now also modifies it
+echo "PUBLIC_API_BASE_URL=/api/v1" > .env
+
 sudo docker build -t tda-app . #--pull --no-cache (that is not necessary I think)
 sudo docker run -p 5000:5000 tda-app

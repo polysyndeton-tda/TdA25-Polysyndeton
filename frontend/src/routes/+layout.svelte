@@ -1,68 +1,79 @@
-<script>
-  import Login from '$lib/Login.svelte';
-  import { gameInfo, resetGame, User } from '$lib/shared.svelte';
+<script lang="ts">
+	import '../app.css';
+	import Login from '$lib/Login.svelte';
+	import { gameInfo, resetGame, User } from '$lib/shared.svelte.ts';
 	let { children } = $props();
-  let showLoginPopup = $state(false);
+	let showLoginPopup = $state(false);
 
-  let isDropdownOpen = $state(false);
+	let isDropdownOpen = $state(false);
 
-  function toggleDropdown(){
-    isDropdownOpen = !isDropdownOpen;
-  }
+	function toggleDropdown(){
+		isDropdownOpen = !isDropdownOpen;
+	}
 
-  const handleClickOutside = (e) => {
-    //check to make it so clicks inside the dropdown don't necessarily close it
-    if (!e.target.closest('.dropdown')) {
-      isDropdownOpen = false;
-    }
-  }
+	const handleClickOutside = (e: any) => {
+		//check to make it so clicks inside the dropdown don't necessarily close it
+		if (!e.target.closest('.dropdown')) {
+		isDropdownOpen = false;
+		}
+	}
 </script>
-<link rel="stylesheet"  href="/fontawesome/css/all.css">
+<link rel="stylesheet" href="/fontawesome/css/all.css">
+
 <svelte:window on:click={handleClickOutside}/>
 <nav>
-  <!-- TODO: Fix Think different text and Game text to be aligned vertically -->
-  <a aria-label="Think different academy homepage" href="/">
-    <picture>
-      <!-- User prefers light mode: -->
-      <source srcset="/Think-different-Academy_LOGO_oficialni-bile.svg" media="(prefers-color-scheme: light)"/>
-    
-      <!-- User prefers dark mode: -->
-      <source srcset="/Think-different-Academy_LOGO_oficialni_1_dark-mode.svg"  media="(prefers-color-scheme: dark)"/>
-    
-      <!-- User has no color preference: -->
-      <img alt="Think different academy logo" src="Think-different-Academy_LOGO_oficialni-cerne.svg"/>
-    </picture>
-  </a>
-  <!-- <a class="menuItem" href="/game" onclick={resetGame}>Nová hra</a> -->
-
-  <!-- The login button and menu -->
-  {#if !User.loggedIn}
-    <button onclick={() => showLoginPopup = true} class="right">Přihlásit se</button>
-  {:else}
-    <div class="dropdown right">
+	<!-- TODO: Fix Think different text and Game text to be aligned vertically -->
+	<a aria-label="Think different academy homepage" href="/">
+	  <picture style="display: flex;">
+		<!-- User prefers light mode: -->
+		<source srcset="/Think-different-Academy_LOGO_oficialni-bile.svg" media="(prefers-color-scheme: light)"/>
+	  
+		<!-- User prefers dark mode: -->
+		<source srcset="/Think-different-Academy_LOGO_oficialni_1_dark-mode.svg"  media="(prefers-color-scheme: dark)"/>
+	  
+		<!-- User has no color preference: -->
+		<img alt="Think different academy logo" src="Think-different-Academy_LOGO_oficialni-cerne.svg"/>
+	  </picture>
+	</a>
+	<!-- <a class="menuItem" href="/game" onclick={resetGame}>Nová hra</a> -->
+  
+	<!-- The login button and menu -->
+	{#if !User.loggedIn}
+	  <button onclick={() => showLoginPopup = true} class="right">Přihlásit se</button>
+	{:else}
+	  <div class="dropdown right">
+    {#if User.isAdmin}
+      <button onclick={toggleDropdown}> <i class="fa-solid fa-user"></i>{User.name} | Administrátor</button>
+    {:else}
       <button onclick={toggleDropdown}> <i class="fa-solid fa-user"></i> {User.name}</button>
-      {#if isDropdownOpen}
-        <div class="dropdown-menu">
-          <a onclick={() => isDropdownOpen = false} class="button" href="/my-profile"><i class="fa-solid fa-gear"></i> Můj profil</a>
-          <button onclick={() => {
-            User.logout();
-            isDropdownOpen = false;
-          }}>Odhlásit</button>
-        </div>
-      {/if}
-    </div>
-  {/if}
+    {/if}
+		{#if isDropdownOpen}
+		  <div class="dropdown-menu">
+			<a onclick={() => isDropdownOpen = false} class="button" href="/my-profile"><i class="fa-solid fa-gear"></i> Můj profil</a>
+			<button onclick={() => {
+			  User.logout();
+			  isDropdownOpen = false;
+			}}>Odhlásit</button>
+		  </div>
+		{/if}
+	  </div>
+	{/if}
 </nav>
 
 <div id="app">
 {@render children()}
 </div>
+<br>
+<footer class="center">© Think Different Academy 2025 | <a href="/gdpr">Prohlášení o ochraně osobních údajů (GDPR)</a> |  <a href="/contacts">Kontakty</a> </footer>
 
 {#if showLoginPopup}
   <Login bind:show={showLoginPopup}/>
 {/if}
 
 <style>
+  footer a{
+    color: unset;
+  }
   :root {
       --menu-item-hover-color: white;
       --tda-logo-hover-color: #cbd0d69c; /*#171515c7;*/
@@ -85,8 +96,6 @@
       min-width: 200px;
       width: auto;
       object-fit: contain;
-      padding: 5px;
-      translate: 0 10px;
       /*The light bulb lighting up effect on hover */
       transition: filter 0.2s ease-in-out;
   }
@@ -101,10 +110,7 @@
 
   nav a:first-of-type {
     padding-left: 16px;
-    /* Add this to ensure proper link sizing */
-    display: flex;  
-    align-items: center;
-    color: white;
+    color: black;
   }
 
   /*A cool underline effect when hovering on links*/
@@ -195,6 +201,14 @@
     outline: 4px auto -webkit-focus-ring-color;
   }
 
+  @media (prefers-color-scheme: light) {
+    /*In light theme in blue header nav => lighter than other light theme buttons
+    In dark theme the header nav is transparent => inherit from global button styles*/
+    .dropdown button{
+      background-color: #f6f6f6;
+    }
+  }
+
   @media (prefers-color-scheme: dark) {
     :root {
       --menu-item-hover-color: #0070bb; 
@@ -208,6 +222,9 @@
     .button {
         background-color: #1a1a1a;
         color: white;
+    }
+    nav a:first-of-type {
+      color: white;
     }
   }
 </style>

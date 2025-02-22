@@ -1,5 +1,5 @@
 <script>
-    import { gameInfo, resetGame, fetchGame, editPuzzle, wait } from "$lib/shared.svelte.js";
+    import { gameInfo, resetGame, fetchGame, editPuzzle, wait } from "$lib/shared.svelte.ts";
     import Board from "$lib/Board.svelte";
     import { untrack } from 'svelte';
     import { page } from '$app/stores';

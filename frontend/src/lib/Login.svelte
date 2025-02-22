@@ -1,17 +1,17 @@
-<script>
+<script lang="ts">
     import { scale, slide, fade } from 'svelte/transition';
-    import { User } from '$lib/shared.svelte.js';
+    import { User } from '$lib/shared.svelte.ts';
     import Alert from './Alert.svelte';
     let { show = $bindable(), mode = $bindable("login"), floating = true, showRegisterLink = true} = $props();
 
-    let userNameField;
-    function addFocus(node){
+    let userNameField: HTMLInputElement;
+    function addFocus(node: HTMLInputElement){
         node.select();
     }
 
-    let email = $state();
-    let username = $state();
-    let password = $state();
+    let email = $state("");
+    let username = $state("");
+    let password = $state("");
     let errorHappened = $state(false);
     let registerOrLoginError = $state("");
 
@@ -20,7 +20,7 @@
     }
 </script>
 
-{#snippet login(showCloseButton, showRegisterLink)}
+{#snippet login(showCloseButton: boolean, showRegisterLink: boolean)}
     <div class="popup">
         <form>
             <div class="title">
@@ -85,6 +85,7 @@
                         })  
                         .then(() => {if(!errorHappened) close()});
                         User.name = username;
+                        localStorage.setItem("username", username);
                         }}>Přihlásit</button>
                 {:else}
                     <button class="ok" onclick={() => {

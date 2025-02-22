@@ -1,5 +1,5 @@
 <script>
-    import { difficultyMapToCZ, filterToCZ, filterToEN } from "./shared.svelte.js";
+    import { difficultyMapToCZ, filterToCZ, filterToEN } from "./shared.svelte.ts";
     import { onMount, untrack } from "svelte";
     let { filterState = $bindable() } = $props();
 

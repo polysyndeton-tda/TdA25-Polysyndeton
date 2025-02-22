@@ -1,5 +1,5 @@
 <script>
-    import { gameInfo, deletePuzzle, gameStateToCZ, wait } from "$lib/shared.svelte.js";
+    import { gameInfo, deletePuzzle, gameStateToCZ, wait } from "$lib/shared.svelte.ts";
     import { PUBLIC_API_BASE_URL } from '$env/static/public';
     import { onMount } from "svelte";
     import BoardPreview from "./BoardPreview.svelte";
@@ -69,7 +69,7 @@
 
 {#if loaded}
     <Filter bind:filterState ></Filter>
-    <div class="container">
+    <div class="all-container">
     <p class="infoFilter">
         Když ve filtru necháte v kategorii výběr prázdný, tak se filtr neaplikuje. 
         Tedy nechcete-li filtrovat podle obtížnosti, můžete vybrat buď všechny kategorie nebo žádnou.
@@ -155,7 +155,7 @@
 {/if}
 
 <style>
-.container {
+.all-container {
     display: flex;
     flex-direction: column;
     align-items: center;

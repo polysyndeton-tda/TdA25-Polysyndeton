@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
     import {untrack} from 'svelte';
     let { boardApiInfo } = $props();
 
@@ -7,7 +7,7 @@
         document.title = "Hra - " + name;
     });
 
-    function count(array, item) {
+    function count(array: Array<Array<string>>, item: string) {
         let count = 0;
         for (let row of array) {
             for (let elem of row) {
@@ -20,7 +20,7 @@
     }
 
     let lastMoved = "";
-    let naTahu = $state("X");
+    let naTahu: BoardSquare = $state("X");
     let isVictory = $state(false);
     let whoWon = $state("");
     let boardWonAlready = $state(false);
@@ -69,9 +69,9 @@
             }
         }
     }
-
+    type BoardSquare = "X" | "O" | "";
     // quick O(1) function to check if the latest move is a winning one
-    function checkVictory(rowIndex, columnIndex, player) {
+    function checkVictory(rowIndex: number, columnIndex: number, player: BoardSquare) {
         /*Checks if latest move on rowIndex, columnIndex is a winning one
         (made to be called from handleMove)
         */
@@ -85,9 +85,11 @@
         //All relevant square matches are put into matchedInDirection
         //To evaluate victory, values in opposite directions are added up
         //For victory of 5 items in a row, 4 items need to be found around
-        let directionsToLookAt = new Set(['n', 'ne', 'e', 'se', 's', 'sw', 'w', 'nw']);
+        type Direction = 'n' | 'ne' | 'e' | 'se' | 's' | 'sw' | 'w' | 'nw';
+        let directionsToLookAt: Set<Direction> = new Set(['n', 'ne', 'e', 'se', 's', 'sw', 'w', 'nw']);
+        type Position = [number, number, Direction]; // [rowIndex, columnIndex, direction]
         for(let dist = 1; dist <= 4; dist++){
-            let allPossiblePositions = {
+            let allPossiblePositions: Record<Direction, Position> = {
                 "n":    [rowIndex - dist, columnIndex, "n"],
                 "ne":   [rowIndex - dist, columnIndex + dist, "ne"],
                 "e":    [rowIndex, columnIndex + dist, "e"],
@@ -98,6 +100,8 @@
                 "nw":   [rowIndex - dist, columnIndex -dist, "nw"]
             };
 
+            type DirectionTuple = [BoardSquare, Direction];
+
             //.keys() returns an iterator, which should have worked (and be lazily evaluated?) => for now a destructuring operator works
             let squaresInDirectionsToLookAt = [...directionsToLookAt.keys()].map((value) => {
                 let [x,y, direction] = allPossiblePositions[value];
@@ -106,7 +110,7 @@
                             when x is out bounds and y is 2 */
                 if(0 <= x && x < 15 && 0 <= y && y < 15){
                     //when I don't return this, undefined is returned
-                    return [boardApiInfo.board[x][y], direction];
+                    return [boardApiInfo.board[x][y], direction] as DirectionTuple;
                 }
             });
            
@@ -117,7 +121,7 @@
                 if(value == player) return true;
             });
 
-            let relevantDirections = relevantSquares.map(e=> e[1]);
+            let relevantDirections: Array<Direction> = relevantSquares.map(e=> e[1]);
             directionsToLookAt = new Set(relevantDirections);
 
             relevantDirections.forEach((value)=> {
@@ -138,7 +142,7 @@
         return hasWon;
     }
 
-    function handleMove(rowIndex, columnIndex) {
+    function handleMove(rowIndex: number, columnIndex: number) {
         if(isVictory){
             return;
         }

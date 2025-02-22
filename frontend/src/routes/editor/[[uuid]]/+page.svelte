@@ -1,5 +1,5 @@
 <script>
-    import { gameInfo, resetGame, fetchGame, editPuzzle, difficultyMapToEN, difficultyMapToCZ, wait } from "$lib/shared.svelte";
+    import { gameInfo, resetGame, fetchGame, editPuzzle, difficultyMapToEN, difficultyMapToCZ, wait } from "$lib/shared.svelte.ts";
     import { untrack } from 'svelte';
     import { page } from '$app/stores';
     import BoardEditor from "$lib/BoardEditor.svelte";

@@ -89,7 +89,7 @@
     cursor: pointer;
     transition: border-color 0.25s;
     text-decoration: none;
-    background-color: #f6f6f6;
+    background-color: #eaebec; /*#e3e4e8;*/ /*lavender*/
     color: black;
     max-width: 500px;
     margin: 10px;
