@@ -63,7 +63,6 @@ class TestFriendlyMatch(unittest.TestCase):
 
         self.assertEqual(response.status_code, 200)
 
-        # Check if opponent received the invitatio
         received = self.socket_client2.get_received()
         self.assertTrue(any(event["name"] == "game_invitation" for event in received))
 
@@ -73,8 +72,6 @@ class TestFriendlyMatch(unittest.TestCase):
         self.assertEqual(invitation["args"][0]["challenger"]["uuid"], self.user1_uuid)
 
     def test_friendly_match_accept(self):
-        """Test accepting a friendly match invitation"""
-        # Join both players to the room
         self.socket_client1.emit(
             "join_friendly", {"username": "player1", "room": self.room}
         )
@@ -82,18 +79,15 @@ class TestFriendlyMatch(unittest.TestCase):
             "join_friendly", {"username": "player2", "room": self.room}
         )
 
-        # Clear previous messages
         self.socket_client1.get_received()
         self.socket_client2.get_received()
 
-        # Player 2 accepts the game
         self.socket_client2.emit(
             "accept_game", {"room": self.room, "username": "player2"}
         )
 
         time.sleep(1)
 
-        # Check if both players received game acceptance and start
         received1 = self.socket_client1.get_received()
         received2 = self.socket_client2.get_received()
 
@@ -103,8 +97,6 @@ class TestFriendlyMatch(unittest.TestCase):
         self.assertTrue(any(event["name"] == "game_start" for event in received2))
 
     def test_friendly_match_decline(self):
-        """Test declining a friendly match invitation"""
-        # Join both players to the room
         self.socket_client1.emit(
             "join_friendly", {"username": "player1", "room": self.room}
         )
@@ -112,18 +104,15 @@ class TestFriendlyMatch(unittest.TestCase):
             "join_friendly", {"username": "player2", "room": self.room}
         )
 
-        # Clear previous messages
         self.socket_client1.get_received()
         self.socket_client2.get_received()
 
-        # Player 2 declines the game
         self.socket_client2.emit(
             "decline_game", {"room": self.room, "username": "player2"}
         )
 
         time.sleep(1)
 
-        # Check if both players received decline notification
         received1 = self.socket_client1.get_received()
         received2 = self.socket_client2.get_received()
 
