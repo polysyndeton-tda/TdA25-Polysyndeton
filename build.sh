@@ -1,6 +1,15 @@
+#!/bin/bash
 # Setup trap to kill background processes on script exit 
 #(to ma pry ukoncit npm run dev spusteny na pozadi, ktery by jinak ctrl c neukoncil a pry by bylo potreba pkill -f "npm run dev" 
-trap 'kill $(jobs -p)' EXIT
+# Function to kill background processes
+cleanup() {
+    echo "Cleaning up..."
+    pkill -f "npm run dev"
+    pkill -P $$
+}
+
+# Setup trap to execute cleanup function on script exit
+trap cleanup EXIT
 
 cd frontend
 npm install
