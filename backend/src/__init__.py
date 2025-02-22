@@ -1,5 +1,4 @@
 import logging
-import os
 
 from flask import Flask
 
@@ -15,7 +14,9 @@ import gevent
 logger = logging.getLogger(__name__)
 console_handler = logging.StreamHandler()
 console_handler.setLevel(logging.INFO)
-console_handler.setFormatter(logging.Formatter("%(asctime)s - %(levelname)s - %(message)s"))
+console_handler.setFormatter(
+    logging.Formatter("%(asctime)s - %(levelname)s - %(message)s")
+)
 logger.addHandler(console_handler)
 logger.setLevel(logging.INFO)
 
@@ -39,5 +40,3 @@ from src import routes, models
 with app.app_context():
     db.create_all()
     models.create_superuser()
-
-from src import routes

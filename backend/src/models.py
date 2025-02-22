@@ -43,14 +43,16 @@ class User(db.Model):
     def check_password(self, password):
         return check_password_hash(self.password_hash, password)
 
+
 def create_superuser():
     from config import Config
+
     superuser = User.query.filter_by(username=Config.SUPERUSER_USERNAME).first()
     if not superuser:
         superuser = User(
             username=Config.SUPERUSER_USERNAME,
             email=Config.SUPERUSER_EMAIL,
-            is_admin=True
+            is_admin=True,
         )
         superuser.set_password(Config.SUPERUSER_PASSWORD)
         db.session.add(superuser)

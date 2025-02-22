@@ -19,7 +19,7 @@ from src.validators import (
 from src.matchmaking import SortedUsers, get_room_name
 from src.gamestate import get_gamestate
 from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
-from flask_socketio import emit, join_room
+from flask_socketio import emit, join_room, leave_room
 from collections import deque
 import gevent
 from gevent.lock import BoundedSemaphore
@@ -29,7 +29,7 @@ matchmaking = SortedUsers()
 q = deque()
 active_rooms = {}
 
-    
+
 @app.route("/api/v1/matchmaking", methods=["POST"])
 def matchmaking_request():
     data = request.json
@@ -46,15 +46,98 @@ def matchmaking_request():
     return jsonify({"message": "Added to matchmaking queue"}), 200
 
 
-@socketio.on('join')
+@app.route("/api/v1/friendly", methods=["POST"])
+def friendly():
+    data = request.json
+    user_uuid = data.get("user_uuid")
+    opponent_uuid = data.get("opponent_uuid")
+
+    opponent_user = User.query.filter_by(uuid=opponent_uuid).first()
+    queried_user = User.query.filter_by(uuid=user_uuid).first()
+
+    if not queried_user or not opponent_user:
+        return jsonify({"message": "User not found"}), 404
+
+    room = get_room_name(user_uuid, opponent_uuid)
+
+    socketio.emit(
+        "game_invitation",
+        {
+            "room": room,
+            "challenger": {
+                "uuid": queried_user.uuid,
+                "username": queried_user.username,
+                "elo": queried_user.elo,
+            },
+        },
+        room=opponent_uuid,
+    )
+
+    return jsonify({"message": "Game invitation sent", "room": room}), 200
+
+
+@socketio.on("join_friendly")
+def on_join_friendly(data):
+    """
+    data:
+    username (str)
+    room (str) - from get_room_name
+    """
+    username = data["username"]
+    room = data["room"]
+
+    join_room(room)
+    print(f"{username} has joined friendly match room {room}")
+
+    if room not in active_rooms:
+        active_rooms[room] = {}
+    active_rooms[room][request.sid] = username
+
+
+@socketio.on("accept_game")
+def on_accept_game(data):
+    """
+    data:
+    room (str)
+    username (str)
+    """
+    room = data["room"]
+    username = data["username"]
+
+    if room in active_rooms:
+        emit("game_accepted", {"room": room, "username": username}, room=room)
+
+        if len(active_rooms[room]) == 2:
+            emit("game_start", {"room": room}, room=room)
+
+
+@socketio.on("decline_game")
+def on_decline_game(data):
+    """
+    data:
+    room (str)
+    username (str)
+    """
+    room = data["room"]
+    username = data["username"]
+
+    if room in active_rooms:
+        emit("game_declined", {"room": room, "username": username}, room=room)
+
+        for sid in list(active_rooms[room].keys()):
+            leave_room(room, sid=sid)
+        del active_rooms[room]
+
+
+@socketio.on("join")
 def on_join(data):
     """
     data:
         username (str)
         room (from get_room_name)
     """
-    username = data['username']
-    room = data['room']
+    username = data["username"]
+    room = data["room"]
     join_room(room)
     print(f"{username} has joined room {room}")
 
@@ -63,9 +146,19 @@ def on_join(data):
     active_rooms[room][request.sid] = username
 
     if room in active_rooms and len(active_rooms[room]) == 2:
-        emit('game_start', {'room': room}, room=room)
+        emit("game_start", {"room": room}, room=room)
 
-@socketio.on('move')
+
+@socketio.on("connect")
+def handle_connect():
+    user_uuid = request.args.get("user_uuid")
+
+    if user_uuid:
+        join_room(user_uuid)
+        print(f"User {user_uuid} joined their room")
+
+
+@socketio.on("move")
 def handle_move(data):
     """
     data:
@@ -75,19 +168,24 @@ def handle_move(data):
         symbol (X/O)
 
     """
-    print('Received move:', data)
-    room = data.get('room')
+    print("Received move:", data)
+    room = data.get("room")
     if room:
-        emit('move', data, room=room, include_self=False)
-    
-@socketio.on('disconnect')
+        emit("move", data, room=room, include_self=False)
+
+
+@socketio.on("disconnect")
 def handle_disconnect():
     for room, players in active_rooms.items():
         if request.sid in players:
             username = players[request.sid]
             print(f"Player {username} disconnected from {room}")
 
-            emit('opponent_disconnected', {'message': f"{username} has disconnected"}, room=room)
+            emit(
+                "opponent_disconnected",
+                {"message": f"{username} has disconnected"},
+                room=room,
+            )
 
             del players[request.sid]
 
@@ -106,7 +204,7 @@ def matchmaking_loop():
             player1 = q.popleft()
             player2 = matchmaking.find_closest_user(player1)
 
-            if not player2: # not enough players, wait
+            if not player2:  # not enough players, wait
                 q.appendleft(player1)
                 gevent.sleep(1)
                 continue
@@ -115,15 +213,24 @@ def matchmaking_loop():
             matchmaking.remove_user(player2)
             q.remove(player2)
 
-            room = f"room_{player1.uuid}_{player2.uuid}"
+            room = get_room_name(player1.uuid, player2.uuid)
             active_rooms[room] = {player1.uuid, player2.uuid}
 
-            socketio.emit("match_found", {"room": room, "opponent": player2.uuid}, room=player1.uuid)
-            socketio.emit("match_found", {"room": room, "opponent": player1.uuid}, room=player2.uuid)
+            socketio.emit(
+                "match_found",
+                {"room": room, "opponent": player2.uuid},
+                room=player1.uuid,
+            )
+            socketio.emit(
+                "match_found",
+                {"room": room, "opponent": player1.uuid},
+                room=player2.uuid,
+            )
 
             print(f"Matched {player1.username} vs {player2.username} in {room}")
 
         gevent.sleep(1)
+
 
 @app.route("/api")
 def hello():
@@ -138,7 +245,7 @@ def hello():
 @app.route("/my-profile")
 @app.route("/puzzles")
 @app.route("/admin")
-def serveSPA(): #game_uuid=None parameter possible if we wanted to get the uuid url slug here
+def serveSPA():  # game_uuid=None parameter possible if we wanted to get the uuid url slug here
     return send_from_directory(app.static_folder, "index.html")
 
 
@@ -347,12 +454,13 @@ def users():
             delattr(u, "password_hash")
         return jsonify([user_json(user) for user in users]), 200
 
+
 @app.route("/api/v1/users/<uuid:uuid>", methods=["GET", "PUT", "DELETE"])
 @jwt_required()
 def single_user(uuid):
     uuid_str = str(uuid)
     current_user_uuid = get_jwt_identity()
-    current_user = User.query.filter_by(uuid = current_user_uuid).first()
+    current_user = User.query.filter_by(uuid=current_user_uuid).first()
 
     if not current_user:
         return jsonify({"message: Unauthorized"}), 401
@@ -385,13 +493,13 @@ def single_user(uuid):
 
         if email and not email_is_unique(email):
             return jsonify({"message": "User with this email already exists"}), 409
-        
+
         for property in data.keys():
             if property == "password":
                 queried_user.set_password(data["password"])
             else:
                 setattr(queried_user, property, data[property])
-        
+
         db.session.commit()
 
         return jsonify(user_json(queried_user)), 200
@@ -410,6 +518,12 @@ def login():
 
     if not user.check_password(password):
         return jsonify({"message": "Invalid credentials"}), 401
-    
-    access_token = create_access_token(identity=user.uuid, expires_delta=timedelta(hours=1), additional_claims={"is_admin": user.is_admin})
-    return jsonify({"token": access_token, "is_admin": user.is_admin, "uuid": user.uuid})
+
+    access_token = create_access_token(
+        identity=user.uuid,
+        expires_delta=timedelta(hours=1),
+        additional_claims={"is_admin": user.is_admin},
+    )
+    return jsonify(
+        {"token": access_token, "is_admin": user.is_admin, "uuid": user.uuid}
+    )
