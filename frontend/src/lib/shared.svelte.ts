@@ -169,6 +169,10 @@ interface UserProperties {
     losses: number;
 }
 
+interface UserGetApiResponse extends UserProperties {
+    createdAt: string
+}
+
 // Then make UserPostApiResponse extend it
 interface UserPostApiResponse extends UserProperties {
     message?: string;  // for error responses
@@ -372,7 +376,7 @@ class UserState implements Partial<NullableUserProperties>{
                 Authorization: `Bearer ${this.token}`
             }
         }); //GET
-        const response = await request.json(); //the only possible code in openapi is 200
+        const response: UserGetApiResponse[] = await request.json(); //the only possible code in openapi is 200
         return response;
     }
 }
