@@ -42,7 +42,11 @@
 	  <button onclick={() => showLoginPopup = true} class="right">Přihlásit se</button>
 	{:else}
 	  <div class="dropdown right">
-		<button onclick={toggleDropdown}> <i class="fa-solid fa-user"></i> {User.name}</button>
+    {#if User.isAdmin}
+      <button onclick={toggleDropdown}> <i class="fa-solid fa-user"></i>{User.name} | Administrátor</button>
+    {:else}
+      <button onclick={toggleDropdown}> <i class="fa-solid fa-user"></i> {User.name}</button>
+    {/if}
 		{#if isDropdownOpen}
 		  <div class="dropdown-menu">
 			<a onclick={() => isDropdownOpen = false} class="button" href="/my-profile"><i class="fa-solid fa-gear"></i> Můj profil</a>

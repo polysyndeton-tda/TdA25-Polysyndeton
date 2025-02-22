@@ -14,9 +14,10 @@ type DataTableProps<TData, TValue> = {
     data: TData[];
     tableReference: any;
     selectedRows: any
+    classesToSet: string
 };
  
-let { data, columns, tableReference = $bindable(), selectedRows = $bindable() }: DataTableProps<TData, TValue> = $props();
+let { data, columns, tableReference = $bindable(), selectedRows = $bindable(), classesToSet }: DataTableProps<TData, TValue> = $props();
 
 let pagination = $state<PaginationState>({ pageIndex: 0, pageSize: 10 });
 let sorting = $state<SortingState>([]);
@@ -85,7 +86,7 @@ const table = createSvelteTable({
 
 tableReference = table;
 
-function selectThisRowAndUnselectOthers(event, table, row){
+function selectThisRowAndUnselectOthers(event: any, table: any, row: any){
     //On right click, we want to select the row if no rows are selected, 
     // but otherwise if there is a selection, we don't want to cancel it
     if(event.type == "contextmenu"){
@@ -128,13 +129,13 @@ const valuesToCZ = {
   "losses": "Proher"
 };
 
-let filterValue = $state("email");
+let filterValue: any = $state("email");
 let searchQuery: string = $state("");
 
 </script>
 
 <div>
-    <div class="flex items-center py-4">
+    <div class="flex items-center py-4 {classesToSet} gap-[4px]">
         <Input
         placeholder="Filtrovat podle..."
         value={(table.getColumn($state.snapshot(filterValue)).getFilterValue() as string) ?? ""}
@@ -161,7 +162,7 @@ let searchQuery: string = $state("");
             </Select.Content>
           </Select.Root>
     </div>
-    <div class="rounded-md border">
+    <div class="rounded-md border {classesToSet}">
     <Table.Root>
         <Table.Header>
         {#each table.getHeaderGroups() as headerGroup (headerGroup.id)}
@@ -203,7 +204,7 @@ let searchQuery: string = $state("");
     </div>
     
 
-    <div class="text-muted-foreground flex-1 text-sm">
+    <div class="text-muted-foreground flex-1 text-sm pl-[8px]">
         {table.getFilteredSelectedRowModel().rows.length} z{" "}
         {table.getState().pagination.pageSize} řádků na stránce vybráno. | <!-- this showed up all users number (11 not 10) table.getFilteredRowModel().rows.length -->
         Celkově {table.getRowCount()} uživatelů.
