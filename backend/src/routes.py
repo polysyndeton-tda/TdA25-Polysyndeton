@@ -299,4 +299,4 @@ def login():
         return jsonify({"message": "Invalid credentials"}), 401
     
     access_token = create_access_token(identity=user.uuid, expires_delta=timedelta(hours=1), additional_claims={"is_admin": user.is_admin})
-    return jsonify({"token": access_token, "is_admin": user.is_admin, "uuid": user.uuid})
+    return jsonify({"token": access_token, "isAdmin": user.is_admin, "uuid": user.uuid})

@@ -167,6 +167,7 @@ interface UserProperties {
     wins: number;
     draws: number;
     losses: number;
+    isAdmin: boolean;
 }
 
 interface UserGetApiResponse extends UserProperties {
@@ -175,6 +176,13 @@ interface UserGetApiResponse extends UserProperties {
 
 // Then make UserPostApiResponse extend it
 interface UserPostApiResponse extends UserProperties {
+    message?: string;  // for error responses
+}
+
+interface UserLoginApiResponse {
+    token: string,
+    isAdmin: boolean,
+    uuid: string,
     message?: string;  // for error responses
 }
 
@@ -204,7 +212,7 @@ class UserState implements Partial<NullableUserProperties>{
 
     public uuid = localStorage.getItem("uuid");
 
-    public isAdmin = localStorage.getItem("isAdmin");
+    public isAdmin = (localStorage.getItem("isAdmin") === "true")
 
     public elo = Number(localStorage.getItem("elo"));
     public wins = Number(localStorage.getItem("wins"));
@@ -235,13 +243,16 @@ class UserState implements Partial<NullableUserProperties>{
             }
         }
         try{
-            const response = await request.json();
-            // console.log("response from login", response);
+            const response: UserLoginApiResponse = await request.json();
+            console.log("response from login", response.isAdmin);
             localStorage.setItem("token", response.token);
             localStorage.setItem("username", username);
             localStorage.setItem("uuid", response.uuid);
-            localStorage.setItem("isAdmin", response.is_admin);
+            localStorage.setItem("isAdmin", String(response.isAdmin));
             this.token = response.token;
+            this.name = username;
+            this.uuid = response.uuid;
+            this.isAdmin = response.isAdmin;
         }catch(e){
             console.error(e);
         }
@@ -291,6 +302,8 @@ class UserState implements Partial<NullableUserProperties>{
                 const typedKey = key as ValidKeys;
                 if (typedKey === 'uuid' || typedKey === 'email') {
                     (this[typedKey] as string) = String(value);
+                } else if(typedKey === 'isAdmin'){
+                    this.isAdmin = JSON.parse(value);
                 } else {
                     (this[typedKey] as number) = Number(value);
                     
