@@ -244,6 +244,8 @@ def hello():
 @app.route("/game/<string:game_uuid>")
 @app.route("/my-profile")
 @app.route("/multiplayer")
+@app.route("/multiplayer/match")
+@app.route("/multiplayer/friendly")
 @app.route("/puzzles")
 @app.route("/admin")
 @app.route("/gdpr")
