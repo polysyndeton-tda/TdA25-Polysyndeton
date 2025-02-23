@@ -3,7 +3,36 @@
     import Alert from '$lib/Alert.svelte';
     import { User } from "$lib/shared.svelte"
     import { onMount } from 'svelte';
+    import io from 'socket.io-client';
     const api_url = PUBLIC_API_BASE_URL || 'https://odevzdavani.tourdeapp.cz/mockbush/api/v1/';
+    
+    // Connection
+    const socket = io(`ws://${document.location.hostname}`, {
+        query: {
+            user_uuid: User.uuid
+        }
+    });
+
+    // Listen for events
+    socket.on('game_invitation', (data) => {
+        // Show invitation dialog
+        console.log(`Invitation from ${data.challenger.username}`);
+    });
+
+    socket.on('game_start', (data) => {
+        // Initialize game board
+        console.log(`Game starting in room ${data.room}`);
+    });
+
+    socket.on('move', (data) => {
+        // Update game board
+        console.log(`Move at ${data.move} by ${data.username}`);
+    });
+    
+    console.log("document location", document.location.hostname);
+    
+    
+    /*Matchmaking API call section -------------------------------------------*/
     let status = $state("Initial");
     let showError = $state(false);
     let errorMessage = $state("");
