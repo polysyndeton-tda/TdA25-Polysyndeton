@@ -246,13 +246,9 @@ def hello():
 @app.route("/multiplayer")
 @app.route("/puzzles")
 @app.route("/admin")
-<<<<<<< HEAD
-def serveSPA():  # game_uuid=None parameter possible if we wanted to get the uuid url slug here
-=======
 @app.route("/gdpr")
 @app.route("/contacts")
 def serveSPA(): #game_uuid=None parameter possible if we wanted to get the uuid url slug here
->>>>>>> main
     return send_from_directory(app.static_folder, "index.html")
 
 
@@ -464,18 +460,7 @@ def users():
 
 @app.route("/api/v1/users/<uuid:uuid>", methods=["GET", "PUT", "DELETE"])
 def single_user(uuid):
-<<<<<<< HEAD
-    uuid_str = str(uuid)
-    current_user_uuid = get_jwt_identity()
-    current_user = User.query.filter_by(uuid=current_user_uuid).first()
-
-    if not current_user:
-        return jsonify({"message: Unauthorized"}), 401
-
-    queried_user = User.query.filter_by(uuid=uuid_str).first()
-=======
     queried_user = User.query.filter_by(uuid=str(uuid)).first()
->>>>>>> main
     if not queried_user:
         return jsonify({"message": "User not found"}), 404
 
@@ -525,18 +510,6 @@ def login():
 
     if not user.check_password(password):
         return jsonify({"message": "Invalid credentials"}), 401
-<<<<<<< HEAD
-
-    access_token = create_access_token(
-        identity=user.uuid,
-        expires_delta=timedelta(hours=1),
-        additional_claims={"is_admin": user.is_admin},
-    )
-    return jsonify(
-        {"token": access_token, "is_admin": user.is_admin, "uuid": user.uuid}
-    )
-=======
     
     access_token = create_access_token(identity=user.uuid, expires_delta=timedelta(hours=1), additional_claims={"is_admin": user.is_admin})
     return jsonify({"token": access_token, "isAdmin": user.is_admin, "uuid": user.uuid})
->>>>>>> main
