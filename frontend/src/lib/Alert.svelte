@@ -1,15 +1,20 @@
 <script lang="ts">
     import { scale } from 'svelte/transition';
-    let { show = $bindable(), children, okCallback } = $props();
+    type AlertProps = {
+        show: boolean,
+        children: any,
+        okCallback?: Function
+    }
+    let { show = $bindable(), children, okCallback }: AlertProps = $props();
 
     function addFocus(node: HTMLButtonElement){
         node.focus();
     }
 
     function confirm(){
-        try{
+        if(okCallback != undefined){
             okCallback();
-        }catch(err){
+        }else{
             console.log("okCallback not supplied to Alert, simply closing it instead");
         }
         close();
