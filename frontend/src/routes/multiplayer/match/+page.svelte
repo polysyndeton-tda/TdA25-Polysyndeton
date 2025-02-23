@@ -7,7 +7,9 @@
     const api_url = PUBLIC_API_BASE_URL || 'https://odevzdavani.tourdeapp.cz/mockbush/api/v1/';
     
     // Connection
-    const socket = io(`ws://${document.location.hostname}`, {
+    const socket = io("http://localhost:5000", {
+		path: "/socket.io/",
+		transports: ["websocket"],
         query: {
             user_uuid: User.uuid
         }

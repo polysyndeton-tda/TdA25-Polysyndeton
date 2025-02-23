@@ -24,6 +24,15 @@ from collections import deque
 import gevent
 from gevent.lock import BoundedSemaphore
 
+
+@app.after_request
+def after_request(response):
+    response.headers.add("Access-Control-Allow-Origin", "*")
+    response.headers.add("Access-Control-Allow-Headers", "Content-Type,Authorization")
+    response.headers.add("Access-Control-Allow-Methods", "GET,PUT,POST,DELETE,OPTIONS")
+    return response
+
+
 matchmaking_lock = BoundedSemaphore()
 matchmaking = SortedUsers()
 q = deque()
@@ -198,36 +207,36 @@ def matchmaking_loop():
     while True:
         with matchmaking_lock:
             if len(q) < 2:
-                gevent.sleep(1)
-                continue
+                pass
 
-            player1 = q.popleft()
-            player2 = matchmaking.find_closest_user(player1)
+            else:
+                player1 = q.popleft()
+                player2 = matchmaking.find_closest_user(player1)
 
-            if not player2:  # not enough players, wait
-                q.appendleft(player1)
-                gevent.sleep(1)
-                continue
+                if not player2:  # not enough players, wait
+                    q.appendleft(player1)
+                else:
+                    matchmaking.remove_user(player1)
+                    matchmaking.remove_user(player2)
 
-            matchmaking.remove_user(player1)
-            matchmaking.remove_user(player2)
-            q.remove(player2)
+                    if player2 in q:
+                        q.remove(player2)
 
-            room = get_room_name(player1.uuid, player2.uuid)
-            active_rooms[room] = {player1.uuid, player2.uuid}
+                    room = get_room_name(player1.uuid, player2.uuid)
+                    active_rooms[room] = {player1.uuid, player2.uuid}
 
-            socketio.emit(
-                "match_found",
-                {"room": room, "opponent": player2.uuid},
-                room=player1.uuid,
-            )
-            socketio.emit(
-                "match_found",
-                {"room": room, "opponent": player1.uuid},
-                room=player2.uuid,
-            )
+                    socketio.emit(
+                        "match_found",
+                        {"room": room, "opponent": player2.uuid},
+                        room=player1.uuid,
+                    )
+                    socketio.emit(
+                        "match_found",
+                        {"room": room, "opponent": player1.uuid},
+                        room=player2.uuid,
+                    )
 
-            print(f"Matched {player1.username} vs {player2.username} in {room}")
+                    print(f"Matched {player1.username} vs {player2.username} in {room}")
 
         gevent.sleep(1)
 
@@ -250,7 +259,7 @@ def hello():
 @app.route("/admin")
 @app.route("/gdpr")
 @app.route("/contacts")
-def serveSPA(): #game_uuid=None parameter possible if we wanted to get the uuid url slug here
+def serveSPA():  # game_uuid=None parameter possible if we wanted to get the uuid url slug here
     return send_from_directory(app.static_folder, "index.html")
 
 
@@ -512,6 +521,10 @@ def login():
 
     if not user.check_password(password):
         return jsonify({"message": "Invalid credentials"}), 401
-    
-    access_token = create_access_token(identity=user.uuid, expires_delta=timedelta(hours=1), additional_claims={"is_admin": user.is_admin})
+
+    access_token = create_access_token(
+        identity=user.uuid,
+        expires_delta=timedelta(hours=1),
+        additional_claims={"is_admin": user.is_admin},
+    )
     return jsonify({"token": access_token, "isAdmin": user.is_admin, "uuid": user.uuid})
