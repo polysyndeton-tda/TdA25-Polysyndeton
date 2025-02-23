@@ -5,7 +5,9 @@ import { vitePreprocess } from '@sveltejs/vite-plugin-svelte';
 const config = {
 	// Consult https://svelte.dev/docs/kit/integrations
 	// for more information about preprocessors
-	preprocess: vitePreprocess(),
+	// Who could have known that the difference between broken and working config was caused by { script: true }
+	// Reading the docs instead of trying shortcuts - pasting SO really helped for once https://svelte.dev/docs/svelte/typescript
+	preprocess: vitePreprocess({ script: true }),
 
 	kit: {
 		// adapter-auto only supports some environments, see https://svelte.dev/docs/kit/adapter-auto for a list.
