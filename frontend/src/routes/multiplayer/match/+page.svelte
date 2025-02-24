@@ -7,7 +7,7 @@
     const api_url = PUBLIC_API_BASE_URL || 'https://odevzdavani.tourdeapp.cz/mockbush/api/v1/';
     
     // Connection
-    const socket = io("http://localhost:5000", {
+    const socket = io("http://localhost:5000", { //for deploy **probably** document.location.hostname without the port
 		path: "/socket.io/",
 		transports: ["websocket"],
         query: {

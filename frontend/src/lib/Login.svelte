@@ -2,7 +2,13 @@
     import { scale, slide, fade } from 'svelte/transition';
     import { User } from '$lib/shared.svelte.ts';
     import Alert from './Alert.svelte';
-    let { show = $bindable(), mode = $bindable("login"), floating = true, showRegisterLink = true} = $props();
+    type LoginProps = {
+        show?: boolean,
+        mode?: "login" | "register",
+        floating?: boolean,
+        showRegisterLink?: boolean
+    }
+    let { show = $bindable(), mode = $bindable("login"), floating = true, showRegisterLink = true}: LoginProps = $props();
 
     let userNameField: HTMLInputElement;
     function addFocus(node: HTMLInputElement){
