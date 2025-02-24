@@ -5,17 +5,32 @@ type Difficulty = "beginner" | "easy" | "medium" | "hard" | "extreme";
 type BoardCell = "X" | "O" | "";
 type Board = BoardCell[][];
 
-interface ApiResponse {
+//almost same as /games/{uuid} "PUT" request's response type (added uuid)
+//part of /games/{uuid} "GET" request's response type
+export interface BoardComponentInfo {
     board: Board;
     uuid: string;
     name: string;
     difficulty: Difficulty;
 }
 
+// "/games/{uuid}" "PUT" request's response type
+interface GamesPutApiResponse { //for editPuzzle
+    board: Board;
+    name: string;
+    difficulty: Difficulty;
+}
+
+export interface GamesGetApiResponse extends BoardComponentInfo { //for fetchGame
+    createdAt: string,
+    updatedAt: string,
+    gameState: "opening" | "midgame" | "endgame",
+}
+
 interface GameInfo {
     selected: boolean;
     uuid?: string;
-    apiResponse: ApiResponse;
+    apiResponse: BoardComponentInfo;
 }
 export const gameInfo = $state<GameInfo>({
     selected: false,
@@ -28,7 +43,7 @@ export const gameInfo = $state<GameInfo>({
     }
 });
 
-function assertApiResponse(apiResponse: ApiResponse | undefined): asserts apiResponse is ApiResponse {
+function assertApiResponse(apiResponse: GamesPutApiResponse | undefined): asserts apiResponse is GamesPutApiResponse {
     if (!apiResponse) {
         throw new Error("BIG ERROR: editPuzzle called before puzzle saved!");
     }
@@ -52,7 +67,7 @@ export async function fetchGame(uuid: string) {
     if(request.status == 404){
         throw Error("Úloha nebyla nalezena. \n Pravděpodobně je to proto, že byla smazána.");
     }
-    const data = await request.json();
+    const data: GamesGetApiResponse = await request.json();
     return data;
 }
 
@@ -75,7 +90,7 @@ export async function editPuzzle(uuid: string){
                 }
             } 
         );
-        const data = await request.json();
+        const data: GamesPutApiResponse = await request.json();
         console.log("editPuzzle response", data);
         if(request.status == 422){
             alert("Stav křižků neodpovídá stavu koleček nebo naopak.\n V tomto stavu není možné úlohu uložit");

@@ -123,7 +123,7 @@ when apiResponse is undefined, and I'm reading name propety here -->
     </div>
 
     {#if gameInfo.selected}
-        <Board boardApiInfo={gameInfo.apiResponse}></Board>
+        <Board mode="singleplayer" boardApiInfo={gameInfo.apiResponse}></Board>
     {/if}
 
 {:else if errorMessage}

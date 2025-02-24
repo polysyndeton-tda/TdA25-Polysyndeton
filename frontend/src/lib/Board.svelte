@@ -1,6 +1,12 @@
 <script lang="ts">
     import {untrack} from 'svelte';
-    let { boardApiInfo } = $props();
+    import type { BoardComponentInfo } from "$lib/shared.svelte";
+    type BoardProps = {
+        boardApiInfo: BoardComponentInfo,
+        mode: "singleplayer" | "multiplayer", 
+        allowedPlayer?: "X" | "O" //if mode is multiplayer, which player allow on this client
+    }
+    let { boardApiInfo, mode }: BoardProps = $props();
 
     let name = $derived(boardApiInfo.name);
     $effect(() => {
