@@ -259,7 +259,7 @@ def hello():
 @app.route("/admin")
 @app.route("/gdpr")
 @app.route("/contacts")
-def serveSPA():  # game_uuid=None parameter possible if we wanted to get the uuid url slug here
+def serveSPA(game_uuid=None):  # game_uuid=None parameter needed to not throw an exception
     return send_from_directory(app.static_folder, "index.html")
 
 
