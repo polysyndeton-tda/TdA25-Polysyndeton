@@ -1,5 +1,6 @@
-<script>
+<script lang="ts">
     import { gameInfo, deletePuzzle, gameStateToCZ, wait } from "$lib/shared.svelte.ts";
+    import type { GamesGetApiResponse } from "$lib/shared.svelte";
     import { PUBLIC_API_BASE_URL } from '$env/static/public';
     import { onMount } from "svelte";
     import BoardPreview from "./BoardPreview.svelte";
@@ -9,18 +10,18 @@
     import Confirm from "./Confirm.svelte";
     const api_url = PUBLIC_API_BASE_URL || 'https://odevzdavani.tourdeapp.cz/mockbush/api/v1/';
 
-    let items = $state([]);
+    let items: GamesGetApiResponse[] = $state([]);
     let loaded = $state(false);
     async function fetchAllGames(){
         //all games list
         const request = await fetch(`${api_url}/games`);
-        const data = await request.json();
+        const data: GamesGetApiResponse[] = await request.json();
         console.log(data);
         items = data;
         loaded = true;
     }
 
-    let filterState = $state({
+    let filterState: any = $state({
        used: false,
        filters: {
             difficulty: ["beginner", "easy", "medium", "hard", "extreme"], //list of difficulty value
@@ -29,7 +30,7 @@
        } 
     });
 
-    async function fetchAllGamesFiltered(){
+    async function fetchAllGamesFiltered(parametr: any){
         const params = new URLSearchParams(filterState.filters);
         const response = await fetch(`${api_url}/filter?${params.toString()}`);
         const games = await response.json();
@@ -37,18 +38,23 @@
     }
 
     $effect(() => {
+        //the filterState parameter here is only to make sure the effect runs when filterState changes
         fetchAllGamesFiltered(filterState);
     });
 
     onMount(fetchAllGames);
-    
-    let deletedPuzzle = $state({
+    type deletedPuzzleType = {
+        confirmed: boolean,
+        showDialog: boolean,
+        game: GamesGetApiResponse
+    }
+    let deletedPuzzle: deletedPuzzleType = $state({
         confirmed: false,
         showDialog: false,
-        game: {},
+        game: {} as GamesGetApiResponse // as GamesGetApiResponse until I make better typed initialisation code (game sure is assigned before accessing in the "Smazat" button callback with `deletedPuzzle.game = game;` ) 
     });
 
-    async function deletePuzzleFromGui(game, uuid){
+    async function deletePuzzleFromGui(game: GamesGetApiResponse, uuid: string){
         let deleted = await deletePuzzle(uuid);
         if(deleted){
             deletedPuzzle.confirmed = true;
@@ -59,7 +65,7 @@
         }
     }
 
-    function setGameInfoForInstantLoad(index){
+    function setGameInfoForInstantLoad(index: number){
         console.log("entrar")
         gameInfo.apiResponse = items[index];
         gameInfo.selected = true;
@@ -102,20 +108,21 @@
                         <button class="button hasOwnClickHandler" 
 
                             ontouchstart={(e) => {
-                                document.getElementById("i" + index).href = "/editor/" + items[index].uuid;
+                                // as HTMLAnchorElement tells Typescript we are absolutely sure the element is there on the page
+                                (document.getElementById("i" + index) as HTMLAnchorElement).href = "/editor/" + items[index].uuid;
                             }
                             }
 
                             ontouchend={(e) => {
-                                document.getElementById("i" + index).href = "/game/" + items[index].uuid;
+                                (document.getElementById("i" + index) as HTMLAnchorElement).href = "/game/" + items[index].uuid;
                             }}
 
                             onmouseenter={(e)=> {
-                                document.getElementById("i" + index).href = "/editor/" + items[index].uuid;
+                                (document.getElementById("i" + index) as HTMLAnchorElement).href = "/editor/" + items[index].uuid;
                             }
                             }
                             onmouseleave={(e) => {
-                                document.getElementById("i" + index).href = "/game/" + items[index].uuid;
+                                (document.getElementById("i" + index) as HTMLAnchorElement).href = "/game/" + items[index].uuid;
                             }
                             }
                             onmousedowncapture={(e) => {
@@ -126,8 +133,8 @@
                             onkeydown={(e) => {
                                 e.preventDefault();
                                 if(e.key == "Enter"){
-                                    document.getElementById("i" + index).href = "/editor/" + items[index].uuid;
-                                    document.getElementById("i" + index).click();
+                                    (document.getElementById("i" + index) as HTMLAnchorElement).href = "/editor/" + items[index].uuid;
+                                    (document.getElementById("i" + index) as HTMLAnchorElement).click();
                                 }
                             
                         }}>Upravit</button>
