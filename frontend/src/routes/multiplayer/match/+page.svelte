@@ -16,6 +16,11 @@
     });
 
     // Listen for events
+    socket.on('match_found', (data) => {
+        // Show invitation dialog
+        console.log(`Match found from ${data.opponent} at room ${data.room}`);
+    });
+
     socket.on('game_invitation', (data) => {
         // Show invitation dialog
         console.log(`Invitation from ${data.challenger.username}`);
@@ -29,6 +34,10 @@
     socket.on('move', (data) => {
         // Update game board
         console.log(`Move at ${data.move} by ${data.username}`);
+    });
+
+    socket.on('opponent_disconnected', (data) => {
+        console.log("Opponent disconnected", data.message);
     });
     
     console.log("document location", document.location.hostname);
@@ -57,7 +66,7 @@
         }
         if(request.ok){
             const response = await request.json();
-            console.log("Respone from /matchmaking", response.message);
+            console.log("Response from /matchmaking", response.message);
             status = response.message;
         }
     }
