@@ -15,10 +15,17 @@ interface ApiResponse {
 interface GameInfo {
     selected: boolean;
     uuid?: string;
-    apiResponse?: ApiResponse;
+    apiResponse: ApiResponse;
 }
 export const gameInfo = $state<GameInfo>({
-    selected: false
+    selected: false,
+    uuid: "",
+    apiResponse: {
+        board: [],
+        uuid: "",
+        name: "",
+        difficulty: "beginner"
+    }
 });
 
 function assertApiResponse(apiResponse: ApiResponse | undefined): asserts apiResponse is ApiResponse {
