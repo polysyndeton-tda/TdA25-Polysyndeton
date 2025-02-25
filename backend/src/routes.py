@@ -114,10 +114,21 @@ def on_accept_game(data):
     username = data["username"]
 
     if room in active_rooms:
-        emit("game_accepted", {"room": room, "username": username}, room=room)
+        players = list(active_rooms[room].values())
 
-        if len(active_rooms[room]) == 2:
-            emit("game_start", {"room": room}, room=room)
+        if len(players) == 2:
+
+            player1 = User.query.filter_by(username=players[0]).first()
+            player2 = User.query.filter_by(username=players[1]).first()
+
+            if player1.elo <= player2.elo:
+                symbols = {player1.username: "X", player2.username: "O"}
+            else:
+                symbols = {player1.username: "O", player2.username: "X"}
+            emit("game_accepted", {"room": room, "username": username}, room=room)
+
+            if len(active_rooms[room]) == 2:
+                emit("game_start", {"room": room, "symbols":symbols}, room=room)
 
 
 @socketio.on("decline_game")
@@ -225,14 +236,19 @@ def matchmaking_loop():
                     room = get_room_name(player1.uuid, player2.uuid)
                     active_rooms[room] = {player1.uuid, player2.uuid}
 
+                    if player1.elo <= player2.elo:
+                        player1_symbol, player2_symbol = "X", "O"
+                    else:
+                        player1_symbol, player2_symbol = "O", "X"
+
                     socketio.emit(
                         "match_found",
-                        {"room": room, "opponent": player2.uuid},
+                        {"room": room, "opponent": player2.uuid, "symbol":player1_symbol},
                         room=player1.uuid,
                     )
                     socketio.emit(
                         "match_found",
-                        {"room": room, "opponent": player1.uuid},
+                        {"room": room, "opponent": player1.uuid, "symbol": player2_symbol},
                         room=player2.uuid,
                     )
 
