@@ -234,7 +234,7 @@ def matchmaking_loop():
                         q.remove(player2)
 
                     room = get_room_name(player1.uuid, player2.uuid)
-                    active_rooms[room] = {player1.uuid, player2.uuid}
+                    active_rooms[room] = {player1.uuid: None, player2.uuid: None}
 
                     if player1.elo <= player2.elo:
                         player1_symbol, player2_symbol = "X", "O"
