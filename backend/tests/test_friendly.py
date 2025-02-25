@@ -26,9 +26,9 @@ class TestFriendlyMatch(unittest.TestCase):
 
             db.session.commit()
 
-            self.user1_uuid = self.user1.uuid
-            self.user2_uuid = self.user2.uuid
-            self.room = get_room_name(self.user1_uuid, self.user2_uuid)
+            self.user1_username = self.user1.username
+            self.user2_username = self.user2.username
+            self.room = get_room_name(self.user1.uuid, self.user2.uuid)
 
         self.socket_client1 = SocketIOTestClient(
             app, socketio, query_string=f"user_uuid={self.user1.uuid}"
@@ -58,7 +58,7 @@ class TestFriendlyMatch(unittest.TestCase):
     def test_friendly_match_invitation(self):
         response = self.app.post(
             "/api/v1/friendly",
-            json={"user_uuid": self.user1_uuid, "opponent_uuid": self.user2_uuid},
+            json={"user_username": self.user1_username, "opponent_username": self.user2_username},
         )
 
         self.assertEqual(response.status_code, 200)
@@ -69,7 +69,7 @@ class TestFriendlyMatch(unittest.TestCase):
         invitation = next(
             event for event in received if event["name"] == "game_invitation"
         )
-        self.assertEqual(invitation["args"][0]["challenger"]["uuid"], self.user1_uuid)
+        self.assertEqual(invitation["args"][0]["challenger"]["uuid"], self.user1.uuid)
 
     def test_friendly_match_accept(self):
         self.socket_client1.emit(

@@ -67,7 +67,7 @@ def friendly():
     if not queried_user or not opponent_user:
         return jsonify({"message": "User not found"}), 404
 
-    room = get_room_name(user_uuid, opponent_uuid)
+    room = get_room_name(queried_user.uuid, opponent_user.uuid)
 
     socketio.emit(
         "game_invitation",
@@ -79,7 +79,7 @@ def friendly():
                 "elo": queried_user.elo,
             },
         },
-        room=opponent_uuid,
+        room=opponent_user.uuid,
     )
 
     return jsonify({"message": "Game invitation sent", "room": room}), 200
