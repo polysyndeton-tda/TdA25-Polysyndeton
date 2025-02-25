@@ -3,9 +3,34 @@
     import Alert from '$lib/Alert.svelte';
     import { User } from "$lib/shared.svelte"
     import { onMount } from 'svelte';
-    import io from 'socket.io-client';
+    import { io, Socket } from 'socket.io-client';
     const api_url = PUBLIC_API_BASE_URL || 'https://odevzdavani.tourdeapp.cz/mockbush/api/v1/';
     
+    interface MatchFoundData {
+        opponent: string;
+        room: string;
+        symbol: "X" | "O"
+    }
+
+    interface GameStartData {
+        room: string;
+        symbols: {[username: string]: "X" | "O"}; //If I wanted, I could move [player: string]: "X" | "O" or [key: string]: string; to a seperate interface Symbols
+    }
+
+    interface ServerToClientEvents {
+        match_found: (data: MatchFoundData) => void,
+        game_start: (data: GameStartData) => void,
+    }
+
+    interface JoinData {
+        username: string,
+        room: string
+    }
+
+    interface ClientToServerEvents {
+        join: (data: JoinData) => void,
+    }
+
     // Connection
     const socket = io("http://localhost:5000", { //for deploy **probably** document.location.hostname without the port
 		path: "/socket.io/",
@@ -16,9 +41,10 @@
     });
 
     // Listen for events
-    socket.on('match_found', (data) => {
+    socket.on('match_found', (data: MatchFoundData) => {
         // Show invitation dialog
-        console.log(`Match found from ${data.opponent} at room ${data.room}`);
+        console.log(`Match found from ${data.opponent} at room ${data.room}. I'm playing symbol ${data.symbol}`);
+        socket.emit('join', {username: data.opponent, room: data.room});
     });
 
     socket.on('game_invitation', (data) => {
@@ -26,9 +52,9 @@
         console.log(`Invitation from ${data.challenger.username}`);
     });
 
-    socket.on('game_start', (data) => {
+    socket.on('game_start', (data: GameStartData) => {
         // Initialize game board
-        console.log(`Game starting in room ${data.room}`);
+        console.log(`Game starting in room ${data.room} between these two players:`, data.symbols);
     });
 
     socket.on('move', (data) => {
