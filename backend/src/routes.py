@@ -58,11 +58,11 @@ def matchmaking_request():
 @app.route("/api/v1/friendly", methods=["POST"])
 def friendly():
     data = request.json
-    user_uuid = data.get("user_uuid")
-    opponent_uuid = data.get("opponent_uuid")
+    user_username = data.get("user_username")
+    opponent_username = data.get("opponent_username")
 
-    opponent_user = User.query.filter_by(uuid=opponent_uuid).first()
-    queried_user = User.query.filter_by(uuid=user_uuid).first()
+    opponent_user = User.query.filter_by(username=opponent_username).first()
+    queried_user = User.query.filter_by(username=user_username).first()
 
     if not queried_user or not opponent_user:
         return jsonify({"message": "User not found"}), 404
