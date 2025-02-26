@@ -34,6 +34,7 @@ def after_request(response):
 
 
 matchmaking_lock = BoundedSemaphore()
+active_rooms_lock = BoundedSemaphore()
 matchmaking = SortedUsers()
 q = deque()
 active_rooms = {}
@@ -161,13 +162,14 @@ def on_join(data):
     join_room(room)
     print(f"{username} has joined room {room}", file=sys.stderr)
 
-    if room not in active_rooms:
-        active_rooms[room] = {}
-    active_rooms[room][request.sid] = username
+    with active_rooms_lock:
+        if room not in active_rooms:
+            active_rooms[room] = {}
+        active_rooms[room][request.sid] = username
 
-    if room in active_rooms and len(active_rooms[room]) == 2:
-        print("emitting game start", file=sys.stderr)
-        emit("game_start", {"room": room}, room=room)
+        if len(active_rooms[room]) == 2:
+            print("emitting game start", file=sys.stderr)
+            emit("game_start", {"room": room}, room=room)
 
 
 @socketio.on("connect")
@@ -235,7 +237,6 @@ def matchmaking_loop():
                         q.remove(player2)
 
                     room = get_room_name(player1.uuid, player2.uuid)
-                    active_rooms[room] = {player1.uuid: None, player2.uuid: None}
 
                     if player1.elo <= player2.elo:
                         player1_symbol, player2_symbol = "X", "O"
