@@ -37,3 +37,6 @@ class SortedUsers:
 def get_room_name(uuid1, uuid2):
     sorted_uuids = sorted([uuid1, uuid2])
     return f"room_{sorted_uuids[0]}_{sorted_uuids[1]}"
+
+def uuid_from_roomname(roomname):
+    return roomname.split("_")[1:]

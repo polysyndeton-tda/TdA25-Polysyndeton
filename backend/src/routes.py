@@ -16,7 +16,7 @@ from src.validators import (
     username_is_unique,
     email_is_unique,
 )
-from src.matchmaking import SortedUsers, get_room_name
+from src.matchmaking import SortedUsers, get_room_name, uuid_from_roomname
 from src.gamestate import get_gamestate
 from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
 from flask_socketio import emit, join_room, leave_room
@@ -162,6 +162,16 @@ def on_join(data):
     join_room(room)
     print(f"{username} has joined room {room}", file=sys.stderr)
 
+    uuid1, uuid2 = uuid_from_roomname(room)
+
+    player1 = User.query.filter_by(uuid=uuid1).first()
+    player2 = User.query.filter_by(uuid=uuid2).first()
+
+    if player1.elo <= player2.elo:
+        symbols = {player1.username: "X", player2.username: "O"}
+    else:
+        symbols = {player1.username: "O", player2.username: "X"}
+
     with active_rooms_lock:
         if room not in active_rooms:
             active_rooms[room] = {}
@@ -169,7 +179,7 @@ def on_join(data):
 
         if len(active_rooms[room]) == 2:
             print("emitting game start", file=sys.stderr)
-            emit("game_start", {"room": room}, room=room)
+            emit("game_start", {"room": room, "symbols": symbols}, room=room)
 
 
 @socketio.on("connect")
