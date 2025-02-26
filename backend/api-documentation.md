@@ -84,6 +84,7 @@ const socket = io('ws://your-server', {
    {
        room: string;       // Room identifier
        opponent: string;   // Opponent's UUID
+       symbol: "X" | "O"   // what symbol am I playing with, not the opponent
    }
    ```
 
@@ -123,7 +124,15 @@ const socket = io('ws://your-server', {
    ```typescript
    {
        room: string;       // Room identifier
+       symbols: {player.username: "X", otherPlayer.username: "O" }
    }
+   ```
+   This, but in more technical TypeScript terms:
+   ```typescript
+   {
+        room: string;
+        symbols: {[player: string]: "X" | "O"};
+    }
    ```
 
 6. **move**
