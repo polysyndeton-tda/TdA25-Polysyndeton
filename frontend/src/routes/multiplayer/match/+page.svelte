@@ -53,7 +53,7 @@
     });
 
     socket.on('game_start', (data: GameStartData) => {
-        // Initialize game board
+        // Should be logged after 'join' is sent to server
         console.log(`Game starting in room ${data.room} between these two players:`, data.symbols);
     });
 

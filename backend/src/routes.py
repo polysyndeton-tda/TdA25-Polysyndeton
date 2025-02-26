@@ -148,7 +148,7 @@ def on_decline_game(data):
             leave_room(room, sid=sid)
         del active_rooms[room]
 
-
+import sys
 @socketio.on("join")
 def on_join(data):
     """
@@ -159,13 +159,14 @@ def on_join(data):
     username = data["username"]
     room = data["room"]
     join_room(room)
-    print(f"{username} has joined room {room}")
+    print(f"{username} has joined room {room}", file=sys.stderr)
 
     if room not in active_rooms:
         active_rooms[room] = {}
     active_rooms[room][request.sid] = username
 
     if room in active_rooms and len(active_rooms[room]) == 2:
+        print("emitting game start", file=sys.stderr)
         emit("game_start", {"room": room}, room=room)
 
 
