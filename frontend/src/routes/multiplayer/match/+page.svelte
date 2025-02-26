@@ -34,9 +34,12 @@
     // Connection
     let socketioHostUrl = "http://localhost:5000";
     let isProduction = document.location.hostname.includes("tourde.app") || document.location.protocol == 'https:';
+    console.log("isProduction", isProduction);
     if(isProduction){
         socketioHostUrl = document.location.hostname; //without 5000
+        console.log("socketioHostUrl changed to", socketioHostUrl);
     }
+    console.log("socketioHostUrl is", socketioHostUrl);
     const socket = io(socketioHostUrl, { //for deploy **probably** document.location.hostname without the port
 		path: "/socket.io/",
 		transports: ["websocket"],
