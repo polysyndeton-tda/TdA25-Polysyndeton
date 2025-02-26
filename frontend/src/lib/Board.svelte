@@ -5,8 +5,29 @@
         boardApiInfo: BoardComponentInfo,
         mode: "singleplayer" | "multiplayer", 
         allowedPlayer?: "X" | "O" //if mode is multiplayer, which player allow on this client
+        onMove?: Function //like an event listener callback when the user makes a move (i.e. to send the move through sockets)
     }
-    let { boardApiInfo, mode }: BoardProps = $props();
+    let { boardApiInfo, mode, allowedPlayer, onMove }: BoardProps = $props();
+
+    //for delivering moves from the other player from api
+    export function makeProgrammaticMove(){
+        if(mode == "singleplayer"){
+            throw Error("Meant to be used on online multiplayer only");
+        }
+        if(!allowedClickOnBoardOnThisClient){
+            //
+        }
+    }
+
+    //determines if the board can be written to from this user = if it is his turn in multiplayer (i.e. click on board)
+    let allowedClickOnBoardOnThisClient = $derived.by(() => {
+        if(mode == "multiplayer"){
+            return naTahu == allowedPlayer;
+        }else{
+            //on singleplayer, the board is always writeable (until win, but that is handled by checkVictory)
+            return true;
+        }
+    });
 
     let name = $derived(boardApiInfo.name);
     $effect(() => {
@@ -154,6 +175,14 @@
         }
         boardApiInfo.board[rowIndex][columnIndex] = naTahu;
         lastMoved = naTahu;
+
+        if(!allowedClickOnBoardOnThisClient){
+            return;
+        }
+
+        if(onMove){
+            onMove();
+        }
 
         if (checkVictory(rowIndex, columnIndex, naTahu)) {
             console.log(`${naTahu} wins!`);

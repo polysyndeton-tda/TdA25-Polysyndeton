@@ -43,8 +43,8 @@ POST /api/v1/friendly
 **Request Body:**
 ```json
 {
-    "user_uuid": "challenger_uuid",
-    "opponent_uuid": "opponent_uuid"
+    "user_username": "challenger_username",
+    "opponent_username": "opponent_username"
 }
 ```
 

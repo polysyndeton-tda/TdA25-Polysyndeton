@@ -17,9 +17,22 @@
         symbols: {[username: string]: "X" | "O"}; //If I wanted, I could move [player: string]: "X" | "O" or [key: string]: string; to a seperate interface Symbols
     }
 
+    interface MoveData {
+       room: string;           // Room identifier
+       move: [number, number]; // x, y coordinates
+       username: string;       // Player's username
+       symbol: "X" | "O";      // Player's symbol
+    }
+
+   interface OpponentDisconnectedData {
+       message: string;    // Disconnect message
+   }
+
     interface ServerToClientEvents {
         match_found: (data: MatchFoundData) => void,
         game_start: (data: GameStartData) => void,
+        move: (data: MoveData) => void,
+        opponent_disconnected: (data: OpponentDisconnectedData) => void
     }
 
     interface JoinData {
@@ -40,7 +53,7 @@
         console.log("socketioHostUrl changed to", socketioHostUrl);
     }
     console.log("socketioHostUrl is", socketioHostUrl);
-    const socket = io(socketioHostUrl, { //for deploy **probably** document.location.hostname without the port
+    const socket: Socket<ServerToClientEvents, ClientToServerEvents> = io(socketioHostUrl, { //for deploy **probably** document.location.hostname without the port
 		path: "/socket.io/",
 		transports: ["websocket"],
         query: {
@@ -53,11 +66,6 @@
         // Show invitation dialog
         console.log(`Match found from ${data.opponent} at room ${data.room}. I'm playing symbol ${data.symbol}`);
         socket.emit('join', {username: data.opponent, room: data.room});
-    });
-
-    socket.on('game_invitation', (data) => {
-        // Show invitation dialog
-        console.log(`Invitation from ${data.challenger.username}`);
     });
 
     socket.on('game_start', (data: GameStartData) => {
