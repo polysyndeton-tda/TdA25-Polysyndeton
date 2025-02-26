@@ -32,7 +32,12 @@
     }
 
     // Connection
-    const socket = io("http://localhost:5000", { //for deploy **probably** document.location.hostname without the port
+    let socketioHostUrl = "http://localhost:5000";
+    let isProduction = document.location.hostname.includes("tourde.app") || document.location.protocol == 'https:';
+    if(isProduction){
+        socketioHostUrl = document.location.hostname; //without 5000
+    }
+    const socket = io(socketioHostUrl, { //for deploy **probably** document.location.hostname without the port
 		path: "/socket.io/",
 		transports: ["websocket"],
         query: {
@@ -54,7 +59,7 @@
 
     socket.on('game_start', (data: GameStartData) => {
         // Should be logged after 'join' is sent to server
-        console.log(`Game starting in room ${data.room} between these two players:`, data.symbols);
+        console.log(`Game starting in room ${data.room} between these two players:`, data);
     });
 
     socket.on('move', (data) => {
