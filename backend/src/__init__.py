@@ -30,7 +30,8 @@ app = Flask(__name__, static_folder="../static")  # ../../frontend/build
 app.config.from_object(Config)
 
 jwt = JWTManager(app)
-CORS(app, resources={r"/api*": {"origins": "*"}})
+CORS(app, resources={)
+CORS(app, resources={r"/api*": {"origins": "*"}, r"/socket.io/*": {"origins": "https://14bb99f8.app.deploy.tourde.app"}})
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 socketio = SocketIO(app, async_mode="gevent", cors_allowed_origins="*")
