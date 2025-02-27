@@ -24,6 +24,7 @@ from collections import deque
 import gevent
 from gevent.lock import BoundedSemaphore
 import math
+import uuid
 
 
 @app.after_request
@@ -36,9 +37,11 @@ def after_request(response):
 
 matchmaking_lock = BoundedSemaphore()
 active_rooms_lock = BoundedSemaphore()
+friendly_sessions_lock = BoundedSemaphore()
 matchmaking = SortedUsers()
 q = deque()
 active_rooms = {}
+friendly_sessions = {}
 
 @app.route("/api/v1/elo", methods=["POST"])
 def update_elo():
@@ -120,58 +123,58 @@ def matchmaking_request():
 @app.route("/api/v1/friendly", methods=["POST"])
 def friendly():
     data = request.json
-    user_username = data.get("user_username")
-    opponent_username = data.get("opponent_username")
+    user_name = data.get("user_name")
+    opponent_name = data.get("opponent_name")
 
-    opponent_user = User.query.filter_by(username=opponent_username).first()
-    queried_user = User.query.filter_by(username=user_username).first()
 
-    if not queried_user or not opponent_user:
-        return jsonify({"message": "User not found"}), 404
+    if not user_name or not opponent_name:
+        return jsonify({"message": "Missing user or opponent"}), 404
 
-    room = get_room_name(queried_user.uuid, opponent_user.uuid)
 
-    socketio.emit(
-        "game_invitation",
-        {
-            "room": room,
-            "challenger": {
-                "uuid": queried_user.uuid,
-                "username": queried_user.username,
-                "elo": queried_user.elo,
-            },
-        },
-        room=opponent_user.uuid,
-    )
+    room = str(uuid.uuid4())
 
-    return jsonify({"message": "Game invitation sent", "room": room}), 200
+    with friendly_sessions_lock:
+        friendly_sessions[room] = {
+            "player1": user_name,
+            "player2": opponent_name
+        }
+
+    return jsonify({"message": "Game invitation created", "room": room}), 200
 
 
 @socketio.on("join_friendly")
 def on_join_friendly(data):
-    """
-    data:
-    username (str)
-    room (str) - from get_room_name
-    """
     username = data["username"]
     room = data["room"]
+
+    with friendly_sessions_lock:
+        if room not in friendly_sessions:
+            emit("error", {"message": "Invalid friendly room"}, room=request.sid)
+            return
+
+        allowed_users = [friendly_sessions[room]["player1"], friendly_sessions[room]["player2"]]
+        if username not in allowed_users:
+            emit("error", {"message": "Unauthorized access"}, room=request.sid)
+            return
 
     join_room(room)
     print(f"{username} has joined friendly match room {room}")
 
-    if room not in active_rooms:
-        active_rooms[room] = {}
-    active_rooms[room][request.sid] = username
+    with active_rooms_lock:
+        if room not in active_rooms:
+            active_rooms[room] = {}
+        active_rooms[room][request.sid] = username
+
+        current_players = list(set(active_rooms[room].values()))
+        if len(current_players) == 2:
+            player1 = friendly_sessions[room]["player1"]
+            player2 = friendly_sessions[room]["player2"]
+            symbols = {player1: "X", player2: "O"}
+            emit("game_start", {"room": room, "symbols": symbols}, room=room)
 
 
 @socketio.on("accept_game")
 def on_accept_game(data):
-    """
-    data:
-    room (str)
-    username (str)
-    """
     room = data["room"]
     username = data["username"]
 
@@ -179,36 +182,37 @@ def on_accept_game(data):
         players = list(set(active_rooms[room].values()))
 
         if len(players) == 2:
+            with friendly_sessions_lock:
+                if room not in friendly_sessions:
+                    emit("error", {"message": "Invalid friendly room"}, room=room)
+                    return
 
-            player1 = User.query.filter_by(username=players[0]).first()
-            player2 = User.query.filter_by(username=players[1]).first()
+                player1 = friendly_sessions[room]["player1"]
+                player2 = friendly_sessions[room]["player2"]
 
-            if player1.elo <= player2.elo:
-                symbols = {player1.username: "X", player2.username: "O"}
-            else:
-                symbols = {player1.username: "O", player2.username: "X"}
+            symbols = {player1: "X", player2: "O"}
+            # assing based on order, no elo to cmp
+
             emit("game_accepted", {"room": room, "username": username}, room=room)
 
             if len(active_rooms[room]) == 2:
-                emit("game_start", {"room": room, "symbols":symbols}, room=room)
-
+                emit("game_start", {"room": room, "symbols": symbols}, room=room)
 
 @socketio.on("decline_game")
 def on_decline_game(data):
-    """
-    data:
-    room (str)
-    username (str)
-    """
     room = data["room"]
     username = data["username"]
 
     if room in active_rooms:
         emit("game_declined", {"room": room, "username": username}, room=room)
 
-        for sid in list(active_rooms[room].keys()):
+        for sid in list(set(active_rooms[room].keys())):
             leave_room(room, sid=sid)
         del active_rooms[room]
+
+    with friendly_sessions_lock:
+        if room in friendly_sessions:
+            del friendly_sessions[room]
 
 import sys
 @socketio.on("join")
