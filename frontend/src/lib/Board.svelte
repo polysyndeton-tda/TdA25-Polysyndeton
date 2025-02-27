@@ -10,23 +10,29 @@
     let { boardApiInfo, mode, allowedPlayer, onMove }: BoardProps = $props();
 
     //for delivering moves from the other player from api
-    export function makeProgrammaticMove(){
+    export function makeProgrammaticMove(rowIndex: number, columnIndex: number, symbol: "X" | "O"){
         if(mode == "singleplayer"){
             throw Error("Meant to be used on online multiplayer only");
         }
         if(!allowedClickOnBoardOnThisClient){
-            //
+            throw Error("Cannot force a move opponent from server now - the local player hasn't played yet");
         }
+        if(symbol != naTahu){
+            throw Error(`symbol ${symbol} is not in sync with who is supposed to play now ${naTahu}`)
+        }
+        console.log("programmatic move from server being made", rowIndex, columnIndex, symbol);
+        boardApiInfo.board[rowIndex][columnIndex] = symbol;
     }
 
     //determines if the board can be written to from this user = if it is his turn in multiplayer (i.e. click on board)
     let allowedClickOnBoardOnThisClient = $derived.by(() => {
-        if(mode == "multiplayer"){
-            return naTahu == allowedPlayer;
-        }else{
-            //on singleplayer, the board is always writeable (until win, but that is handled by checkVictory)
-            return true;
-        }
+        return true;
+        // if(mode == "multiplayer"){
+        //     return naTahu == allowedPlayer;
+        // }else{
+        //     //on singleplayer, the board is always writeable (until win, but that is handled by checkVictory)
+        //     return true;
+        // }
     });
 
     let name = $derived(boardApiInfo.name);
@@ -177,11 +183,12 @@
         lastMoved = naTahu;
 
         if(!allowedClickOnBoardOnThisClient){
+            //blocks local user from making a move when it is not his turn
             return;
         }
 
         if(onMove){
-            onMove();
+            onMove(rowIndex, columnIndex, naTahu);
         }
 
         if (checkVictory(rowIndex, columnIndex, naTahu)) {
