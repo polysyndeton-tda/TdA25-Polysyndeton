@@ -1,8 +1,5 @@
 # Game API Documentation
 
-## Overview
-This document describes the API endpoints and WebSocket events for the multiplayer game system. The system supports both matchmaking and friendly matches.
-
 ## API Endpoints
 
 ### Matchmaking Request
