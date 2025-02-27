@@ -159,8 +159,13 @@ def on_join(data):
     """
     username = data["username"]
     room = data["room"]
+
+    if room in active_rooms and username in active_rooms[room].values():
+        return # player already in room
+
     join_room(room)
     print(f"{username} has joined room {room}", file=sys.stderr)
+
 
     uuid1, uuid2 = uuid_from_roomname(room)
 
@@ -178,7 +183,7 @@ def on_join(data):
         active_rooms[room][request.sid] = username
         print("number of players in room", len(active_rooms[room]), file=sys.stderr)
         print("players in the room are:", active_rooms[room], file=sys.stderr)
-        if len(active_rooms[room]) == 2:
+        if len(set(active_rooms[room].values())) == 2: # number of unique players
             print("emitting game start", file=sys.stderr)
             emit("game_start", {"room": room, "symbols": symbols}, room=room)
 
