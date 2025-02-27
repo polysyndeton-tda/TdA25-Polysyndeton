@@ -154,6 +154,10 @@ const socket = io('ws://your-server', {
    }
    ```
 
+8. **already_connected**
+    - Received when the user tries to connect to the game from a second device (for example has two tabs open during pairing)
+      (Intended behaviour is to have the game on two frontends only)
+
 ### Outgoing Events (Client → Server)
 
 1. **join**
