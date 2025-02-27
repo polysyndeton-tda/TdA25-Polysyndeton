@@ -22,6 +22,13 @@
         }
         console.log("programmatic move from server being made", rowIndex, columnIndex, symbol);
         boardApiInfo.board[rowIndex][columnIndex] = symbol;
+        //change whose turn it is manually, because handleMove is not (AND SHOULD NOT BE) called here
+        //handleMove would call the onMove event callback, that would send the move back to the other party
+        if(naTahu == "O"){
+            naTahu = "X";
+        }else if(naTahu == "X"){
+            naTahu = "O";
+        }
     }
 
     //determines if the board can be written to from this user = if it is his turn in multiplayer (i.e. click on board)
@@ -53,7 +60,7 @@
     }
 
     let lastMoved = "";
-    let naTahu: BoardSquare = $state("X");
+    let naTahu: "X" | "O" = $state("X");
     let isVictory = $state(false);
     let whoWon = $state("");
     let boardWonAlready = $state(false);
@@ -74,7 +81,7 @@
         
     
     function reset(){
-        console.log("co bylo v effectu runuje");
+        console.log("Part of reset: Determining naTahu based on the received board");
         let numberOfCrosses = count(boardApiInfo.board, "X");
         let numberOfNoughts = count(boardApiInfo.board, "O");
         let numberOfMoves = numberOfCrosses + numberOfNoughts;
@@ -207,7 +214,15 @@
     $inspect(naTahu);
 </script>
 
-<h2><span class="player {naTahu}">{naTahu}</span> na tahu</h2>
+<h2 style="display: flex;justify-content: center;gap: 10px;">
+    <div>
+        Hrajete za <span class="player {allowedPlayer}">{allowedPlayer}</span>
+    </div>
+    |
+    <div>
+        Na tahu je <span class="player {naTahu}">{naTahu}</span>
+    </div>
+</h2>
 <div class="grid">
     {#each boardApiInfo.board as row, rowIndex}
         <div class="row">
