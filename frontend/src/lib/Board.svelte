@@ -23,6 +23,12 @@
         }
         console.log("programmatic move from server being made", rowIndex, columnIndex, symbol);
         boardApiInfo.board[rowIndex][columnIndex] = symbol;
+
+        if(checkVictory(rowIndex, columnIndex, symbol)){
+            console.log(`${symbol} wins!`);
+            isVictory = true;
+            return;
+        }
         //change whose turn it is manually, because handleMove is not (AND SHOULD NOT BE) called here
         //handleMove would call the onMove event callback, that would send the move back to the other party
         if(naTahu == "O"){
@@ -194,7 +200,7 @@
 
         boardApiInfo.board[rowIndex][columnIndex] = naTahu;
         lastMoved = naTahu;
-        
+
         if(onMove){
             onMove(rowIndex, columnIndex, naTahu);
         }
