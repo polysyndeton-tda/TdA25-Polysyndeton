@@ -176,7 +176,8 @@ def on_join(data):
         if room not in active_rooms:
             active_rooms[room] = {}
         active_rooms[room][request.sid] = username
-
+        print("number of players in room", len(active_rooms[room]), file=sys.stderr)
+        print("players in the room are:", active_rooms[room], file=sys.stderr)
         if len(active_rooms[room]) == 2:
             print("emitting game start", file=sys.stderr)
             emit("game_start", {"room": room, "symbols": symbols}, room=room)
