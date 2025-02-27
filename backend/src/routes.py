@@ -65,6 +65,13 @@ def update_elo():
     winner_s_a = 1.0 if not draw else 0.5
     defeated_s_a = 0.0 if not draw else 0.5
 
+    if draw:
+        winner.draws += 1
+        defeated.draws += 1
+    else:
+        winner.wins += 1
+        defeated.losses += 1
+
     winner_e_a = 1 / (1 + 10 ** ((defeated_current_elo - winner_current_elo) / SCALING_FACTOR))
     defeated_e_a = 1 / (1 + 10 ** ((winner_current_elo - defeated_current_elo) / SCALING_FACTOR))
 

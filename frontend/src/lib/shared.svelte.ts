@@ -435,9 +435,7 @@ export async function updateElo(winnerUsername: string, defeatedUsername: string
     const request = await fetch(`${api_url}/elo`, 
         {
             method: "POST",
-            body: JSON.stringify({
-                postBody
-            }),
+            body: JSON.stringify(postBody),
             headers: {
                 "Content-Type": "application/json",
             }
