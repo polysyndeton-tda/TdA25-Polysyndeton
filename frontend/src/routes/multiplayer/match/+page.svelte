@@ -71,12 +71,15 @@
 
     let mySymbol: "X" | "O" = $state("X");
     let room = "";
+    let otherPlayer = "";
     socket.on('game_start', (data: GameStartData) => {
         // Should be logged after 'join' is sent to server
         room = data.room;
         console.log(`Game starting in room ${data.room} between these two players:`, data);
         resetGame();
         mySymbol = data.symbols[User.name as string];
+        otherPlayer = Object.keys(data.symbols).filter((value) => value != User.name)[0];
+        console.log("other player is", otherPlayer);
         status = "Game started";
     });
 
@@ -156,7 +159,7 @@
     {:else if status == "Initial"}
         <p>Načítání...</p>
     {:else if status == "Game started"}
-        <Board bind:this={boardComponent} boardApiInfo={gameInfo.apiResponse} mode="multiplayer" allowedPlayer={mySymbol} onMove={onMove} />
+        <Board bind:this={boardComponent} boardApiInfo={gameInfo.apiResponse} mode="multiplayer" allowedPlayer={mySymbol} onMove={onMove} opponentUsername={otherPlayer}/>
     {/if}
 </div>
 

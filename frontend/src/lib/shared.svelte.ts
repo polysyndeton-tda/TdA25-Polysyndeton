@@ -417,3 +417,33 @@ class UserState implements Partial<NullableUserProperties>{
 }
 
 export let User = new UserState();
+
+interface updateEloPost {
+    winner_username: string,
+    defeated_username: string,
+    is_draw?: boolean
+}
+export async function updateElo(winnerUsername: string, defeatedUsername: string, draw: boolean){
+    let postBody: updateEloPost = {
+        winner_username: winnerUsername,
+        defeated_username: defeatedUsername
+    }
+    if(draw){
+        postBody.is_draw = draw;
+    }
+    
+    const request = await fetch(`${api_url}/elo`, 
+        {
+            method: "POST",
+            body: JSON.stringify({
+                postBody
+            }),
+            headers: {
+                "Content-Type": "application/json",
+            }
+        } 
+    );
+    if(request.status == 404){
+        throw Error("Takový uživatel nemohl vyhrát/prohrát, takového uživatele neznáme");
+    }
+}

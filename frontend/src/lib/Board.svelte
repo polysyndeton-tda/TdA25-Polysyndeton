@@ -1,13 +1,14 @@
 <script lang="ts">
     import {untrack} from 'svelte';
-    import type { BoardComponentInfo } from "$lib/shared.svelte";
+    import { updateElo, User, type BoardComponentInfo } from "$lib/shared.svelte";
     type BoardProps = {
         boardApiInfo: BoardComponentInfo,
         mode: "singleplayer" | "multiplayer", 
         allowedPlayer?: "X" | "O" //if mode is multiplayer, which player allow on this client
         onMove?: Function //like an event listener callback when the user makes a move (i.e. to send the move through sockets)
+        opponentUsername?: string
     }
-    let { boardApiInfo, mode, allowedPlayer, onMove }: BoardProps = $props();
+    let { boardApiInfo, mode, allowedPlayer, onMove, opponentUsername }: BoardProps = $props();
 
     //for delivering moves from the other player from api
     export function makeProgrammaticMove(rowIndex: number, columnIndex: number, symbol: "X" | "O"){
@@ -27,6 +28,11 @@
         if(checkVictory(rowIndex, columnIndex, symbol)){
             console.log(`${symbol} wins!`);
             isVictory = true;
+            updateElo((User.name as string), (opponentUsername as string), false).catch(e => {
+                console.error(e);
+                //shouldn't happen at all, so this non fancy alert is sufficient
+                alert(e);
+            });
             return;
         }
         //change whose turn it is manually, because handleMove is not (AND SHOULD NOT BE) called here
