@@ -115,7 +115,7 @@ def on_accept_game(data):
     username = data["username"]
 
     if room in active_rooms:
-        players = list(active_rooms[room].values())
+        players = list(set(active_rooms[room].values()))
 
         if len(players) == 2:
 
@@ -152,15 +152,11 @@ def on_decline_game(data):
 import sys
 @socketio.on("join")
 def on_join(data):
-    """
-    data:
-        username (str)
-        room (from get_room_name)
-    """
     username = data["username"]
     room = data["room"]
 
     if room in active_rooms and username in active_rooms[room].values():
+        emit("already_connected", {"room": room}, room=room)
         return # player already in room
 
     join_room(room)
@@ -186,7 +182,8 @@ def on_join(data):
         if len(set(active_rooms[room].values())) == 2: # number of unique players
             print("emitting game start", file=sys.stderr)
             emit("game_start", {"room": room, "symbols": symbols}, room=room)
-
+        else:
+            emit("already_connected", {"room": room}, room=room)
 
 @socketio.on("connect")
 def handle_connect():
