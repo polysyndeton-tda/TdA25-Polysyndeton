@@ -51,6 +51,7 @@ def update_elo():
     defeated = User.query.filter_by(username=defeated_name).first()
 
     if not winner or not defeated:
+        print("one of these users not found",winner, winner_name, defeated, defeated_name, file=sys.stderr)
         return jsonify({"error": "one of the users was not found"}), 404
 
     # constants
