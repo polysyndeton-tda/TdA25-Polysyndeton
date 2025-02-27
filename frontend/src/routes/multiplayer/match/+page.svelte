@@ -2,7 +2,6 @@
     import { PUBLIC_API_BASE_URL } from '$env/static/public';
     import Alert from '$lib/Alert.svelte';
     import { User, resetGame, gameInfo } from "$lib/shared.svelte"
-    import { onMount } from 'svelte';
     import { io, Socket } from 'socket.io-client';
     import Board from '$lib/Board.svelte';
     const api_url = PUBLIC_API_BASE_URL || 'https://odevzdavani.tourdeapp.cz/mockbush/api/v1/';
@@ -96,7 +95,7 @@
     
     
     /*Matchmaking API call section -------------------------------------------*/
-    let status = $state("Initial");
+    let status: "Initial" | "Game started" | "Added to matchmaking queue" = $state("Initial");
     let showError = $state(false);
     let errorMessage = $state("");
     async function addToMatchMakingQueue(){
@@ -122,7 +121,21 @@
             status = response.message;
         }
     }
-    onMount(addToMatchMakingQueue);
+
+    //The point of this effect TO HANDLE THE LIFETIME OF REGISTERED LISTENERS
+    //PREVIOUSLY, WHEN THE USER NAVIGATED AWAY, THOSE LISTENERS would STAY until CTRL SHIFT R
+    $effect(() => {
+        console.log("Calling addToMatchMakingQueue() from effect");
+        addToMatchMakingQueue();
+        return () => {
+            //should be called when navigating away - needed for SPA
+            //removes the connection without a full reload
+            //(the trying to reconnect logs when the user was on a different page after the local server was turned off annoyed me)
+            //what happens on socketio on this route, should also stay on this route
+            console.log("Disconnecting because the user navigated away");
+            socket.disconnect();
+        }
+    });
 
     function onMove(rowIndex: number, columnIndex: number, naTahu: "X" | "O"){
         console.log(`detected move of ${naTahu} to ${rowIndex}, ${columnIndex} from local player to send to server`);
