@@ -1,11 +1,12 @@
 <script lang="ts">
     import { PUBLIC_API_BASE_URL } from '$env/static/public';
     import Alert from '$lib/Alert.svelte';
-    import { User } from "$lib/shared.svelte"
+    import { User, resetGame, gameInfo } from "$lib/shared.svelte"
     import { onMount } from 'svelte';
     import { io, Socket } from 'socket.io-client';
+    import Board from '$lib/Board.svelte';
     const api_url = PUBLIC_API_BASE_URL || 'https://odevzdavani.tourdeapp.cz/mockbush/api/v1/';
-    
+    let boardComponent: any; //reference to call functions exported from that component
     interface MatchFoundData {
         opponent: string;
         room: string;
@@ -42,6 +43,7 @@
 
     interface ClientToServerEvents {
         join: (data: JoinData) => void,
+        move: (data: MoveData) => void,
     }
 
     // Connection
@@ -68,14 +70,22 @@
         socket.emit('join', {username: data.opponent, room: data.room});
     });
 
+    let mySymbol: "X" | "O" = $state("X");
+    let room = "";
     socket.on('game_start', (data: GameStartData) => {
         // Should be logged after 'join' is sent to server
+        room = data.room;
         console.log(`Game starting in room ${data.room} between these two players:`, data);
+        resetGame();
+        mySymbol = data.symbols[User.name as string];
+        status = "Game started";
     });
 
     socket.on('move', (data) => {
         // Update game board
         console.log(`Move at ${data.move} by ${data.username}`);
+        const [row, column] = data.move;
+        boardComponent.makeProgrammaticMove(row, column, data.symbol);
     });
 
     socket.on('opponent_disconnected', (data) => {
@@ -113,6 +123,16 @@
         }
     }
     onMount(addToMatchMakingQueue);
+
+    function onMove(rowIndex: number, columnIndex: number, naTahu: "X" | "O"){
+        console.log(`detected move of ${naTahu} to ${rowIndex}, ${columnIndex} from local player to send to server`);
+        socket.emit("move", {
+            room: room,
+            move: [rowIndex, columnIndex],
+            username: (User.name as string), //TODO: mozna hodit vyjimu, kdyby nahodou tady User.name byl null //z localstorage siece User.name muze byt null, ale verim ze se to tady nestane (ze se uz nastavi z registrovaní / přihlášení)
+            symbol: naTahu
+        });
+    }
 </script>
 
 <div class="center">
@@ -122,6 +142,8 @@
         <p>Čeká se na spoluhráče...</p>
     {:else if status == "Initial"}
         <p>Načítání...</p>
+    {:else if status == "Game started"}
+        <Board bind:this={boardComponent} boardApiInfo={gameInfo.apiResponse} mode="multiplayer" allowedPlayer={mySymbol} onMove={onMove} />
     {/if}
 </div>
 
