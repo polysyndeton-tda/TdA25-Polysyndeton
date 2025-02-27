@@ -14,7 +14,8 @@
         if(mode == "singleplayer"){
             throw Error("Meant to be used on online multiplayer only");
         }
-        if(!allowedClickOnBoardOnThisClient){
+        //If the local user can play, he should, and a move from server cannot be forced
+        if(allowedClickOnBoardOnThisClient){
             throw Error("Cannot force a move opponent from server now - the local player hasn't played yet");
         }
         if(symbol != naTahu){
@@ -33,13 +34,12 @@
 
     //determines if the board can be written to from this user = if it is his turn in multiplayer (i.e. click on board)
     let allowedClickOnBoardOnThisClient = $derived.by(() => {
-        return true;
-        // if(mode == "multiplayer"){
-        //     return naTahu == allowedPlayer;
-        // }else{
-        //     //on singleplayer, the board is always writeable (until win, but that is handled by checkVictory)
-        //     return true;
-        // }
+        if(mode == "multiplayer"){
+            return naTahu == allowedPlayer;
+        }else{
+            //on singleplayer, the board is always writeable (until win, but that is handled by checkVictory)
+            return true;
+        }
     });
 
     let name = $derived(boardApiInfo.name);
@@ -186,14 +186,15 @@
         if(isVictory){
             return;
         }
-        boardApiInfo.board[rowIndex][columnIndex] = naTahu;
-        lastMoved = naTahu;
 
         if(!allowedClickOnBoardOnThisClient){
             //blocks local user from making a move when it is not his turn
             return;
         }
 
+        boardApiInfo.board[rowIndex][columnIndex] = naTahu;
+        lastMoved = naTahu;
+        
         if(onMove){
             onMove(rowIndex, columnIndex, naTahu);
         }
@@ -213,7 +214,7 @@
 
     $inspect(naTahu);
 </script>
-
+<p>{naTahu} {allowedPlayer} {allowedClickOnBoardOnThisClient}</p>
 <h2 style="display: flex;justify-content: center;gap: 10px;">
     <div>
         Hrajete za <span class="player {allowedPlayer}">{allowedPlayer}</span>
