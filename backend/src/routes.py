@@ -23,6 +23,7 @@ from flask_socketio import emit, join_room, leave_room
 from collections import deque
 import gevent
 from gevent.lock import BoundedSemaphore
+import math
 
 
 @app.after_request
@@ -39,6 +40,55 @@ matchmaking = SortedUsers()
 q = deque()
 active_rooms = {}
 
+@app.route("/api/v1/elo", methods=["POST"])
+def update_elo():
+    data = request.json
+    winner_name = data.get("winner_username")
+    defeated_name = data.get("defeated_username")
+    draw = data.get("is_draw", False)
+
+    winner = User.query.filter_by(username=winner_name).first()
+    defeated = User.query.filter_by(username=defeated_name).first()
+
+    if not winner or not defeated:
+        return jsonify({"error": "one of the users was not found"}), 404
+
+    # constants
+    K_FACTOR = 40
+    ALPHA = 0.5
+    SCALING_FACTOR = 400
+
+    winner_current_elo = winner.elo
+    defeated_current_elo = defeated.elo
+
+    winner_s_a = 1.0 if not draw else 0.5
+    defeated_s_a = 0.0 if not draw else 0.5
+
+    winner_e_a = 1 / (1 + 10 ** ((defeated_current_elo - winner_current_elo) / SCALING_FACTOR))
+    defeated_e_a = 1 / (1 + 10 ** ((winner_current_elo - defeated_current_elo) / SCALING_FACTOR))
+
+    winner_w = winner.wins
+    winner_d = winner.draws
+    winner_l = winner.losses
+    winner_ratio = (winner_w + winner_d) / (winner_w + winner_d + winner_l)
+
+    defeated_w = defeated.wins
+    defeated_d = defeated.draws
+    defeated_l = defeated.losses
+    defeated_ratio = (defeated_w + defeated_d) / (defeated_w + defeated_d + defeated_l)
+
+    winner_r_a = winner_current_elo + K_FACTOR * (winner_s_a - winner_e_a) * (1 + ALPHA * (0.5 - winner_ratio))
+    defeated_r_a = defeated_current_elo + K_FACTOR * (defeated_s_a - defeated_e_a) * (1 + ALPHA * (0.5 - defeated_ratio))
+
+    winner_r_a = math.ceil(winner_r_a)
+    defeated_r_a = math.ceil(defeated_r_a)
+
+    winner.elo = winner_r_a
+    defeated.elo = defeated_r_a
+
+    db.session.commit()
+
+    return jsonify({"message": "ELO updated successfully"}), 200
 
 @app.route("/api/v1/matchmaking", methods=["POST"])
 def matchmaking_request():
