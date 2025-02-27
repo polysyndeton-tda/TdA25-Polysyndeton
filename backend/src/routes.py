@@ -48,6 +48,9 @@ def matchmaking_request():
 
     if not queried_user:
         return jsonify({"message": "User not found"}), 404
+    
+    if queried_user in matchmaking.users:
+        return jsonify({"message": "Bad request, user already in matchmaking"}), 400
 
     with matchmaking_lock:
         matchmaking.add_user(queried_user)
