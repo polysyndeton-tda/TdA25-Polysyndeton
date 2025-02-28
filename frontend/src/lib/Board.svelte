@@ -226,7 +226,7 @@
 
     $inspect(naTahu);
 </script>
-<p>{naTahu} {allowedPlayer} {allowedClickOnBoardOnThisClient}</p>
+<!-- <p>{naTahu} {allowedPlayer} {allowedClickOnBoardOnThisClient}</p> -->
 
 {#if isVictory && !boardWonAlready}
     <h2 class="toast">Hráč <span class="player {naTahu}">{naTahu}</span> vyhrál!</h2>
