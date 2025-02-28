@@ -74,11 +74,11 @@
                 </table>
                 {#if showRegisterLink}
                     {#if mode == "login"}
-                        <p transition:slide>Ještě nemáte účet? <a href="#" onclick={() => {
+                        <p transition:slide>Ještě nemáte účet? <a href="javascript:void(0)" onclick={() => {
                             addFocus(userNameField);
                             mode = "register"}}> Registrovat</a></p>
                     {:else}
-                        <p transition:slide>Již máte účet? <a href="#" onclick={() => {
+                        <p transition:slide>Již máte účet? <a href="javascript:void(0)" onclick={() => {
                             addFocus(userNameField);
                             mode = "login"}}>Přihlásit</a></p>
                     {/if}

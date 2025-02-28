@@ -255,16 +255,6 @@ class UserState implements Partial<NullableUserProperties>{
             } 
         );
         if(request.ok){
-            this.loggedIn = true;
-        }else{
-            if(request.status == 404){
-                throw Error("Takového uživatele neznáme. \n Zkontrolujte, zda jste v přihlašovacím jméně nenapsali překlep.");
-            }
-            if(request.status == 401){
-                throw Error("Zkontrolujte, zda jste v hesle nenapsali překlep.");
-            }
-        }
-        try{
             const response: UserLoginApiResponse = await request.json();
             console.log("response from login", response.isAdmin);
             localStorage.setItem("token", response.token);
@@ -275,8 +265,14 @@ class UserState implements Partial<NullableUserProperties>{
             this.name = username;
             this.uuid = response.uuid;
             this.isAdmin = response.isAdmin;
-        }catch(e){
-            console.error(e);
+            this.loggedIn = true;
+        }else{
+            if(request.status == 404){
+                throw Error("Takového uživatele neznáme. \n Zkontrolujte, zda jste v přihlašovacím jméně nenapsali překlep.");
+            }
+            if(request.status == 401){
+                throw Error("Zkontrolujte, zda jste v hesle nenapsali překlep.");
+            }
         }
     }
 

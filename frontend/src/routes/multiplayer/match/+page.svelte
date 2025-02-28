@@ -5,6 +5,7 @@
     import { User, resetGame, gameInfo } from "$lib/shared.svelte"
     import { io, Socket } from 'socket.io-client';
     import Board from '$lib/Board.svelte';
+    import { beforeNavigate } from '$app/navigation';
     const api_url = PUBLIC_API_BASE_URL || 'https://odevzdavani.tourdeapp.cz/mockbush/api/v1/';
     let boardComponent: any; //reference to call functions exported from that component
     interface MatchFoundData {
@@ -188,16 +189,18 @@
         }else{
             console.log("User not logged in => not calling  addToMatchMakingQueue()")
         }
+    });
 
-        return () => {
-            //should be called when navigating away - needed for SPA
-            //removes the connection without a full reload
-            //(the trying to reconnect logs when the user was on a different page after the local server was turned off annoyed me)
-            //what happens on socketio on this route, should also stay on this route
-            console.log("Disconnecting because the user navigated away");
-            socket.disconnect();
+    beforeNavigate((navigation) => {
+        if(navigation.to && navigation.to.url){
+            //else it would differentiate between "/multiplayer/match" and "/multiplayer/match#", causing a disconnect
+            if(!navigation.to.url.pathname.startsWith("/multiplayer/match")){
+                console.log("Disconnecting because the user navigated away to", navigation.to.url.pathname);
+                socket.disconnect(); 
+            }  
         }
     });
+
 
     function onMove(rowIndex: number, columnIndex: number, naTahu: "X" | "O"){
         console.log(`detected move of ${naTahu} to ${rowIndex}, ${columnIndex} from local player to send to server`);
@@ -262,10 +265,10 @@
 
 {#if showLoginPopup}
   <!-- it seems like window.location reload does not reload the page when called from components in Svelte -->
-  <Login bind:show={showLoginPopup} reloadPageAfterSuccess={true}/>
+  <Login bind:show={showLoginPopup} reloadPageAfterSuccess={false}/>
 {/if}
 
 {#if showRegisterPopup}
     <!-- callbackAfterSuccess={() => window.location.reload()} -->
-  <Login bind:show={showRegisterPopup} mode="register" reloadPageAfterSuccess={true}/>
+  <Login bind:show={showRegisterPopup} mode="register" reloadPageAfterSuccess={false}/>
 {/if}
