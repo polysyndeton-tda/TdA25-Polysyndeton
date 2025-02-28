@@ -36,6 +36,7 @@ class User(db.Model):
     draws = db.Column(db.Integer, nullable=False, default=0)
     losses = db.Column(db.Integer, nullable=False, default=0)
     is_admin = db.Column(Boolean, default=False)
+    is_banned = db.Column(Boolean, default=False)
 
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)

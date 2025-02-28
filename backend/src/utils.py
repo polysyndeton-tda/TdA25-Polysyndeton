@@ -39,6 +39,7 @@ def user_json(user):
         "losses": user.draws,
         "draws": user.draws,
         "isAdmin": user.is_admin,
+        "isBanned": user.is_banned,
     }
 
     return result

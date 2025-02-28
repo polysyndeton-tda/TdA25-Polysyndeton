@@ -613,6 +613,24 @@ def single_user(uuid):
         return jsonify(user_json(queried_user)), 200
 
 
+@app.route("/api/v1/ban", methods=["POST"])
+def ban_user():
+    data = request.json
+    queried_username = data.get("username")
+
+    if not queried_username:
+        return jsonify({"error": "user not found"}), 404
+    
+    queried = User.query.filter_by(username=queried_username).first()
+
+    queried.is_banned = True
+
+    db.session.commit()
+
+    return jsonify({"message":"user succesfully banned"}), 200
+    
+
+
 @app.route("/api/v1/login", methods=["POST"])
 def login():
     data = request.get_json()
@@ -623,6 +641,9 @@ def login():
 
     if not user:
         return jsonify({"message": "Resource not found"}), 404
+
+    if user.is_banned:
+        return jsonify({"message": "user is banned"}), 403
 
     if not user.check_password(password):
         return jsonify({"message": "Invalid credentials"}), 401
