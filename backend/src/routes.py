@@ -436,7 +436,6 @@ def hello():
 @app.route("/my-profile")
 @app.route("/multiplayer")
 @app.route("/multiplayer/match")
-@app.route("/multiplayer/friendly")
 @app.route("/puzzles")
 @app.route("/admin")
 @app.route("/gdpr")
@@ -444,6 +443,12 @@ def hello():
 @app.route("/register")
 @app.route("/login")
 def serveSPA(game_uuid=None):  # game_uuid=None parameter needed to not throw an exception
+    return send_from_directory(app.static_folder, "index.html")
+
+#Needed for flask to not throw a 404 with queryparams
+@app.route('/multiplayer/friendly/')
+def multiplayer():
+    code = request.args.get('code')
     return send_from_directory(app.static_folder, "index.html")
 
 

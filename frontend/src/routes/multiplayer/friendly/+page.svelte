@@ -1,10 +1,31 @@
 <script lang="ts">
-    import { io, Socket } from 'socket.io-client';
-    import { User } from "$lib/shared.svelte";
     import { PUBLIC_API_BASE_URL } from '$env/static/public';
-    const api_url = PUBLIC_API_BASE_URL || 'https://odevzdavani.tourdeapp.cz/mockbush/api/v1/';
-    // Connection
-    const socket = io("http://localhost:5000", { //for deploy **probably** document.location.hostname without the port
+    import { io, Socket } from 'socket.io-client';
+    import { freeplayCreatePost, freePlayGameObject, User, gameInfo } from "$lib/shared.svelte";
+    import { page } from '$app/state';
+    import Board from '$lib/Board.svelte';
+    let gameCode = $derived(String(page.url).split("?code=")[1]);
+    let isGameUrl = $derived(!!gameCode);
+
+    $effect(() => {
+        if(isGameUrl){
+            socket.emit(`join_freeplay`, {
+                code: gameCode,
+                username: User.name
+            });
+        }
+    });
+
+    let socketioHostUrl = "http://localhost:5000";
+    let isProduction = document.location.hostname.includes("tourde.app") || document.location.protocol == 'https:';
+    console.log("isProduction", isProduction);
+    if(isProduction){
+        socketioHostUrl = document.location.hostname; //without 5000
+        console.log("socketioHostUrl changed to", socketioHostUrl);
+    }
+    console.log("socketioHostUrl is", socketioHostUrl);
+    //: Socket<ServerToClientEvents, ClientToServerEvents>
+    const socket = io(socketioHostUrl, { //for deploy **probably** document.location.hostname without the port
 		path: "/socket.io/",
 		transports: ["websocket"],
         query: {
@@ -12,74 +33,57 @@
         }
     });
 
-    interface GameInvitationData {
-       room: string;           // Room identifier
-       challenger: {
-           uuid: string;       // Challenger's UUID
-           username: string;   // Challenger's username
-           elo: number;        // Challenger's ELO rating
-       }
-   }
-
-    interface ServerToClientEvents {
-        game_invitation: (data: GameInvitationData) => void,
-    }
-
-    socket.on('game_invitation', (data) => {
-        // Show invitation dialog
-        console.log(`Invitation from ${data.challenger.username}`);
-
-        //for testing
-        socket.emit('join_friendly', {
-            username: data.challenger.username,
-            room: data.room
-        });
-
-        socket.emit('accept_game', {
-            room: data.room,
-            username: data.challenger.username
-        });
-    });
-
-    socket.on("game_accepted", (data) => {
-        //for testing
-        console.log("game accepted received");
-    });
+    let stav = $state("");
 
     
-
-    socket.on("game_start", (data) => {
-        //for testing
-        console.log("game_start received");
+    socket.on('waiting_for_opponent', (data) => {
+        stav = "waiting";
     });
 
-    
+    let mySymbol: "X" | "O" = $state("X");
+    socket.on(`game_start`, (data) => { 
+        mySymbol = data.symbols[User.name as string];
+        stav = "start";
+    });
 
-    let enteredName = $state("");
+    let boardComponent: any;
 
-    async function friendlyPost(){
-        const request = await fetch(`${api_url}/friendly`, {
-            method: "POST",
-            body: JSON.stringify({
-                user_username: User.name,
-                opponent_username: enteredName
-            }),
-            headers: {
-                "Content-Type": "application/json",
-            }
+    function onMove(rowIndex: number, columnIndex: number, naTahu: "X" | "O"){
+        console.log(`detected move of ${naTahu} to ${rowIndex}, ${columnIndex} from local player to send to server`);
+        if(User.name === null){
+            throw Error("Tady už určitě nesmí být User null, z funkce onMove, která posílá tah");
+        }
+        socket.emit("move", {
+            code: gameCode,
+            move: [rowIndex, columnIndex],
+            username: User.name,
+            symbol: naTahu
         });
     }
-    
+
+    socket.on(`move`, (data) => { 
+        const [row, column] = data.move;
+        boardComponent.makeProgrammaticMove(row, column, data.symbol);
+    });
+
 
 </script>
-
-
-
-<div class="center">
-    <h1>Nehodnocená hra</h1>
-    <h2>Vyberte si svého spoluhráče</h2>
-
-    <input bind:value={enteredName} type="text" placeholder="Jméno druhého hráče">
-    <button onclick={async () => friendlyPost()}>Poslat pozvánku</button>
-</div>
-
+<p>{isGameUrl}</p>
+{#if User.loggedIn && !gameCode}
+    <p>{gameCode}</p>
+    <div class="center">
+        <h2>Vytvoření Friendly hry</h2>
+        <p>Vygenerujte si kód hry, který pak nasdílíte spoluhráči</p>
+        {#if freePlayGameObject.loaded}
+            <p>Kód je {freePlayGameObject.code}</p>
+            <p>Na hru se připojte <a href="?code={freePlayGameObject.code}">odkazem</a>, který obsahuje kód. Tento odkaz je možné sdílet spoluhráči se stejným výsledkem jako sdílení kódu.</p>
+        {/if}
+        <button onclick={() => freeplayCreatePost()}>Vygenerovat kód</button>
+    </div>
+{:else}
+    {#if stav == "waiting"}
+        <p>Čeká se na spoluhráče...</p>
+    {:else if stav == "start"}
+        <Board bind:this={boardComponent} boardApiInfo={gameInfo.apiResponse} mode="multiplayer" allowedPlayer={mySymbol} onMove={onMove}/>
+    {/if}
+{/if}

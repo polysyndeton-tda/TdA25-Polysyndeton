@@ -447,3 +447,29 @@ export async function updateElo(winnerUsername: string, defeatedUsername: string
         throw Error("Takový uživatel nemohl vyhrát/prohrát, takového uživatele neznáme");
     }
 }
+
+export let freePlayGameObject = $state({
+    loaded: false,
+    code: ""
+});
+
+interface freePlayPostResponse {
+    "message": "Freeplay game created",
+    "code": string //"123456" // 6-digit game code
+}
+export async function freeplayCreatePost(){
+    const request = await fetch(`${api_url}/freeplay/create`, 
+        {
+            method: "POST",
+            // body: JSON.stringify({
+            //     message: 
+            // }),
+            headers: {
+                "Content-Type": "application/json",
+            }
+        } 
+    );
+    const response: freePlayPostResponse  = await request.json();
+    freePlayGameObject.code = response.code;
+    freePlayGameObject.loaded = true;
+}
