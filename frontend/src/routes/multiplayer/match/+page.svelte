@@ -1,6 +1,7 @@
 <script lang="ts">
     import { PUBLIC_API_BASE_URL } from '$env/static/public';
     import Alert from '$lib/Alert.svelte';
+    import Login from '$lib/Login.svelte';
     import { User, resetGame, gameInfo } from "$lib/shared.svelte"
     import { io, Socket } from 'socket.io-client';
     import Board from '$lib/Board.svelte';
@@ -173,8 +174,13 @@
     //The point of this effect TO HANDLE THE LIFETIME OF REGISTERED LISTENERS
     //PREVIOUSLY, WHEN THE USER NAVIGATED AWAY, THOSE LISTENERS would STAY until CTRL SHIFT R
     $effect(() => {
-        console.log("Calling addToMatchMakingQueue() from effect");
-        addToMatchMakingQueue();
+        if(User.loggedIn){
+            console.log("Calling addToMatchMakingQueue() from effect");
+            addToMatchMakingQueue();
+        }else{
+            console.log("User not logged in => not calling  addToMatchMakingQueue()")
+        }
+
         return () => {
             //should be called when navigating away - needed for SPA
             //removes the connection without a full reload
@@ -195,28 +201,60 @@
         });
         switchTimer();
     }
+
+    let showLoginPopup = $state(false);
+    let showRegisterPopup = $state(false);
 </script>
 
-<div class="center">
-    <h1>Hodnocená hra</h1>
-    <h2>Hra, v niž lze získat ELO. Spoluhráče vám přiřadíme :)</h2>
-    {#if status == "Added to matchmaking queue"}
-        <p>Čeká se na spoluhráče...</p>
-    {:else if status == "Initial"}
-        <p>Načítání...</p>
-    {:else if status == "Game started"}
-        <div class="timers">
-            <div class="timer" class:active={currentPlayerTimer === mySymbol}>
-                <span>Váš čas: {formatTime(mySymbol === "X" ? player1Time : player2Time)}</span>
+<div>
+    <div style="max-width: 600px;margin: auto;">
+        <h1>Hodnocená hra</h1>
+        {#if status != "Game started"}
+            <h2>Hra, v niž lze získat ELO. Spoluhráče vám přiřadíme :)</h2>
+        {/if}
+        {#if User.loggedIn}
+            {#if status == "Added to matchmaking queue"}
+                <p>Čeká se na spoluhráče...</p>
+                <hr>
+                <p>Hra nezačiná?</p>
+                <button onclick={() => window.location.reload()}>Načíst znova</button>
+            {:else if status == "Initial"}
+                <p>Načítání...</p>
+                <hr>
+                <p>Hra nezačiná?</p>
+                <button onclick={() => window.location.reload()}>Načíst znova</button>
+            {:else if status == "Game started"}
+                <div class="timers">
+                    <div class="timer" class:active={currentPlayerTimer === mySymbol}>
+                        <span>Váš čas: {formatTime(mySymbol === "X" ? player1Time : player2Time)}</span>
+                    </div>
+                    <div class="timer" class:active={currentPlayerTimer !== mySymbol}>
+                        <span>Čas soupeře: {formatTime(mySymbol === "X" ? player2Time : player1Time)}</span>
+                    </div>
+                </div>
+                <Board bind:this={boardComponent} boardApiInfo={gameInfo.apiResponse} mode="multiplayer" allowedPlayer={mySymbol} onMove={onMove} opponentUsername={otherPlayer}/>
+            {/if}
+        {:else}
+            <hr>
+            <div class="center">
+                <h2>Pro tento typ hry je potřeba <button onclick={() => showLoginPopup = true}>Se přihlásit</button> </h2>
+                <h2>Jinak si můžete zahrát <a href="../multiplayer/friendly">přátelskou (nehodnocenou) hru</a></h2>
+                <h2>Nemáte účet? <button onclick={() => showRegisterPopup = true}>Registrovat</button></h2> 
             </div>
-            <div class="timer" class:active={currentPlayerTimer !== mySymbol}>
-                <span>Čas soupeře: {formatTime(mySymbol === "X" ? player2Time : player1Time)}</span>
-            </div>
-        </div>
-        <Board bind:this={boardComponent} boardApiInfo={gameInfo.apiResponse} mode="multiplayer" allowedPlayer={mySymbol} onMove={onMove} opponentUsername={otherPlayer}/>
-    {/if}
+        {/if}
+    </div>
 </div>
 
 {#if showError}
     <Alert bind:show={showError}>{errorMessage}</Alert>
+{/if}
+
+{#if showLoginPopup}
+  <!-- it seems like window.location reload does not reload the page when called from components in Svelte -->
+  <Login bind:show={showLoginPopup} reloadPageAfterSuccess={true}/>
+{/if}
+
+{#if showRegisterPopup}
+    <!-- callbackAfterSuccess={() => window.location.reload()} -->
+  <Login bind:show={showRegisterPopup} mode="register" reloadPageAfterSuccess={true}/>
 {/if}
