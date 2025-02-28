@@ -49,11 +49,14 @@
     {/if}
 		{#if isDropdownOpen}
 		  <div class="dropdown-menu">
-			<a onclick={() => isDropdownOpen = false} class="button" href="/my-profile"><i class="fa-solid fa-gear"></i> Můj profil</a>
-			<button onclick={() => {
-			  User.logout();
-			  isDropdownOpen = false;
-			}}>Odhlásit</button>
+        <a onclick={() => isDropdownOpen = false} class="button" href="/my-profile"><i class="fa-solid fa-gear"></i> Můj profil</a>
+        {#if User.isAdmin}
+          <a class="button" href="/admin"> <i class="fa-solid fa-database"></i> Správa uživatelů</a>
+        {/if}
+        <button onclick={() => {
+          User.logout();
+          isDropdownOpen = false;
+        }}>Odhlásit</button>
 		  </div>
 		{/if}
 	  </div>
@@ -64,7 +67,7 @@
 {@render children()}
 </div>
 <br>
-<footer class="center">© Think Different Academy 2025 | <a href="/gdpr">Prohlášení o ochraně osobních údajů (GDPR)</a> |  <a href="/contacts">Kontakty</a> </footer>
+<footer class="center">© Think different Academy 2025 | <a href="/gdpr">Prohlášení o ochraně osobních údajů (GDPR)</a> |  <a href="/contacts">Kontakty</a> </footer>
 
 {#if showLoginPopup}
   <Login bind:show={showLoginPopup}/>
@@ -108,10 +111,11 @@
     margin-left: auto;
   }
 
-  nav a:first-of-type {
+  /* for some reason targets the "Můj profil" button, breaking the dark theme */
+  /* nav a:first-of-type {
     padding-left: 16px;
     color: black;
-  }
+  } */
 
   /*A cool underline effect when hovering on links*/
   .menuItem {
@@ -174,6 +178,8 @@
     flex-direction: column;
     align-items: center;
     gap: 10px;
+    /* to not be overlapped by admin table row highlight */
+    z-index: 999;
   }
 
   .button{
@@ -193,7 +199,7 @@
     /* for font awesome which makes it a flex container but doesn't add gap */
     gap: 5px;
   }
-  button:hover {
+  button:hover , .button:hover {
     border-color: #0070BB; /*#646cff;*/ /*#535bf2;*/
   }
   .button:focus,
@@ -223,8 +229,12 @@
         background-color: #1a1a1a;
         color: white;
     }
-    nav a:first-of-type {
+    /* I don't think this style is needed anymore 
+    - for some reason it targets the "Můj profil" (and not the main logo, which is the first link)
+    (but even there it is not needed because the logo has no text) 
+     */
+    /* nav a:first-of-type {
       color: white;
-    }
+    } */
   }
 </style>
