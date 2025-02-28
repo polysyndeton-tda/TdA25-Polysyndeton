@@ -1,11 +1,13 @@
 <script lang="ts">
     import { PUBLIC_API_BASE_URL } from '$env/static/public';
     import { io, Socket } from 'socket.io-client';
-    import { freeplayCreatePost, freePlayGameObject, User, gameInfo } from "$lib/shared.svelte";
+    import { freeplayCreatePost, freePlayGameObject, User, gameInfo, resetGame } from "$lib/shared.svelte";
     import { page } from '$app/state';
     import Board from '$lib/Board.svelte';
     let gameCode = $derived(String(page.url).split("?code=")[1]);
     let isGameUrl = $derived(!!gameCode);
+
+    resetGame();
 
     $effect(() => {
         if(isGameUrl){
@@ -41,9 +43,14 @@
     });
 
     let mySymbol: "X" | "O" = $state("X");
-    socket.on(`game_start`, (data) => { 
-        mySymbol = data.symbols[User.name as string];
-        stav = "start";
+    socket.on(`game_start`, (data) => {
+        if(User.name){
+            mySymbol = data.symbols[User.name as string];
+            stav = "start";
+        }else{
+            throw Error("user is null")
+        }
+        
     });
 
     let boardComponent: any;
