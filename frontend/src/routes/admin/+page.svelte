@@ -6,7 +6,6 @@
     import { onMount } from "svelte";
     import { classList } from "$lib/classList";
     import { User } from "$lib/shared.svelte.ts";
-    import Login from "$lib/Login.svelte";
 
     type UserAPI = {
         uuid: string;
@@ -72,7 +71,6 @@
 <svelte:body use:classList={"admin"} />
 
 <!-- to avoid errors about data being undefined => render only after data was fetched -->
- <p>{User.isAdmin}</p>
 {#if User.loggedIn && User.isAdmin}
     {#if loaded} 
          <!-- to enable tailwind for this shadcn component, while keeping tailwind off everywhere else -->
@@ -87,5 +85,5 @@
         </div>
     {/if}
 {:else}
-    <Login floating={false} mode="login"/>
+    <h2 style="text-align:center">Pro přístup do Správy uživatelů (=Administrátorského panelu) je potřeba se <a href="../login">přihlásit</a> administrátorským účtem</h2>
 {/if}

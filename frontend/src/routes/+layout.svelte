@@ -41,22 +41,25 @@
 	</a>
 	<!-- <a class="menuItem" href="/game" onclick={resetGame}>Nová hra</a> -->
   
-	<!-- The login button and menu -->
-	{#if !User.loggedIn}
+
+  <!-- The login button and menu -->
+  {#if !User.loggedIn}
     {#if page.url.pathname == "/multiplayer/match"}
       <a href="/login" class="button">Přihlásit se</a>
     {:else}
-      <button onclick={() => showLoginPopup = true} class="right">Přihlásit se</button>
+      {#if page.url.pathname != "/admin"} 
+        <button onclick={() => showLoginPopup = true} class="right">Přihlásit se</button>
+      {/if}
     {/if}
-	{:else}
-	  <div class="dropdown right">
+  {:else}
+    <div class="dropdown right">
     {#if User.isAdmin}
       <button onclick={toggleDropdown}> <i class="fa-solid fa-user"></i>{User.name} | Administrátor</button>
     {:else}
       <button onclick={toggleDropdown}> <i class="fa-solid fa-user"></i> {User.name}</button>
     {/if}
-		{#if isDropdownOpen}
-		  <div class="dropdown-menu">
+    {#if isDropdownOpen}
+      <div class="dropdown-menu">
         <a onclick={() => isDropdownOpen = false} class="button" href="/my-profile"><i class="fa-solid fa-gear"></i> Můj profil</a>
         {#if User.isAdmin}
           <a class="button" href="/admin"> <i class="fa-solid fa-database"></i> Správa uživatelů</a>
@@ -65,10 +68,10 @@
           User.logout();
           isDropdownOpen = false;
         }}>Odhlásit</button>
-		  </div>
-		{/if}
-	  </div>
-	{/if}
+      </div>
+    {/if}
+    </div>
+  {/if}
 </nav>
 
 <div id="app">
