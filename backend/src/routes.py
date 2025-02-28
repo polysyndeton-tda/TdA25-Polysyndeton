@@ -695,12 +695,12 @@ def single_user(uuid):
 @app.route("/api/v1/ban", methods=["POST"])
 def ban_user():
     data = request.json
-    queried_username = data.get("username")
+    queried_uuid = data.get("uuid")
 
-    if not queried_username:
+    queried = User.query.filter_by(uuid=queried_uuid).first()
+
+    if not queried:
         return jsonify({"error": "user not found"}), 404
-    
-    queried = User.query.filter_by(username=queried_username).first()
 
     queried.is_banned = True
 
