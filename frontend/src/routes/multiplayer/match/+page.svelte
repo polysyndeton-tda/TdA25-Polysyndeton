@@ -62,6 +62,42 @@
         }
     });
 
+    let player1Time = $state(5 * 60);
+    let player2Time = $state(5 * 60);
+    let currentPlayerTimer = $state<"X" | "O">("X");
+    let timerInterval = $state<NodeJS.Timeout | null>(null);
+    let gameActive = $state(false);
+
+    function formatTime(seconds: number): string {
+        const minutes = Math.floor(seconds / 60);
+        const secs = seconds % 60;
+        return `${minutes}:${secs.toString().padStart(2, "0")}`;
+    }
+
+    function startTimer() {
+        if (timerInterval) clearInterval(timerInterval);
+        timerInterval = setInterval(() => {
+            if (currentPlayerTimer === "X") {
+                player1Time -= 1;
+            } else {
+                player2Time -= 1;
+            }
+
+            if (player1Time <= 0 || player2Time <= 0) {
+                clearInterval(timerInterval!);
+                const winner = currentPlayerTimer === "X" ? "O" : "X";
+                socket.emit("timeout", { room, winner });
+                gameActive = false;
+            }
+        }, 1000);
+    }
+
+    function switchTimer() {
+        currentPlayerTimer = currentPlayerTimer === "X" ? "O" : "X";
+        startTimer();
+    }
+
+
     // Listen for events
     socket.on('match_found', (data: MatchFoundData) => {
         // Show invitation dialog
@@ -80,6 +116,13 @@
         mySymbol = data.symbols[User.name as string];
         otherPlayer = Object.keys(data.symbols).filter((value) => value != User.name)[0];
         console.log("other player is", otherPlayer);
+
+        player1Time = 5 * 60;
+        player2Time = 5 * 60;
+        gameActive = true;
+        currentPlayerTimer = "X";
+        startTimer();
+        
         status = "Game started";
     });
 
@@ -88,6 +131,8 @@
         console.log(`Move at ${data.move} by ${data.username}`);
         const [row, column] = data.move;
         boardComponent.makeProgrammaticMove(row, column, data.symbol);
+        currentPlayerTimer = data.symbol === "X" ? "O" : "X";
+        startTimer();
     });
 
     socket.on('opponent_disconnected', (data) => {
@@ -148,6 +193,7 @@
             username: (User.name as string), //TODO: mozna hodit vyjimu, kdyby nahodou tady User.name byl null //z localstorage siece User.name muze byt null, ale verim ze se to tady nestane (ze se uz nastavi z registrovaní / přihlášení)
             symbol: naTahu
         });
+        switchTimer();
     }
 </script>
 
@@ -159,6 +205,14 @@
     {:else if status == "Initial"}
         <p>Načítání...</p>
     {:else if status == "Game started"}
+        <div class="timers">
+            <div class="timer" class:active={currentPlayerTimer === mySymbol}>
+                <span>Váš čas: {formatTime(mySymbol === "X" ? player1Time : player2Time)}</span>
+            </div>
+            <div class="timer" class:active={currentPlayerTimer !== mySymbol}>
+                <span>Čas soupeře: {formatTime(mySymbol === "X" ? player2Time : player1Time)}</span>
+            </div>
+        </div>
         <Board bind:this={boardComponent} boardApiInfo={gameInfo.apiResponse} mode="multiplayer" allowedPlayer={mySymbol} onMove={onMove} opponentUsername={otherPlayer}/>
     {/if}
 </div>

@@ -43,4 +43,9 @@
         color: white;
     }
 }
+
+.timer.active {
+    font-weight: bold;
+    color: #f00;
+}
 </style>
