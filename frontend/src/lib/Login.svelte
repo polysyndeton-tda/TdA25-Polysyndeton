@@ -172,7 +172,7 @@ table{
 }
 
 @media (prefers-color-scheme: light){
-    h2, label, input, p{
+    h2, label, p{
         color: white;
     }
     p a{
