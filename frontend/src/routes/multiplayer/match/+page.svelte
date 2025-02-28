@@ -101,6 +101,10 @@
 
     // Listen for events
     socket.on('match_found', (data: MatchFoundData) => {
+        if(User.name === null){
+            console.error("Cannout send username if it is null = user not signed in");
+            return;
+        }
         // Show invitation dialog
         console.log(`Match found from ${data.opponent} at room ${data.room}. I'm playing symbol ${data.symbol}`);
         socket.emit('join', {username: User.name, room: data.room});
@@ -110,11 +114,15 @@
     let room = "";
     let otherPlayer = "";
     socket.on('game_start', (data: GameStartData) => {
+        if(User.name === null){
+            console.error("Cannot respond to gam_start when the user is null = logged out");
+            return;
+        }
         // Should be logged after 'join' is sent to server
         room = data.room;
         console.log(`Game starting in room ${data.room} between these two players:`, data);
         resetGame();
-        mySymbol = data.symbols[User.name as string];
+        mySymbol = data.symbols[User.name];
         otherPlayer = Object.keys(data.symbols).filter((value) => value != User.name)[0];
         console.log("other player is", otherPlayer);
 
@@ -193,10 +201,13 @@
 
     function onMove(rowIndex: number, columnIndex: number, naTahu: "X" | "O"){
         console.log(`detected move of ${naTahu} to ${rowIndex}, ${columnIndex} from local player to send to server`);
+        if(User.name === null){
+            throw Error("Tady už určitě nesmí být User null, z funkce onMove, která posílá tah");
+        }
         socket.emit("move", {
             room: room,
             move: [rowIndex, columnIndex],
-            username: (User.name as string), //TODO: mozna hodit vyjimu, kdyby nahodou tady User.name byl null //z localstorage siece User.name muze byt null, ale verim ze se to tady nestane (ze se uz nastavi z registrovaní / přihlášení)
+            username: User.name,
             symbol: naTahu
         });
         switchTimer();

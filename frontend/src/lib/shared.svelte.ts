@@ -424,6 +424,9 @@ interface updateEloPost {
     is_draw?: boolean
 }
 export async function updateElo(winnerUsername: string, defeatedUsername: string, draw: boolean){
+    if(winnerUsername === null || winnerUsername === undefined || defeatedUsername === null || defeatedUsername === undefined){
+        throw Error("winnerUsername and defeatedUsername must be specified even in case of a draw");
+    }
     let postBody: updateEloPost = {
         winner_username: winnerUsername,
         defeated_username: defeatedUsername

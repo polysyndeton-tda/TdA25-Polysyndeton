@@ -28,7 +28,13 @@
         if(checkVictory(rowIndex, columnIndex, symbol)){
             console.log(`${symbol} wins!`);
             isVictory = true;
-            updateElo((User.name as string), (opponentUsername as string), false).catch(e => {
+            if(User.name === null){
+                throw Error("Z makeProgrammaticMove nemůže být User.name null");
+            }
+            if(opponentUsername === undefined){
+                throw Error("Z makeProgrammaticMove nemůže být opponentUsername null");
+            }
+            updateElo(User.name, opponentUsername, false).catch(e => {
                 console.error(e);
                 //shouldn't happen at all, so this non fancy alert is sufficient
                 alert(e);
