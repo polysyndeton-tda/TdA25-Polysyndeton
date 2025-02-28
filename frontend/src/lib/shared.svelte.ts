@@ -273,6 +273,9 @@ class UserState implements Partial<NullableUserProperties>{
             if(request.status == 401){
                 throw Error("Zkontrolujte, zda jste v hesle nenapsali překlep.");
             }
+            if(request.status == 403){
+                throw Error("Uživatel je zablokován, není možné se přihlásit.");
+            }
         }
     }
 
