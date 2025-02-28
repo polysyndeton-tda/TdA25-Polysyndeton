@@ -102,7 +102,7 @@
     socket.on('match_found', (data: MatchFoundData) => {
         // Show invitation dialog
         console.log(`Match found from ${data.opponent} at room ${data.room}. I'm playing symbol ${data.symbol}`);
-        socket.emit('join', {username: data.opponent, room: data.room});
+        socket.emit('join', {username: User.name, room: data.room});
     });
 
     let mySymbol: "X" | "O" = $state("X");

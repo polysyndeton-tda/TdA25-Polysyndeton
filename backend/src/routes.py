@@ -115,6 +115,8 @@ def matchmaking_request():
 
     with matchmaking_lock:
         matchmaking.add_user(queried_user)
+        if queried_user in q:
+            q.delete(queried_user)
         q.append(queried_user)
 
     return jsonify({"message": "Added to matchmaking queue"}), 200
