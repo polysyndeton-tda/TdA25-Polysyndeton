@@ -2,6 +2,7 @@
 	import '../app.css';
 	import Login from '$lib/Login.svelte';
 	import { gameInfo, resetGame, User } from '$lib/shared.svelte.ts';
+  import { page } from '$app/state';
 	let { children } = $props();
 	let showLoginPopup = $state(false);
 
@@ -21,6 +22,9 @@
 <link rel="stylesheet" href="/fontawesome/css/all.css">
 
 <svelte:window on:click={handleClickOutside}/>
+<!-- <h1>
+  {page.url.pathname}
+</h1> -->
 <nav>
 	<!-- TODO: Fix Think different text and Game text to be aligned vertically -->
 	<a aria-label="Think different academy homepage" href="/">
@@ -39,7 +43,11 @@
   
 	<!-- The login button and menu -->
 	{#if !User.loggedIn}
-	  <button onclick={() => showLoginPopup = true} class="right">Přihlásit se</button>
+    {#if page.url.pathname == "/multiplayer/match"}
+      <a href="/login" class="button">Přihlásit se</a>
+    {:else}
+      <button onclick={() => showLoginPopup = true} class="right">Přihlásit se</button>
+    {/if}
 	{:else}
 	  <div class="dropdown right">
     {#if User.isAdmin}

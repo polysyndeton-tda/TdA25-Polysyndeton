@@ -126,7 +126,9 @@
         {@render login(true, true)}
     </div>
 {:else}
-    {@render login(false, false)}
+    <div style="display: flex;justify-content: center;">
+        {@render login(false, true)}
+    </div>
 {/if}
 
 {#if errorHappened}
