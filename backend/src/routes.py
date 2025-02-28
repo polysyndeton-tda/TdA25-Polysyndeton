@@ -1,6 +1,7 @@
 from src import app, db, socketio
 from flask import jsonify, send_from_directory, request
 from datetime import datetime, timezone, timedelta
+import random
 
 from src.models import Game, User
 from src.utils import (
@@ -38,10 +39,85 @@ def after_request(response):
 matchmaking_lock = BoundedSemaphore()
 active_rooms_lock = BoundedSemaphore()
 friendly_sessions_lock = BoundedSemaphore()
+freeplay_rooms_lock = BoundedSemaphore()
 matchmaking = SortedUsers()
 q = deque()
 active_rooms = {}
 friendly_sessions = {}
+freeplay_rooms = {}
+
+def generate_unique_code():
+    while True:
+        code = str(random.randint(100000, 999999))
+        if code not in freeplay_rooms:
+            return code
+
+@app.route("/api/v1/freeplay/create", methods=["POST"])
+def create_freeplay_game():
+    code = generate_unique_code()
+    with freeplay_rooms_lock:
+        freeplay_rooms[code] = {
+            "players": {},
+            "status": "waiting"
+        }
+    return jsonify({"message": "Freeplay game created", "code": code}), 200
+
+@socketio.on("join_freeplay")
+def on_join_freeplay(data):
+    code = data["code"]
+    username = data["username"]
+    with freeplay_rooms_lock:
+        if code not in freeplay_rooms:
+            emit("error", {"message": "Invalid game code"}, room=request.sid)
+            return
+        if len(freeplay_rooms[code]["players"]) >= 2:
+            emit("error", {"message": "Room is full"}, room=request.sid)
+            return
+
+        freeplay_rooms[code]["players"][request.sid] = username
+        join_room(code)
+        emit("joined_freeplay", {"code": code, "username": username}, room=request.sid)
+
+        if len(freeplay_rooms[code]["players"]) == 1:
+            emit("waiting_for_opponent", {"code": code}, room=code)
+        elif len(freeplay_rooms[code]["players"]) == 2:
+            freeplay_rooms[code]["status"] = "playing"
+
+            players = list(freeplay_rooms[code]["players"].values())
+            symbols = {
+                players[0]: "X",
+                players[1]: "O"
+            }
+
+            emit("game_start", {
+                "code": code,
+                "symbols": symbols
+            }, room=code)
+
+            print(f"Game started in room {code} with symbols: {symbols}")
+
+@socketio.on("move_freeplay")
+def handle_move_freeplay(data):
+    code = data["code"]
+    move = data["move"]
+    username = data["username"]
+    symbol = data["symbol"]
+    if code in freeplay_rooms:
+        emit("move", {"move": move, "username": username, "symbol": symbol}, room=code, include_self=False)
+
+@socketio.on("disconnect_freeplay")
+def handle_disconnect_freeplay():
+    with freeplay_rooms_lock:
+        for code, room_data in freeplay_rooms.items():
+            if request.sid in room_data["players"]:
+                username = room_data["players"][request.sid]
+                del room_data["players"][request.sid]
+
+                emit("opponent_disconnected", {"message": f"{username} has disconnected"}, room=code)
+
+                if not room_data["players"]:
+                    del freeplay_rooms[code]
+                break
 
 @app.route("/api/v1/elo", methods=["POST"])
 def update_elo():
@@ -283,6 +359,7 @@ def handle_move(data):
 
 @socketio.on("disconnect")
 def handle_disconnect():
+    handle_disconnect_freeplay() 
     for room, players in active_rooms.items():
         if request.sid in players:
             username = players[request.sid]

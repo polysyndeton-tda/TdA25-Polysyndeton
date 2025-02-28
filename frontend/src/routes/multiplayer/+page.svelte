@@ -3,6 +3,7 @@
     <div class="centerBox"> 
     <a class="button" href="multiplayer/friendly">Friendly hra</a>
     <a class="button" href="multiplayer/match">Kompetitivní hra</a>
+    <a class="button" href="multiplayer/freeplay">Freeplay hra</a>
     </div>
 </div>
 
