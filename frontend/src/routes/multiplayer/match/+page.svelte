@@ -224,14 +224,14 @@
                 <p>Hra nezačiná?</p>
                 <button onclick={() => window.location.reload()}>Načíst znova</button>
             {:else if status == "Game started"}
-        <div class="timers">
-            <div class="timer" class:active={currentPlayerTimer === mySymbol}>
-                <span>Váš čas: {formatTime(mySymbol === "X" ? player1Time : player2Time)}</span>
-            </div>
-            <div class="timer" class:active={currentPlayerTimer !== mySymbol}>
-                <span>Čas soupeře: {formatTime(mySymbol === "X" ? player2Time : player1Time)}</span>
-            </div>
-        </div>
+                <div class="timers">
+                    <div class="timer" class:active={currentPlayerTimer === mySymbol}>
+                        <span>Váš čas: {formatTime(mySymbol === "X" ? player1Time : player2Time)}</span>
+                    </div>
+                    <div class="timer" class:active={currentPlayerTimer !== mySymbol}>
+                        <span>Čas soupeře: {formatTime(mySymbol === "X" ? player2Time : player1Time)}</span>
+                    </div>
+                </div>
                 <Board bind:this={boardComponent} boardApiInfo={gameInfo.apiResponse} mode="multiplayer" allowedPlayer={mySymbol} onMove={onMove} opponentUsername={otherPlayer}/>
             {/if}
         {:else}
