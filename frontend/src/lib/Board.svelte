@@ -235,10 +235,12 @@
 {/if}
 
 <h2 style="display: flex;justify-content: center;gap: 10px;">
+    {#if mode == "multiplayer"}
     <div>
         Hrajete za <span class="player {allowedPlayer}">{allowedPlayer}</span>
     </div>
     |
+    {/if}
     <div>
         Na tahu je <span class="player {naTahu}">{naTahu}</span>
     </div>
