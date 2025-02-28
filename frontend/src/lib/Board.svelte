@@ -227,6 +227,13 @@
     $inspect(naTahu);
 </script>
 <p>{naTahu} {allowedPlayer} {allowedClickOnBoardOnThisClient}</p>
+
+{#if isVictory && !boardWonAlready}
+    <h2 class="toast">Hráč <span class="player {naTahu}">{naTahu}</span> vyhrál!</h2>
+{:else if isVictory && boardWonAlready}
+    <h2 class="toast">Dorazila vyřešená úloha, hráč <span class="player {whoWon}">{whoWon}</span> vyhrál!</h2>
+{/if}
+
 <h2 style="display: flex;justify-content: center;gap: 10px;">
     <div>
         Hrajete za <span class="player {allowedPlayer}">{allowedPlayer}</span>
@@ -251,12 +258,6 @@
         </div>
     {/each}
 </div>
-
-{#if isVictory && !boardWonAlready}
-    <h2 class="toast">Hráč <span class="player {naTahu}">{naTahu}</span> vyhrál!</h2>
-{:else if isVictory && boardWonAlready}
-    <h2 class="toast">Dorazila vyřešená úloha, hráč <span class="player {whoWon}">{whoWon}</span> vyhrál!</h2>
-{/if}
 
 <style>
     .player{
