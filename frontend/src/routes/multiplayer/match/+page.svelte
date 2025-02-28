@@ -215,8 +215,14 @@
         {#if User.loggedIn}
             {#if status == "Added to matchmaking queue"}
                 <p>Čeká se na spoluhráče...</p>
+                <hr>
+                <p>Hra nezačiná?</p>
+                <button onclick={() => window.location.reload()}>Načíst znova</button>
             {:else if status == "Initial"}
                 <p>Načítání...</p>
+                <hr>
+                <p>Hra nezačiná?</p>
+                <button onclick={() => window.location.reload()}>Načíst znova</button>
             {:else if status == "Game started"}
         <div class="timers">
             <div class="timer" class:active={currentPlayerTimer === mySymbol}>
@@ -244,9 +250,11 @@
 {/if}
 
 {#if showLoginPopup}
-  <Login bind:show={showLoginPopup}/>
+  <!-- it seems like window.location reload does not reload the page when called from components in Svelte -->
+  <Login bind:show={showLoginPopup} reloadPageAfterSuccess={true}/>
 {/if}
 
 {#if showRegisterPopup}
-  <Login bind:show={showRegisterPopup} mode="register"/>
+    <!-- callbackAfterSuccess={() => window.location.reload()} -->
+  <Login bind:show={showRegisterPopup} mode="register" reloadPageAfterSuccess={true}/>
 {/if}
