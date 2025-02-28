@@ -62,11 +62,11 @@
             user_uuid: User.uuid
         }
     });
-
-    let player1Time = $state(5 * 60);
-    let player2Time = $state(5 * 60);
+    const minutesPerPlayerPerGame = 8;
+    let player1Time = $state(minutesPerPlayerPerGame * 60);
+    let player2Time = $state(minutesPerPlayerPerGame * 60);
     let currentPlayerTimer = $state<"X" | "O">("X");
-    let timerInterval = $state<NodeJS.Timeout | null>(null);
+    let timerInterval = $state<number | null>(null);
     let gameActive = $state(false);
 
     function formatTime(seconds: number): string {
