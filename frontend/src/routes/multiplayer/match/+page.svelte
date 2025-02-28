@@ -215,9 +215,6 @@
         });
         switchTimer();
     }
-
-    let showLoginPopup = $state(false);
-    let showRegisterPopup = $state(false);
 </script>
 
 <div>
@@ -251,9 +248,9 @@
         {:else}
             <hr>
             <div class="center">
-                <h2>Pro tento typ hry je potřeba <button onclick={() => showLoginPopup = true}>Se přihlásit</button> </h2>
-                <h2>Jinak si můžete zahrát <a href="../multiplayer/friendly">přátelskou (nehodnocenou) hru</a></h2>
-                <h2>Nemáte účet? <button onclick={() => showRegisterPopup = true}>Registrovat</button></h2> 
+                <h2>Pro tento typ hry je potřeba <a data-sveltekit-reload href="../login">Se přihlásit</a> </h2>
+                <h2>Jinak si můžete zahrát <a data-sveltekit-reload href="../multiplayer/friendly">přátelskou (nehodnocenou) hru</a></h2>
+                <h2>Nemáte účet? <a data-sveltekit-reload href="../register">Registrovat</a></h2> 
             </div>
         {/if}
     </div>
@@ -261,14 +258,4 @@
 
 {#if showError}
     <Alert bind:show={showError}>{errorMessage}</Alert>
-{/if}
-
-{#if showLoginPopup}
-  <!-- it seems like window.location reload does not reload the page when called from components in Svelte -->
-  <Login bind:show={showLoginPopup} reloadPageAfterSuccess={false}/>
-{/if}
-
-{#if showRegisterPopup}
-    <!-- callbackAfterSuccess={() => window.location.reload()} -->
-  <Login bind:show={showRegisterPopup} mode="register" reloadPageAfterSuccess={false}/>
 {/if}

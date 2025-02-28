@@ -364,6 +364,8 @@ def hello():
 @app.route("/admin")
 @app.route("/gdpr")
 @app.route("/contacts")
+@app.route("/register")
+@app.route("/login")
 def serveSPA(game_uuid=None):  # game_uuid=None parameter needed to not throw an exception
     return send_from_directory(app.static_folder, "index.html")
 
