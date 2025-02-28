@@ -230,6 +230,10 @@ def on_join(data):
 
     uuid1, uuid2 = uuid_from_roomname(room)
 
+    if uuid1 == uuid2:
+        emit("error", {"message": "Invalid room configuration"}, room=data["room"])
+        return
+
     player1 = User.query.filter_by(uuid=uuid1).first()
     player2 = User.query.filter_by(uuid=uuid2).first()
 
@@ -310,6 +314,9 @@ def matchmaking_loop():
                 else:
                     matchmaking.remove_user(player1)
                     matchmaking.remove_user(player2)
+
+                    if player1.uuid == player2.uuid:
+                        continue
 
                     if player2 in q:
                         q.remove(player2)
