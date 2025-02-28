@@ -94,7 +94,7 @@
                                 callbackAfterSuccess();
                             }
                             if(reloadPageAfterSuccess){
-                                window.location.reload();
+                                window.location.href = "/multiplayer/match";
                             }
                         })  
                         .then(() => {if(!errorHappened) close()});
@@ -110,7 +110,8 @@
                                 callbackAfterSuccess();
                             }
                             if(reloadPageAfterSuccess){
-                                window.location.reload();
+                                // window.location.reload();
+                                window.location.href = "/multiplayer/match";
                             }
                         }).then(() => {if(!errorHappened) close()});
                         }}>Registrovat</button>
