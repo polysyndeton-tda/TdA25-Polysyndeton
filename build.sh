@@ -25,7 +25,7 @@ npm run dev & #& means run in background
 
 echo $(pwd)
 rm -rf ../backend/static/* #same with the backend static folder (there were issues before)
-cp -a ./build/. ../backend/static
+cp -a /build/. ../backend/static
 
 #Restore doesn't work - the frontend somehow picks up on it (probably live reload)
 #So instead modify .env here and modify it in buildRunDocker.sh)
