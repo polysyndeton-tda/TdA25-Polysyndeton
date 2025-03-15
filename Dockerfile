@@ -16,4 +16,7 @@ COPY backend/ backend/
 COPY --from=frontend-build /app/frontend/build /app/backend/static
 
 EXPOSE 5000
+#For making Flask not ignore print from @app.route
+# https://stackoverflow.com/a/57254931/11844784 from https://stackoverflow.com/questions/32550487/how-to-print-from-flask-app-route-to-python-console
+ENV PYTHONUNBUFFERED=1
 CMD ["python", "backend/main.py"]
