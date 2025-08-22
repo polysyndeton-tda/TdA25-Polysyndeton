@@ -6,11 +6,14 @@
         show?: boolean,
         mode?: "login" | "register",
         floating?: boolean,
-        showRegisterLink?: boolean,
-        callbackAfterSuccess?: Function,
         reloadPageAfterSuccess?: boolean
     }
-    let { show = $bindable(), mode = $bindable("login"), floating = true, showRegisterLink = true, callbackAfterSuccess, reloadPageAfterSuccess = false}: LoginProps = $props();
+    let {
+        show = $bindable(),
+        mode = $bindable("login"),
+        floating = true,
+        reloadPageAfterSuccess = false
+    }: LoginProps = $props();
 
     let userNameField: HTMLInputElement;
     function addFocus(node: HTMLInputElement){
@@ -90,14 +93,15 @@
                         User.login(username, password).catch(err => {
                             registerOrLoginError = err;
                             errorHappened = true;
-                            if(callbackAfterSuccess){
-                                callbackAfterSuccess();
+                        })
+                        .then(() => {
+                            if(!errorHappened){
+                                close();
+                                if(reloadPageAfterSuccess){
+                                    window.location.href = "/multiplayer/match";
+                                }
                             }
-                            if(reloadPageAfterSuccess){
-                                window.location.href = "/multiplayer/match";
-                            }
-                        })  
-                        .then(() => {if(!errorHappened) close()});
+                        });
                         User.name = username;
                         localStorage.setItem("username", username);
                         }}>Přihlásit</button>
@@ -105,15 +109,16 @@
                     <button class="ok" onclick={() => {
                         User.signUp(username, email, password).catch(err => {
                             errorHappened = true;
-                            registerOrLoginError = err;
-                            if(callbackAfterSuccess){
-                                callbackAfterSuccess();
-                            }
-                            if(reloadPageAfterSuccess){
-                                // window.location.reload();
-                                window.location.href = "/multiplayer/match";
-                            }
-                        }).then(() => {if(!errorHappened) close()});
+                            registerOrLoginError = err;                            
+                        }).then(() => {
+                            if(!errorHappened){
+                                close();
+                                if(reloadPageAfterSuccess){
+                                    // window.location.reload();
+                                    window.location.href = "/multiplayer/match";
+                                }
+                            };
+                        });
                         }}>Registrovat</button>
                 {/if}
             </div>

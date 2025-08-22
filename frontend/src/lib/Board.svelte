@@ -232,7 +232,6 @@
 
     $inspect(naTahu);
 </script>
-<!-- <p>{naTahu} {allowedPlayer} {allowedClickOnBoardOnThisClient}</p> -->
 
 {#if isVictory && !boardWonAlready}
     <h2 class="toast">Hráč <span class="player {naTahu}">{naTahu}</span> vyhrál!</h2>
@@ -319,5 +318,3 @@
        }
     }
 </style>
-
-<!-- <img alt="n" src="{"./favicon.png"}"> -->
