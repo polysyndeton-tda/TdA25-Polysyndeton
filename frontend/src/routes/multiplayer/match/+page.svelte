@@ -1,7 +1,6 @@
 <script lang="ts">
     import { PUBLIC_API_BASE_URL } from '$env/static/public';
     import Alert from '$lib/Alert.svelte';
-    import Login from '$lib/Login.svelte';
     import { User, resetGame, gameInfo } from "$lib/shared.svelte"
     import { io, Socket } from 'socket.io-client';
     import Board from '$lib/Board.svelte';
@@ -26,9 +25,19 @@
        symbol: "X" | "O";      // Player's symbol
     }
 
-   interface OpponentDisconnectedData {
+    interface OpponentDisconnectedData {
        message: string;    // Disconnect message
-   }
+    }
+
+    interface JoinData {
+        username: string,
+        room: string
+    }
+
+    interface TimeoutData {
+        room: string;
+        winner: "X" | "O";
+    }
 
     interface ServerToClientEvents {
         match_found: (data: MatchFoundData) => void,
@@ -37,14 +46,10 @@
         opponent_disconnected: (data: OpponentDisconnectedData) => void
     }
 
-    interface JoinData {
-        username: string,
-        room: string
-    }
-
     interface ClientToServerEvents {
         join: (data: JoinData) => void,
         move: (data: MoveData) => void,
+        timeout: (data: TimeoutData) => void,
     }
 
     // Connection
@@ -67,7 +72,7 @@
     let player1Time = $state(minutesPerPlayerPerGame * 60);
     let player2Time = $state(minutesPerPlayerPerGame * 60);
     let currentPlayerTimer = $state<"X" | "O">("X");
-    let timerInterval = $state<number | null>(null);
+    let timerInterval = $state<number | NodeJS.Timeout | null>(null); //it is a number as this is not called in node.js context, but adding to appease TS
     let gameActive = $state(false);
 
     function formatTime(seconds: number): string {

@@ -1,8 +1,8 @@
-<script>
+<script lang="ts">
     import { scale } from 'svelte/transition';
     let { show = $bindable(), children, okCallback } = $props();
 
-    function addFocus(node){
+    function addFocus(node: HTMLButtonElement){
         node.focus();
     }
 
