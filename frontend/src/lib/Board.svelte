@@ -246,10 +246,16 @@
         Hrajete za <span class="player {allowedPlayer}">{allowedPlayer}</span>
     </div>
     |
+    {#if naTahu == allowedPlayer}
+        Jste na tahu!
+    {:else}
+        Na tahu je protihráč.
     {/if}
-    <div>
-        Na tahu je <span class="player {naTahu}">{naTahu}</span>
-    </div>
+    {:else}
+        <div>
+            Na tahu je <span class="player {naTahu}">{naTahu}</span>
+        </div>
+    {/if}
 </h2>
 <div class="grid">
     {#each boardApiInfo.board as row, rowIndex}
