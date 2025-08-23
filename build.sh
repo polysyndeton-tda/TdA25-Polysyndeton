@@ -5,11 +5,8 @@
 cleanup() {
     echo "Cleaning up..."
 
-    #sometimes they do kill processes..
-    npx kill-port 5173
-    npx kill-port 5000
-    
-    pkill -P $$
+    # https://superuser.com/questions/543915/whats-a-reliable-technique-for-killing-background-processes-on-script-terminati
+    kill -- -$$
 }
 
 # Setup trap to execute cleanup function on script exit
