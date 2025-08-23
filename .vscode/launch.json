@@ -1,0 +1,40 @@
+{
+	"version": "0.2.0",
+	"configurations": [
+		{
+			"name": "Launch client",
+			"request": "launch",
+			"runtimeArgs": ["run", "dev"],
+			"runtimeExecutable": "npm",
+			"skipFiles": ["<node_internals>/**"],
+			"type": "node",
+			"console": "integratedTerminal",
+			"cwd": "${workspaceFolder}/frontend"
+		},
+
+		{
+			"type": "chrome",
+			"request": "launch",
+			"name": "Launch browser",
+			"url": "http://127.0.0.1:5173",
+			"webRoot": "${workspaceFolder}/backend"
+		},
+
+		{
+			"name": "Launch server",
+			"type": "python",
+			"request": "launch",
+			"program": "${workspaceFolder}/backend/main.py",
+			"env": {
+				"PUBLIC_API_BASE_URL": "http://localhost:5000/api/v1",
+				"GEVENT_SUPPORT": "True"
+			}
+		}
+	],
+	"compounds": [
+		{
+			"name": "Both",
+			"configurations": ["Launch server", "Launch client", "Launch browser"]
+		}
+	]
+}
