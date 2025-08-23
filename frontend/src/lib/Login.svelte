@@ -2,18 +2,18 @@
     import { scale, slide, fade } from 'svelte/transition';
     import { User } from '$lib/shared.svelte.ts';
     import Alert from './Alert.svelte';
-    
+
     type LoginProps = {
         show?: boolean,
         mode?: "login" | "register",
         floating?: boolean,
-        reloadPageAfterSuccess?: boolean
+        onSuccess?: Function,
     }
     let {
         show = $bindable(),
         mode = $bindable("login"),
         floating = true,
-        reloadPageAfterSuccess = false
+        onSuccess,
     }: LoginProps = $props();
 
     let userNameField: HTMLInputElement;
@@ -142,29 +142,38 @@
                         .then(() => {
                             if(!errorHappened){
                                 close();
-                                if(reloadPageAfterSuccess){
-                                    window.location.href = "/multiplayer/match";
-                                }
+                                if(onSuccess) onSuccess();
                             }
                         });
                         User.name = username;
                         localStorage.setItem("username", username);
                         }}>Přihlásit</button>
                 {:else}
-                    <button class="ok" onclick={() => {
-                        User.signUp(username, email, password).catch(err => {
-                            errorHappened = true;
-                            registerOrLoginError = err;                            
-                        }).then(() => {
-                            if(!errorHappened){
-                                close();
-                                if(reloadPageAfterSuccess){
-                                    // window.location.reload();
-                                    window.location.href = "/multiplayer/match";
-                                }
-                            };
-                        });
-                        }}>Registrovat</button>
+
+                    <!--
+                    Before the form implicit submission removal (event.preventDefault() on the submit event),
+                    this button removed the returnedURL query parameter from the URL and the redirect did not work
+                    (by the time onSuccess was called it was null)
+                    
+                    <button>SURELY DOES NOTHING</button>
+
+                    For more info, see previous commit a481f4cb3d9d1060d20cb2557ecd95ae4aea05a6
+                    -->
+
+                    <button class="ok" onclick={
+                        () => {
+                            User.signUp(username, email, password).catch(err => {
+                                errorHappened = true;
+                                registerOrLoginError = err;                            
+                            }).then(() => {
+                                if(!errorHappened){
+                                    close();
+                                    if(onSuccess) onSuccess();
+                                };
+                            });
+                        }}    
+                        >Registrovat
+                    </button>
                 {/if}
             </div>
         </form>

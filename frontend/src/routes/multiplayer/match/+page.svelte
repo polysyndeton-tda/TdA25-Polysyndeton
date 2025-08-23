@@ -253,9 +253,9 @@
         {:else}
             <hr>
             <div class="center">
-                <h2>Pro tento typ hry je potřeba <a data-sveltekit-reload href="../login">Se přihlásit</a> </h2>
+                <h2>Pro tento typ hry je potřeba <a data-sveltekit-reload href={`../login?returnURL=${encodeURIComponent("/multiplayer/match")}`}>Se přihlásit</a> </h2>
                 <h2>Jinak si můžete zahrát <a data-sveltekit-reload href="../multiplayer/friendly">přátelskou (nehodnocenou) hru</a></h2>
-                <h2>Nemáte účet? <a data-sveltekit-reload href="../register">Registrovat</a></h2> 
+                <h2>Nemáte účet? <a data-sveltekit-reload href={`../register?returnURL=${encodeURIComponent("/multiplayer/match")}`}>Registrovat</a></h2> 
             </div>
         {/if}
     </div>
