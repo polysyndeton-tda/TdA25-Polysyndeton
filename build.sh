@@ -4,7 +4,8 @@
 # Function to kill background processes
 cleanup() {
     echo "Cleaning up..."
-    pkill -f "npm run dev"
+    #kdyztak npx kill-port 5173, ale vypada to, ze kdyz jsem odstanil pkill na npm run dev,
+    #tak to zacalo fungovat
     pkill -P $$
 }
 
@@ -36,5 +37,4 @@ cp -a /build/. ../backend/static
 cd ../backend
 pip install --no-cache-dir -r requirements.txt --break-system-packages
 
-export FLASK_APP=main.py
-flask run
+python3 main.py
