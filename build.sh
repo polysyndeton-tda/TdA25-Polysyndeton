@@ -4,8 +4,11 @@
 # Function to kill background processes
 cleanup() {
     echo "Cleaning up..."
-    #kdyztak npx kill-port 5173, ale vypada to, ze kdyz jsem odstanil pkill na npm run dev,
-    #tak to zacalo fungovat
+
+    #sometimes they do kill processes..
+    npx kill-port 5173
+    npx kill-port 5000
+    
     pkill -P $$
 }
 
