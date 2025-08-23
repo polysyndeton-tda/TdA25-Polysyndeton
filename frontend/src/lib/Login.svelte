@@ -2,6 +2,7 @@
     import { scale, slide, fade } from 'svelte/transition';
     import { User } from '$lib/shared.svelte.ts';
     import Alert from './Alert.svelte';
+    
     type LoginProps = {
         show?: boolean,
         mode?: "login" | "register",
@@ -33,7 +34,49 @@
 
 {#snippet login(showCloseButton: boolean, showRegisterLink: boolean)}
     <div class="popup">
-        <form>
+        <!-- 
+        There was an implicit submission of a form going on.
+        Basically although no button was made to specifically HTML submit the form,
+        it was still being submitted the HTML way in addition to my JS fetch code.
+
+        Basically two separate requests for POST http://localhost:5000/api/v1/login
+        both HTTP 200 response,
+        both with identical Request data and identical size (483 bytes, 741 bytes transferred)
+
+        {"username":"Petr","password":"SG32#G)eXSGqf:G"}
+
+        But of course different tokens in response (= a new one generated for every login API call)
+
+        In Devtools, one of them had the initiator "fetch" 
+        and the other one had a clickable link to "BBHbRatr.js:1 (fetch)" which revealed a stack frame: click handler => login => window.fetch
+
+        More info on it: https://stackoverflow.com/questions/71133244/form-submitted-implicitly-even-when-there-are-other-input-element
+
+        => since both works (HTTP 200, valid response with auth token),
+        it may be possible to remove either:
+            - login function with fetch call in JS
+            - the form submit, with event.preventDefault()
+
+        => removing the latter is preferred, as there is this bug: 
+        
+        Any URL query parameters are stripped after the form is submitted
+        https://stackoverflow.com/questions/65973870/form-submission-for-get-strips-query-params
+        It doesn't matter if those came from "name" attributes of the form
+        or my idea of handling redirects from dedicated login/register pages back to the match page
+
+
+        The only way I noticed this "implicit submission" was when I added the "name" attribute to an <input>
+        in an attempt to make email autocomplete work (it of course doesn't - has nothing to do with that)
+
+        => As a result query parameter pairs (name attribute value = input value) appeared in the document.href (not just any sort of form url)
+           (because this is default for GET in forms, which is the default submission mode)
+            => although network shows only POST submission? 
+                =>  Maybe some SvelteKit magic going on with query params in the url
+                    being added based on "name" attributes of inputs in the form (if any have the "name" attribute)
+                    => if NO inputs have the "name" attribute than an "empty set of query parameters" could get appended
+                           => which could manifest as ALL query params (from any sources, even if NONE were from the form) being removed upon form submission
+        -->
+        <form onsubmit={(event) => event.preventDefault()}>
             <div class="title">
                 <div class="top-bar">
                     {#if mode == "login"}
@@ -52,6 +95,7 @@
                                 <label for="username">Uživatelské jméno:</label>
                             </td>
                             <td>
+                                <!-- name="username"  -->
                                 <input use:addFocus bind:this={userNameField} bind:value={username} id="username" type="username">
                             </td>
                         </tr>
@@ -61,7 +105,8 @@
                                     <label for="email">E-mail:</label>
                                 </td>
                                 <td>
-                                    <input bind:value={email} id="email" type="email">
+                                    <!-- name="email" -->
+                                    <input autocomplete="email" bind:value={email} id="email" type="email">
                                 </td>
                             </tr>
                         {/if}
