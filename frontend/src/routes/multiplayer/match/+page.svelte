@@ -2,72 +2,80 @@
     import { PUBLIC_API_BASE_URL } from '$env/static/public';
     import Alert from '$lib/Alert.svelte';
     import { User, resetGame, gameInfo } from "$lib/shared.svelte"
-    import { io, Socket } from 'socket.io-client';
     import Board from '$lib/Board.svelte';
     import { beforeNavigate } from '$app/navigation';
+    import { SocketHandler } from './socketHandler';
+
     const api_url = PUBLIC_API_BASE_URL || 'https://odevzdavani.tourdeapp.cz/mockbush/api/v1/';
     let boardComponent: any; //reference to call functions exported from that component
-    interface MatchFoundData {
-        opponent: string;
-        room: string;
-        symbol: "X" | "O"
-    }
-
-    interface GameStartData {
-        room: string;
-        symbols: {[username: string]: "X" | "O"}; //If I wanted, I could move [player: string]: "X" | "O" or [key: string]: string; to a seperate interface Symbols
-    }
-
-    interface MoveData {
-       room: string;           // Room identifier
-       move: [number, number]; // x, y coordinates
-       username: string;       // Player's username
-       symbol: "X" | "O";      // Player's symbol
-    }
-
-    interface OpponentDisconnectedData {
-       message: string;    // Disconnect message
-    }
-
-    interface JoinData {
-        username: string,
-        room: string
-    }
-
-    interface TimeoutData {
-        room: string;
-        winner: "X" | "O";
-    }
-
-    interface ServerToClientEvents {
-        match_found: (data: MatchFoundData) => void,
-        game_start: (data: GameStartData) => void,
-        move: (data: MoveData) => void,
-        opponent_disconnected: (data: OpponentDisconnectedData) => void
-    }
-
-    interface ClientToServerEvents {
-        join: (data: JoinData) => void,
-        move: (data: MoveData) => void,
-        timeout: (data: TimeoutData) => void,
-    }
+    let socketHandler: SocketHandler | undefined
 
     // Connection
-    let socketioHostUrl = "http://localhost:5000";
-    let isProduction = document.location.hostname.includes("tourde.app") || document.location.protocol == 'https:';
-    console.log("isProduction", isProduction);
-    if(isProduction){
-        socketioHostUrl = document.location.hostname; //without 5000
-        console.log("socketioHostUrl changed to", socketioHostUrl);
-    }
-    console.log("socketioHostUrl is", socketioHostUrl);
-    const socket: Socket<ServerToClientEvents, ClientToServerEvents> = io(socketioHostUrl, { //for deploy **probably** document.location.hostname without the port
-		path: "/socket.io/",
-		transports: ["websocket"],
-        query: {
-            user_uuid: User.uuid
+    if(User.loggedIn){
+        let socketioHostUrl = "http://localhost:5000";
+        let isProduction = document.location.hostname.includes("tourde.app") || document.location.protocol == 'https:';
+        console.log("isProduction", isProduction);
+        if(isProduction){
+            socketioHostUrl = document.location.hostname; //without 5000
+            console.log("socketioHostUrl changed to", socketioHostUrl);
         }
-    });
+        console.log("socketioHostUrl is", socketioHostUrl);
+
+        socketHandler = new SocketHandler(
+            socketioHostUrl,
+            //callbacks for these server sent events
+            {
+                match_found(data){
+                    return;
+                },
+                game_start(data){
+                    if(User.name === null){
+                        console.error("Cannot respond to gam_start when the user is null = logged out");
+                        return;
+                    }
+                    // Should be logged after 'join' is sent to server
+                    room = data.room;
+                    console.log(`Game starting in room ${data.room} between these two players:`, data);
+                    resetGame();
+                    mySymbol = data.symbols[User.name];
+                    otherPlayer = Object.keys(data.symbols).filter((value) => value != User.name)[0];
+                    console.log("other player is", otherPlayer);
+
+                    player1Time = 5 * 60;
+                    player2Time = 5 * 60;
+                    gameActive = true;
+                    currentPlayerTimer = "X";
+                    startTimer();
+                    status = "Game started";
+                },
+                move(data){
+                    // Update game board
+                    console.log(`Move at ${data.move} by ${data.username}`);
+                    const [row, column] = data.move;
+                    boardComponent.makeProgrammaticMove(row, column, data.symbol);
+                    currentPlayerTimer = data.symbol === "X" ? "O" : "X";
+                    startTimer();
+                },
+                opponent_disconnected(data) {
+                    console.log("Opponent disconnected", data.message);
+                },
+            }
+        );
+
+        //The point of this is TO HANDLE THE LIFETIME of socketio listeners
+        //Before using beforeNavigate, WHEN THE USER NAVIGATED AWAY, THOSE socketio LISTENERS would STAY until CTRL SHIFT R (beause this is an SPA)
+        beforeNavigate((navigation) => {
+            if(navigation.to && navigation.to.url){
+                //else it would differentiate between "/multiplayer/match" and "/multiplayer/match#", causing a disconnect
+                if(!navigation.to.url.pathname.startsWith("/multiplayer/match")){
+                    console.log("Disconnecting because the user navigated away to", navigation.to.url.pathname);
+                    socketHandler!.disconnect(); 
+                }  
+            }
+        });
+    }
+   
+   
     const minutesPerPlayerPerGame = 8;
     let player1Time = $state(minutesPerPlayerPerGame * 60);
     let player2Time = $state(minutesPerPlayerPerGame * 60);
@@ -93,7 +101,7 @@
             if (player1Time <= 0 || player2Time <= 0) {
                 clearInterval(timerInterval!);
                 const winner = currentPlayerTimer === "X" ? "O" : "X";
-                socket.emit("timeout", { room, winner });
+                socketHandler!.emit("timeout", { room, winner });
                 gameActive = false;
             }
         }, 1000);
@@ -104,57 +112,9 @@
         startTimer();
     }
 
-
-    // Listen for events
-    socket.on('match_found', (data: MatchFoundData) => {
-        if(User.name === null){
-            console.error("Cannout send username if it is null = user not signed in");
-            return;
-        }
-        // Show invitation dialog
-        console.log(`Match found from ${data.opponent} at room ${data.room}. I'm playing symbol ${data.symbol}`);
-        socket.emit('join', {username: User.name, room: data.room});
-    });
-
     let mySymbol: "X" | "O" = $state("X");
     let room = "";
     let otherPlayer = "";
-    socket.on('game_start', (data: GameStartData) => {
-        if(User.name === null){
-            console.error("Cannot respond to gam_start when the user is null = logged out");
-            return;
-        }
-        // Should be logged after 'join' is sent to server
-        room = data.room;
-        console.log(`Game starting in room ${data.room} between these two players:`, data);
-        resetGame();
-        mySymbol = data.symbols[User.name];
-        otherPlayer = Object.keys(data.symbols).filter((value) => value != User.name)[0];
-        console.log("other player is", otherPlayer);
-
-        player1Time = 5 * 60;
-        player2Time = 5 * 60;
-        gameActive = true;
-        currentPlayerTimer = "X";
-        startTimer();
-        
-        status = "Game started";
-    });
-
-    socket.on('move', (data) => {
-        // Update game board
-        console.log(`Move at ${data.move} by ${data.username}`);
-        const [row, column] = data.move;
-        boardComponent.makeProgrammaticMove(row, column, data.symbol);
-        currentPlayerTimer = data.symbol === "X" ? "O" : "X";
-        startTimer();
-    });
-
-    socket.on('opponent_disconnected', (data) => {
-        console.log("Opponent disconnected", data.message);
-    });
-    
-    console.log("document location", document.location.hostname);
     
     
     /*Matchmaking API call section -------------------------------------------*/
@@ -185,8 +145,9 @@
         }
     }
 
-    //The point of this effect TO HANDLE THE LIFETIME OF REGISTERED LISTENERS
-    //PREVIOUSLY, WHEN THE USER NAVIGATED AWAY, THOSE LISTENERS would STAY until CTRL SHIFT R
+    //The point of this effect is TO HANDLE THE LIFETIME of addToMatchmaking queue
+    //Similarly beforeNavigate handles the lifetime of socketio events
+    //All because this is an SPA
     $effect(() => {
         if(User.loggedIn){
             console.log("Calling addToMatchMakingQueue() from effect");
@@ -196,23 +157,15 @@
         }
     });
 
-    beforeNavigate((navigation) => {
-        if(navigation.to && navigation.to.url){
-            //else it would differentiate between "/multiplayer/match" and "/multiplayer/match#", causing a disconnect
-            if(!navigation.to.url.pathname.startsWith("/multiplayer/match")){
-                console.log("Disconnecting because the user navigated away to", navigation.to.url.pathname);
-                socket.disconnect(); 
-            }  
-        }
-    });
-
-
     function onMove(rowIndex: number, columnIndex: number, naTahu: "X" | "O"){
+        if(!User.loggedIn){
+            throw new Error("Move attempted while user not logged in");
+        }
         console.log(`detected move of ${naTahu} to ${rowIndex}, ${columnIndex} from local player to send to server`);
         if(User.name === null){
             throw Error("Tady už určitě nesmí být User null, z funkce onMove, která posílá tah");
         }
-        socket.emit("move", {
+        socketHandler!.emit("move", {
             room: room,
             move: [rowIndex, columnIndex],
             username: User.name,
