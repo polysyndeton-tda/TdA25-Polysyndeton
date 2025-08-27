@@ -19,6 +19,7 @@ console_handler.setFormatter(
 )
 logger.addHandler(console_handler)
 logger.setLevel(logging.INFO)
+logging.getLogger('werkzeug').disabled = True
 
 # outside Docker, this folder ../../frontend/build works as static folder
 # however inside Docker, that relative link does not work, the directory layout is different (the build folder is still present in the Docker image though)
