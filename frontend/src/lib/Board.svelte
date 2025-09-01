@@ -6,9 +6,10 @@
         mode: "singleplayer" | "multiplayer", 
         allowedPlayer?: "X" | "O" //if mode is multiplayer, which player allow on this client
         onMove?: Function //like an event listener callback when the user makes a move (i.e. to send the move through sockets)
-        opponentUsername?: string
+        opponentUsername?: string,
+        onWin?: Function
     }
-    let { boardApiInfo, mode, allowedPlayer, onMove, opponentUsername }: BoardProps = $props();
+    let { boardApiInfo, mode, allowedPlayer, onMove, opponentUsername, onWin }: BoardProps = $props();
 
     //for delivering moves from the other player from api
     export function makeProgrammaticMove(rowIndex: number, columnIndex: number, symbol: "X" | "O"){
@@ -28,6 +29,10 @@
         if(checkVictory(rowIndex, columnIndex, symbol)){
             console.log(`${symbol} wins!`);
             isVictory = true;
+            if(onWin){
+                console.log("on win RAN");
+                onWin();
+            }
             if(User.name === null){
                 throw Error("Z makeProgrammaticMove nemůže být User.name null");
             }
@@ -219,6 +224,9 @@
 
         if (checkVictory(rowIndex, columnIndex, naTahu)) {
             console.log(`${naTahu} wins!`);
+            if(onWin){
+                onWin();
+            }
             isVictory = true;
             return;
         }

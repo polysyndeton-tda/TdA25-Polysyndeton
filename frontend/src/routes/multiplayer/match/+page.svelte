@@ -54,7 +54,11 @@
                     const [row, column] = data.move;
                     boardComponent.makeProgrammaticMove(row, column, data.symbol);
                     currentPlayerTimer = data.symbol === "X" ? "O" : "X";
-                    startTimer();
+                    console.log("move event received", timerInterval);
+                    //Do not start timer if it was stopped after win was detected
+                    if(gameActive){
+                        startTimer();
+                    }
                 },
                 opponent_disconnected(data) {
                     console.log("Opponent disconnected", data.message);
@@ -90,6 +94,7 @@
     }
 
     function startTimer() {
+        console.log("old", timerInterval);
         if (timerInterval) clearInterval(timerInterval);
         timerInterval = setInterval(() => {
             if (currentPlayerTimer === "X") {
@@ -105,11 +110,18 @@
                 gameActive = false;
             }
         }, 1000);
+        console.log("new", timerInterval);
     }
 
     function switchTimer() {
         currentPlayerTimer = currentPlayerTimer === "X" ? "O" : "X";
         startTimer();
+    }
+
+    function stopTimer(){
+        console.log("STOP TIMER RAN", timerInterval);
+        clearInterval(timerInterval as number);
+        gameActive = false;
     }
 
     let mySymbol: "X" | "O" = $state("X");
@@ -201,7 +213,7 @@
                         <span>Čas soupeře: {formatTime(mySymbol === "X" ? player2Time : player1Time)}</span>
                     </div>
                 </div>
-                <Board bind:this={boardComponent} boardApiInfo={gameInfo.apiResponse} mode="multiplayer" allowedPlayer={mySymbol} onMove={onMove} opponentUsername={otherPlayer}/>
+                <Board bind:this={boardComponent} boardApiInfo={gameInfo.apiResponse} mode="multiplayer" allowedPlayer={mySymbol} onMove={onMove} opponentUsername={otherPlayer} onWin={stopTimer}/>
             {/if}
         {:else}
             <hr>
