@@ -22,7 +22,7 @@ class SortedUsers:
         if idx > 0:
             candidates.append(self.users[idx - 1])
 
-        if idx < len(self.users):
+        if idx + 1 < len(self.users):
             candidates.append(self.users[idx + 1])
 
         candidates = [candidate for candidate in candidates if candidate != user]
