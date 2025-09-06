@@ -1,4 +1,4 @@
-FROM node:18-alpine as frontend-build
+FROM node:20-alpine AS frontend-build
 WORKDIR /app/frontend
 
 COPY frontend/ .
@@ -6,7 +6,7 @@ COPY frontend/ .
 RUN npm install
 RUN npm run build
 
-FROM python:3.10-slim
+FROM python:3.12-slim
 WORKDIR /app
 
 COPY backend/requirements.txt .
